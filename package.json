@@ -1,0 +1,40 @@
+{
+  "name": "budget-ai-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "next": "15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@prisma/client": "^6.2.0",
+    "next-auth": "^5.0.0-beta.25",
+    "zod": "^3.24.1",
+    "zustand": "^5.0.2",
+    "date-fns": "^4.1.0",
+    "recharts": "^2.15.0",
+    "lucide-react": "^0.469.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.6",
+    "@types/react-dom": "^19.0.2",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "15.1.6",
+    "prisma": "^6.2.0"
+  }
+}

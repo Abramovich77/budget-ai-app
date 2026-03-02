@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users and Authentication
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  fullName      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLogin     DateTime?
+  emailVerified Boolean   @default(false)
+  preferences   Json      @default("{}")
+
+  // Relations
+  householdMemberships HouseholdMember[]
+  accounts             Account[]
+  insights             AIInsight[]
+  notifications        Notification[]
+  activityLogs         ActivityLog[]
+}
+
+// Households (for family budgeting)
+model Household {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  settings  Json     @default("{}")
+
+  // Relations
+  members       HouseholdMember[]
+  accounts      Account[]
+  categories    Category[]
+  budgets       Budget[]
+  goals         Goal[]
+  activityLogs  ActivityLog[]
+}
+
+// Household Members (many-to-many User <-> Household)
+model HouseholdMember {
+  householdId String
+  userId      String
+  role        String // 'owner', 'admin', 'member', 'viewer'
+  joinedAt    DateTime @default(now())
+  permissions Json     @default("{}")
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([householdId, userId])
+}
+
+// Bank Accounts
+model Account {
+  id                 String    @id @default(uuid())
+  userId             String
+  householdId        String?
+  plaidAccountId     String?
+  plaidAccessToken   String? // Encrypted
+  accountType        String // 'checking', 'savings', 'credit'
+  bankName           String?
+  accountName        String?
+  currency           String    @default("USD")
+  currentBalance     Decimal   @db.Decimal(15, 2)
+  availableBalance   Decimal?  @db.Decimal(15, 2)
+  isActive           Boolean   @default(true)
+  lastSynced         DateTime?
+  createdAt          DateTime  @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  household    Household?    @relation(fields: [householdId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+  recurringTransactions RecurringTransaction[]
+}
+
+// Categories
+model Category {
+  id               String    @id @default(uuid())
+  userId           String?
+  householdId      String?
+  name             String
+  type             String // 'income', 'expense', 'transfer'
+  parentCategoryId String?
+  icon             String?
+  color            String?
+  isSystem         Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  household     Household?  @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  parentCategory Category?  @relation("CategoryTree", fields: [parentCategoryId], references: [id], onDelete: SetNull)
+  subCategories  Category[] @relation("CategoryTree")
+  transactions   Transaction[]
+  budgetItems    BudgetItem[]
+  recurringTransactions RecurringTransaction[]
+}
+
+// Transactions
+model Transaction {
+  id                 String    @id @default(uuid())
+  accountId          String
+  categoryId         String?
+  amount             Decimal   @db.Decimal(15, 2)
+  currency           String    @default("USD")
+  date               DateTime  @db.Date
+  description        String?   @db.Text
+  merchantName       String?
+  plaidTransactionId String?   @unique
+  isPending          Boolean   @default(false)
+  isRecurring        Boolean   @default(false)
+  aiCategorized      Boolean   @default(false)
+  aiConfidence       Decimal?  @db.Decimal(3, 2)
+  notes              String?   @db.Text
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  account  Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([date(sort: Desc)])
+  @@index([categoryId])
+  @@index([accountId])
+  @@index([merchantName])
+}
+
+// Budgets
+model Budget {
+  id           String    @id @default(uuid())
+  householdId  String
+  name         String
+  methodology  String // 'zero-based', '50-30-20', 'envelope'
+  periodType   String    @default("monthly") // 'weekly', 'monthly', 'annual'
+  startDate    DateTime  @db.Date
+  endDate      DateTime? @db.Date
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  household Household    @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  items     BudgetItem[]
+}
+
+// Budget Items (category allocations)
+model BudgetItem {
+  id               String  @id @default(uuid())
+  budgetId         String
+  categoryId       String
+  allocatedAmount  Decimal @db.Decimal(15, 2)
+  spentAmount      Decimal @default(0) @db.Decimal(15, 2)
+  rolloverEnabled  Boolean @default(false)
+  notes            String? @db.Text
+
+  budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([budgetId, categoryId])
+}
+
+// Financial Goals
+model Goal {
+  id            String    @id @default(uuid())
+  householdId   String
+  name          String
+  goalType      String // 'savings', 'debt', 'investment'
+  targetAmount  Decimal   @db.Decimal(15, 2)
+  currentAmount Decimal   @default(0) @db.Decimal(15, 2)
+  targetDate    DateTime? @db.Date
+  priority      Int       @default(0)
+  status        String    @default("active") // 'active', 'completed', 'paused'
+  createdAt     DateTime  @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+}
+
+// AI Insights (cached)
+model AIInsight {
+  id          String    @id @default(uuid())
+  userId      String
+  insightType String
+  title       String?
+  description String?   @db.Text
+  severity    String? // 'info', 'warning', 'critical'
+  actionable  Boolean   @default(false)
+  actionUrl   String?
+  dismissed   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Recurring Transactions
+model RecurringTransaction {
+  id          String    @id @default(uuid())
+  accountId   String
+  categoryId  String?
+  amount      Decimal   @db.Decimal(15, 2)
+  description String?
+  frequency   String // 'daily', 'weekly', 'monthly', 'yearly'
+  nextDate    DateTime  @db.Date
+  endDate     DateTime? @db.Date
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  account  Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
+// Notifications
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String?
+  message   String?  @db.Text
+  read      Boolean  @default(false)
+  actionUrl String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Activity Log (for household collaboration)
+model ActivityLog {
+  id          String   @id @default(uuid())
+  householdId String
+  userId      String?
+  action      String
+  entityType  String?
+  entityId    String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
