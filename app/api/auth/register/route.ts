@@ -3,10 +3,18 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validation/schemas";
 import { validateBody, errorResponse } from "@/lib/validation/validate";
+import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimit(request, RATE_LIMITS.auth);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
+
   try {
     // Validate and sanitize request body
     const validated = await validateBody(request, registerSchema);
@@ -39,13 +47,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         message: "User created successfully",
         user,
       },
       { status: 201 }
     );
+
+    // Add rate limit headers
+    const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.auth);
+    for (const [key, value] of Object.entries(rateLimitHeaders)) {
+      response.headers.set(key, value);
+    }
+
+    return response;
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;

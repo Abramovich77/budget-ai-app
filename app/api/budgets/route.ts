@@ -3,11 +3,18 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createBudgetSchema } from "@/lib/validation/schemas";
 import { validateBody, errorResponse } from "@/lib/validation/validate";
+import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
 
 export const dynamic = 'force-dynamic';
 
 // GET /api/budgets - List all budgets
 export async function GET(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimit(request, RATE_LIMITS.query);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const session = await auth();
 
@@ -50,7 +57,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ budgets });
+    const response = NextResponse.json({ budgets });
+
+    // Add rate limit headers
+    const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.query);
+    for (const [key, value] of Object.entries(rateLimitHeaders)) {
+      response.headers.set(key, value);
+    }
+
+    return response;
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;
@@ -62,6 +77,12 @@ export async function GET(request: NextRequest) {
 
 // POST /api/budgets - Create a new budget
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimit(request, RATE_LIMITS.mutation);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const session = await auth();
 
@@ -108,7 +129,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(budget, { status: 201 });
+    const response = NextResponse.json(budget, { status: 201 });
+
+    // Add rate limit headers
+    const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.mutation);
+    for (const [key, value] of Object.entries(rateLimitHeaders)) {
+      response.headers.set(key, value);
+    }
+
+    return response;
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;

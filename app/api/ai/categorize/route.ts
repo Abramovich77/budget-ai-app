@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { categorizationSchema } from "@/lib/validation/schemas";
 import { validateBody, errorResponse } from "@/lib/validation/validate";
+import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,12 @@ const CATEGORIES = [
 ];
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting for AI endpoint
+  const rateLimitResponse = rateLimit(request, RATE_LIMITS.ai);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     // Validate and sanitize request body
     const validated = await validateBody(request, categorizationSchema);
@@ -69,11 +76,19 @@ Respond with ONLY the category name, nothing else.`,
     // In a real implementation, we'd use Claude's confidence scores
     const confidence = categoryText === "Other" ? 0.5 : 0.95;
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       category,
       confidence,
       alternatives: [], // TODO: Implement alternative suggestions
     });
+
+    // Add rate limit headers
+    const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.ai);
+    for (const [key, value] of Object.entries(rateLimitHeaders)) {
+      response.headers.set(key, value);
+    }
+
+    return response;
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;
