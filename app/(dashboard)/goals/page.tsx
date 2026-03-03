@@ -68,12 +68,11 @@ export default function GoalsPage() {
   const activeGoals = goals.filter((g) => g.status === "active");
   const completedGoals = goals.filter((g) => g.status === "completed");
 
-  const handleAddGoal = (newGoal: { id: string; name: string; targetAmount: number; currentAmount: number; priority: string; progress: number; status: "active" | "completed" }) => {
+  const handleAddGoal = (newGoal: { id: string; name: string; goalType: string; targetAmount: number; currentAmount: number; targetDate: string; priority: number; status: string }) => {
     const goalForState = {
       ...newGoal,
-      goalType: "savings" as const,
-      targetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 1 year from now
-      priority: parseInt(newGoal.priority) || 1,
+      goalType: newGoal.goalType as "savings" | "debt",
+      status: newGoal.status as "active" | "completed",
     };
     setGoals((prev) => [...prev, goalForState]);
   };

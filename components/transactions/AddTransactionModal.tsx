@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
-import { FormField } from "@/components/ui/FormError";
-import { validateTransaction } from "@/lib/validation";
+import { FormField } from "@/components/ui/FormField";
+import { validateAmount, validateRequired, validateDate } from "@/lib/validation/formValidation";
 import { TRANSACTION_CATEGORIES } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
-import type { TransactionFormData } from "@/types";
+import type { TransactionFormData } from "@/types/forms";
 
 interface SimpleTransaction {
   id: string;
@@ -27,32 +27,45 @@ interface AddTransactionModalProps {
 export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransactionModalProps) {
   const [formData, setFormData] = useState<TransactionFormData>({
     description: "",
-    amount: "",
+    amount: 0,
     category: "",
     date: new Date().toISOString().split("T")[0],
-    type: "expense",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState({
+    description: false,
+    amount: false,
+    category: false,
+    date: false,
+  });
+
+  const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Validate fields
+  const descriptionValidation = validateRequired(formData.description, "Description");
+  const amountValidation = validateAmount(formData.amount);
+  const categoryValidation = validateRequired(formData.category, "Category");
+  const dateValidation = validateDate(formData.date);
+
+  const isFormValid =
+    descriptionValidation.isValid &&
+    amountValidation.isValid &&
+    categoryValidation.isValid &&
+    dateValidation.isValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form
-    const validation = validateTransaction({
-      description: formData.description,
-      amount: formData.amount,
-      category: formData.category,
-      date: formData.date,
+    // Mark all fields as touched
+    setTouched({
+      description: true,
+      amount: true,
+      category: true,
+      date: true,
     });
 
-    if (!validation.isValid) {
-      const errorMap: Record<string, string> = {};
-      validation.errors.forEach((err) => {
-        errorMap[err.field] = err.message;
-      });
-      setErrors(errorMap);
+    if (!isFormValid) {
       return;
     }
 
@@ -66,10 +79,10 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
       const transaction = {
         id: Date.now().toString(),
         description: formData.description,
-        amount: formData.type === "expense" ? -Math.abs(parsedAmount) : Math.abs(parsedAmount),
+        amount: transactionType === "expense" ? -Math.abs(parsedAmount) : Math.abs(parsedAmount),
         category: formData.category,
         date: formData.date,
-        type: formData.type,
+        type: transactionType,
         aiCategorized: false,
       };
 
@@ -78,30 +91,33 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
       // Reset form
       setFormData({
         description: "",
-        amount: "",
+        amount: 0,
         category: "",
         date: new Date().toISOString().split("T")[0],
-        type: "expense",
       });
-      setErrors({});
+      setTouched({
+        description: false,
+        amount: false,
+        category: false,
+        date: false,
+      });
       onClose();
     } catch (error) {
-      setErrors({ submit: "Failed to add transaction. Please try again." });
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
+  const handleFieldChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: field === "amount" ? (value === "" ? 0 : parseFloat(value)) : value,
+    }));
+  };
+
+  const handleBlur = (field: keyof typeof touched) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
   return (
@@ -109,14 +125,17 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
       <form onSubmit={handleSubmit}>
         {/* Type Selection */}
         <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Transaction Type <span className="text-red-500">*</span>
+          </label>
           <div className="flex gap-4">
             <label className="flex-1">
               <input
                 type="radio"
                 name="type"
                 value="expense"
-                checked={formData.type === "expense"}
-                onChange={(e) => handleChange("type", e.target.value)}
+                checked={transactionType === "expense"}
+                onChange={() => setTransactionType("expense")}
                 className="sr-only peer"
               />
               <div className="px-4 py-3 text-center border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 transition">
@@ -128,8 +147,8 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
                 type="radio"
                 name="type"
                 value="income"
-                checked={formData.type === "income"}
-                onChange={(e) => handleChange("type", e.target.value)}
+                checked={transactionType === "income"}
+                onChange={() => setTransactionType("income")}
                 className="sr-only peer"
               />
               <div className="px-4 py-3 text-center border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer peer-checked:border-green-500 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/20 transition">
@@ -140,82 +159,61 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
         </div>
 
         {/* Description */}
-        <FormField label="Description" error={errors.description} required>
-          <input
-            type="text"
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            placeholder="e.g., Grocery shopping at Whole Foods"
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              errors.description
-                ? "border-red-500 dark:border-red-500"
-                : "border-gray-300 dark:border-gray-600"
-            }`}
-          />
-        </FormField>
+        <FormField
+          label="Description"
+          type="text"
+          value={formData.description}
+          onChange={(value) => handleFieldChange("description", value)}
+          onBlur={() => handleBlur("description")}
+          validation={descriptionValidation}
+          touched={touched.description}
+          placeholder="e.g., Grocery shopping at Whole Foods"
+          required
+        />
 
         {/* Amount */}
-        <FormField label="Amount" error={errors.amount} required>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
-              $
-            </span>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.amount}
-              onChange={(e) => handleChange("amount", e.target.value)}
-              placeholder="0.00"
-              className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-                errors.amount
-                  ? "border-red-500 dark:border-red-500"
-                  : "border-gray-300 dark:border-gray-600"
-              }`}
-            />
-          </div>
-        </FormField>
+        <FormField
+          label="Amount"
+          type="number"
+          value={formData.amount || ""}
+          onChange={(value) => handleFieldChange("amount", value)}
+          onBlur={() => handleBlur("amount")}
+          validation={amountValidation}
+          touched={touched.amount}
+          placeholder="0.00"
+          step="0.01"
+          min="0"
+          required
+        />
 
         {/* Category */}
-        <FormField label="Category" error={errors.category} required>
-          <select
-            value={formData.category}
-            onChange={(e) => handleChange("category", e.target.value)}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              errors.category
-                ? "border-red-500 dark:border-red-500"
-                : "border-gray-300 dark:border-gray-600"
-            }`}
-          >
-            <option value="">Select a category</option>
-            {TRANSACTION_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </FormField>
+        <FormField
+          label="Category"
+          type="select"
+          value={formData.category}
+          onChange={(value) => handleFieldChange("category", value)}
+          onBlur={() => handleBlur("category")}
+          validation={categoryValidation}
+          touched={touched.category}
+          options={TRANSACTION_CATEGORIES.map((cat) => ({
+            value: cat,
+            label: cat,
+          }))}
+          required
+        />
 
         {/* Date */}
-        <FormField label="Date" error={errors.date} required>
-          <input
-            type="date"
-            value={formData.date}
-            onChange={(e) => handleChange("date", e.target.value)}
-            max={new Date().toISOString().split("T")[0]}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              errors.date
-                ? "border-red-500 dark:border-red-500"
-                : "border-gray-300 dark:border-gray-600"
-            }`}
-          />
-        </FormField>
-
-        {/* Submit Error */}
-        {errors.submit && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-            {errors.submit}
-          </div>
-        )}
+        <FormField
+          label="Date"
+          type="date"
+          value={formData.date}
+          onChange={(value) => handleFieldChange("date", value)}
+          onBlur={() => handleBlur("date")}
+          validation={dateValidation}
+          touched={touched.date}
+          max={new Date().toISOString().split("T")[0]}
+          required
+        />
 
         {/* Actions */}
         <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -223,14 +221,14 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 text-gray-700 dark:text-gray-300"
           >
             Cancel
           </button>
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
+            disabled={isSubmitting || !isFormValid}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             {isSubmitting ? "Adding..." : "Add Transaction"}
