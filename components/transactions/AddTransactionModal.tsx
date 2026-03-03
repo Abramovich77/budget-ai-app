@@ -3,32 +3,19 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormError";
-import { validateTransaction, ValidationError } from "@/lib/validation";
+import { validateTransaction } from "@/lib/validation";
+import { TRANSACTION_CATEGORIES } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
+import type { Transaction, TransactionFormData } from "@/types";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (transaction: any) => void;
+  onSuccess?: (transaction: Transaction) => void;
 }
 
-const CATEGORIES = [
-  "Groceries",
-  "Dining Out",
-  "Transportation",
-  "Entertainment",
-  "Shopping",
-  "Utilities",
-  "Healthcare",
-  "Education",
-  "Housing",
-  "Income",
-  "Savings",
-  "Other",
-];
-
 export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransactionModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TransactionFormData>({
     description: "",
     amount: "",
     category: "",
@@ -186,7 +173,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
             }`}
           >
             <option value="">Select a category</option>
-            {CATEGORIES.map((cat) => (
+            {TRANSACTION_CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
               </option>

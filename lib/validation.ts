@@ -1,4 +1,5 @@
 // Form validation utilities
+import type { TransactionFormData, BudgetFormData, GoalFormData } from "@/types";
 
 export interface ValidationError {
   field: string;
@@ -11,12 +12,9 @@ export interface ValidationResult {
 }
 
 // Transaction validation
-export function validateTransaction(data: {
-  description?: string;
-  amount?: number | string;
-  category?: string;
-  date?: string;
-}): ValidationResult {
+export function validateTransaction(
+  data: Partial<Pick<TransactionFormData, "description" | "amount" | "category" | "date">>
+): ValidationResult {
   const errors: ValidationError[] = [];
 
   if (!data.description || data.description.trim().length === 0) {
@@ -58,11 +56,9 @@ export function validateTransaction(data: {
 }
 
 // Budget validation
-export function validateBudget(data: {
-  category?: string;
-  amount?: number | string;
-  period?: string;
-}): ValidationResult {
+export function validateBudget(
+  data: Partial<BudgetFormData>
+): ValidationResult {
   const errors: ValidationError[] = [];
 
   if (!data.category || data.category.trim().length === 0) {
@@ -91,12 +87,9 @@ export function validateBudget(data: {
 }
 
 // Goal validation
-export function validateGoal(data: {
-  name?: string;
-  targetAmount?: number | string;
-  currentAmount?: number | string;
-  deadline?: string;
-}): ValidationResult {
+export function validateGoal(
+  data: Partial<GoalFormData>
+): ValidationResult {
   const errors: ValidationError[] = [];
 
   if (!data.name || data.name.trim().length === 0) {

@@ -4,35 +4,18 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormError";
 import { validateBudget } from "@/lib/validation";
+import { BUDGET_CATEGORIES, BUDGET_PERIODS } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
+import type { Budget, BudgetFormData } from "@/types";
 
 interface AddBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (budget: any) => void;
+  onSuccess?: (budget: Budget) => void;
 }
 
-const CATEGORIES = [
-  "Groceries",
-  "Dining Out",
-  "Transportation",
-  "Entertainment",
-  "Shopping",
-  "Utilities",
-  "Healthcare",
-  "Education",
-  "Housing",
-  "Other",
-];
-
-const PERIODS = [
-  { value: "monthly", label: "Monthly" },
-  { value: "weekly", label: "Weekly" },
-  { value: "yearly", label: "Yearly" },
-];
-
 export function AddBudgetModal({ isOpen, onClose, onSuccess }: AddBudgetModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BudgetFormData>({
     category: "",
     amount: "",
     period: "monthly",
@@ -122,7 +105,7 @@ export function AddBudgetModal({ isOpen, onClose, onSuccess }: AddBudgetModalPro
             }`}
           >
             <option value="">Select a category</option>
-            {CATEGORIES.map((cat) => (
+            {BUDGET_CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
               </option>
@@ -157,7 +140,7 @@ export function AddBudgetModal({ isOpen, onClose, onSuccess }: AddBudgetModalPro
         {/* Period */}
         <FormField label="Period" error={errors.period} required>
           <div className="grid grid-cols-3 gap-3">
-            {PERIODS.map((period) => (
+            {BUDGET_PERIODS.map((period) => (
               <label key={period.value} className="cursor-pointer">
                 <input
                   type="radio"

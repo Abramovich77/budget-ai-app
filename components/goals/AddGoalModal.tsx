@@ -4,22 +4,18 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormError";
 import { validateGoal } from "@/lib/validation";
+import { GOAL_PRIORITIES } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
+import type { Goal, GoalFormData } from "@/types";
 
 interface AddGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (goal: any) => void;
+  onSuccess?: (goal: Goal) => void;
 }
 
-const PRIORITIES = [
-  { value: "high", label: "High", color: "red" },
-  { value: "medium", label: "Medium", color: "yellow" },
-  { value: "low", label: "Low", color: "green" },
-];
-
 export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<GoalFormData>({
     name: "",
     targetAmount: "",
     currentAmount: "0",
@@ -191,7 +187,7 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
         {/* Priority */}
         <FormField label="Priority" error={errors.priority}>
           <div className="grid grid-cols-3 gap-3">
-            {PRIORITIES.map((priority) => (
+            {GOAL_PRIORITIES.map((priority) => (
               <label key={priority.value} className="cursor-pointer">
                 <input
                   type="radio"
