@@ -70,6 +70,7 @@ export function KeyboardShortcuts() {
   }, [router, showHelp]);
 
   const shortcuts: Shortcut[] = [
+    { key: "⌘ K / Ctrl K", description: "Open search", action: () => {} },
     { key: "Alt + D", description: "Go to Dashboard", action: () => router.push("/dashboard") },
     { key: "Alt + T", description: "Go to Transactions", action: () => router.push("/transactions") },
     { key: "Alt + B", description: "Go to Budgets", action: () => router.push("/budgets") },

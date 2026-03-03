@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { MobileNav } from "@/components/MobileNav";
+import { GlobalSearch } from "@/components/GlobalSearch";
 import {
   Brain,
   LayoutDashboard,
@@ -124,6 +125,9 @@ export default async function DashboardLayout({
 
       {/* Keyboard Shortcuts */}
       <KeyboardShortcuts />
+
+      {/* Global Search */}
+      <GlobalSearch />
     </div>
   );
 }
