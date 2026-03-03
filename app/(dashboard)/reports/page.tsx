@@ -19,6 +19,8 @@ import {
 } from "recharts";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportSpendingReportToCSV, exportCategoryBreakdownToCSV } from "@/lib/utils/export";
+import { ChartContainer } from "@/components/charts/ChartContainer";
+import { CustomLineTooltip, CustomPieTooltip, CustomBarTooltip } from "@/components/charts/CustomTooltip";
 
 // Mock data for charts
 const spendingTrendData = [
@@ -76,6 +78,12 @@ export default function ReportsPage() {
     }));
     exportCategoryBreakdownToCSV(exportData);
   };
+
+  // Add percentage to category data for tooltip
+  const categoryDataWithPercentage = categoryBreakdownData.map(c => ({
+    ...c,
+    percentage: (c.value / categoryBreakdownData.reduce((sum, item) => sum + item.value, 0)) * 100,
+  }));
 
   return (
     <div>
@@ -158,14 +166,7 @@ export default function ReportsPage() {
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
             <XAxis dataKey="month" stroke="#9ca3af" />
             <YAxis stroke="#9ca3af" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1f2937",
-                border: "none",
-                borderRadius: "8px",
-                color: "#fff",
-              }}
-            />
+            <Tooltip content={<CustomLineTooltip />} />
             <Legend />
             <Line
               type="monotone"
@@ -210,7 +211,7 @@ export default function ReportsPage() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={categoryBreakdownData}
+                data={categoryDataWithPercentage}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -223,14 +224,7 @@ export default function ReportsPage() {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#1f2937",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-              />
+              <Tooltip content={<CustomPieTooltip />} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -253,17 +247,10 @@ export default function ReportsPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
               <XAxis dataKey="category" stroke="#9ca3af" />
               <YAxis stroke="#9ca3af" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#1f2937",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-              />
+              <Tooltip content={<CustomBarTooltip />} />
               <Legend />
-              <Bar dataKey="lastMonth" fill="#94a3b8" name="Last Month" />
-              <Bar dataKey="thisMonth" fill="#3b82f6" name="This Month" />
+              <Bar dataKey="lastMonth" fill="#94a3b8" name="Last Month" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="thisMonth" fill="#3b82f6" name="This Month" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
