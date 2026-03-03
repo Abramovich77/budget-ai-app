@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import {
   Brain,
   LayoutDashboard,
@@ -35,23 +36,36 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg"
+      >
+        Skip to main content
+      </a>
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+      <aside
+        className="fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
+        role="navigation"
+        aria-label="Main navigation"
+      >
         {/* Logo */}
         <div className="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <Brain className="h-8 w-8 text-blue-600 mr-3" />
+          <Brain className="h-8 w-8 text-blue-600 mr-3" aria-hidden="true" />
           <span className="text-xl font-bold text-gray-900 dark:text-white">Budget AI</span>
         </div>
 
         {/* Navigation */}
-        <nav className="px-4 py-6 space-y-1">
+        <nav className="px-4 py-6 space-y-1" aria-label="Dashboard navigation">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+              className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-600"
+              aria-label={`Navigate to ${item.name}`}
             >
-              <item.icon className="h-5 w-5 mr-3" />
+              <item.icon className="h-5 w-5 mr-3" aria-hidden="true" />
               {item.name}
             </Link>
           ))}
@@ -61,7 +75,10 @@ export default async function DashboardLayout({
         <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+              <div
+                className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold"
+                aria-hidden="true"
+              >
                 {session.user?.name?.charAt(0) || "U"}
               </div>
               <div className="ml-3">
@@ -76,9 +93,11 @@ export default async function DashboardLayout({
             <form action="/api/auth/signout" method="POST">
               <button
                 type="submit"
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded"
+                aria-label="Sign out"
+                title="Sign out"
               >
-                <LogOut className="h-5 w-5" />
+                <LogOut className="h-5 w-5" aria-hidden="true" />
               </button>
             </form>
           </div>
@@ -86,13 +105,16 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 min-h-screen">
+      <main id="main-content" className="ml-64 min-h-screen" role="main">
         <div className="px-8 py-6">
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
         </div>
       </main>
+
+      {/* Keyboard Shortcuts */}
+      <KeyboardShortcuts />
     </div>
   );
 }
