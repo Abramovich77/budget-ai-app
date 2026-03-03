@@ -5,6 +5,7 @@ import { registerSchema } from "@/lib/validation/schemas";
 import { validateBody, errorResponse } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
 import { logRequest, logResponse, logError } from "@/lib/middleware/logger";
+import { logAuthEvent, AuditEventType, getIpFromHeaders } from "@/lib/audit/auditLogger";
 
 export const dynamic = 'force-dynamic';
 
@@ -24,12 +25,25 @@ export async function POST(request: NextRequest) {
     const validated = await validateBody(request, registerSchema);
     const { fullName, email, password } = validated;
 
+    const ipAddress = getIpFromHeaders(request.headers);
+    const userAgent = request.headers.get("user-agent") || undefined;
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
+      // Log failed registration attempt
+      await logAuthEvent(
+        AuditEventType.AUTH_REGISTER,
+        undefined,
+        email,
+        ipAddress,
+        userAgent,
+        "FAILURE",
+        "User with this email already exists"
+      );
       return errorResponse("User with this email already exists", 409);
     }
 
@@ -50,6 +64,16 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       },
     });
+
+    // Log successful registration
+    await logAuthEvent(
+      AuditEventType.AUTH_REGISTER,
+      user.id,
+      user.email,
+      ipAddress,
+      userAgent,
+      "SUCCESS"
+    );
 
     const response = NextResponse.json(
       {

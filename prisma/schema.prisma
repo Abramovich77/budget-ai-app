@@ -242,3 +242,26 @@ model ActivityLog {
   household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
   user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
+
+// Audit Log (for security and compliance)
+model AuditLog {
+  id           String   @id @default(uuid())
+  eventType    String // AUTH_LOGIN, DATA_CREATE, etc.
+  userId       String?
+  userEmail    String?
+  ipAddress    String?
+  userAgent    String?  @db.Text
+  resourceType String?
+  resourceId   String?
+  action       String?
+  details      Json?
+  severity     String   @default("INFO") // INFO, WARNING, ERROR, CRITICAL
+  status       String // SUCCESS, FAILURE
+  errorMessage String?  @db.Text
+  timestamp    DateTime @default(now())
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([timestamp(sort: Desc)])
+  @@index([resourceType, resourceId])
+}

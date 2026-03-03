@@ -8,6 +8,7 @@ import {
 import { validateBody, validateQuery, errorResponse } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
 import { logRequest, logResponse, logError } from "@/lib/middleware/logger";
+import { logDataModification, getIpFromHeaders } from "@/lib/audit/auditLogger";
 
 export const dynamic = 'force-dynamic';
 
@@ -241,6 +242,22 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Log transaction creation
+    await logDataModification(
+      "CREATE",
+      session.user.id,
+      session.user.email || undefined,
+      "Transaction",
+      transaction.id,
+      {
+        amount: amount.toString(),
+        description,
+        categoryId: finalCategoryId,
+        aiCategorized,
+      },
+      getIpFromHeaders(request.headers)
+    );
 
     const response = NextResponse.json(transaction, { status: 201 });
 

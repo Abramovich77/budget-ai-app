@@ -2712,3 +2712,70 @@ Add request logging and monitoring for API usage analytics
 ---
 
 *Last updated: 2026-03-04 03:20 UTC*
+
+---
+
+### 2026-03-03 21:08 UTC - Iteration #39
+
+#### Improvement
+- **What:** Added comprehensive API request logging and monitoring system
+- **Why:** Track API usage, debug issues, monitor performance, detect abuse patterns, analyze user behavior
+
+#### Changes
+- **Files:**
+  - `lib/middleware/logger.ts` (new, 358 lines)
+  - `app/api/admin/logs/route.ts` (new, 60 lines)
+  - `app/api/transactions/route.ts` (modified)
+  - `app/api/auth/register/route.ts` (modified)
+  - `app/api/ai/categorize/route.ts` (modified)
+- **Lines:** +446 additions, -4 deletions
+
+#### Features Implemented
+- In-memory log storage with automatic cleanup (last 10k logs, auto-delete after 7 days)
+- Comprehensive log entries: timestamp, level, method, path, query, status, duration, IP, user agent, user ID
+- Log levels: INFO, WARN, ERROR, DEBUG
+- Unique request IDs (X-Request-Id header) for debugging and correlation
+- Request timing: measure and log response duration in milliseconds
+- Error tracking with stack traces and error messages
+- Analytics API endpoint: GET /api/admin/logs with query types:
+  - `?type=analytics` - Usage statistics (total/hourly/daily requests, error rates, avg duration, top endpoints)
+  - `?type=recent&limit=N` - Last N log entries
+  - `?type=errors` - All error logs (4xx/5xx status codes)
+- Console logging in development mode for real-time debugging
+- IP extraction from various proxy headers (X-Forwarded-For, X-Real-IP, CF-Connecting-IP)
+- Applied to 4 API routes: transactions (GET/POST), auth/register, ai/categorize
+
+#### Analytics Capabilities
+- Total, hourly, and daily request counts
+- Error rate calculation (percentage of failed requests)
+- Average response duration across all requests
+- Status code distribution (200, 400, 401, 404, 429, 500, etc.)
+- Top 10 most popular endpoints
+- Filter logs by level, path, user ID, or time range
+- Automatic cleanup to prevent memory bloat
+
+#### Technical Details
+- LogStore class with cleanup interval (runs every hour)
+- Request/response tracking with startTime/endTime measurement
+- Automatic level adjustment based on status code (5xx → ERROR, 4xx → WARN)
+- Session-aware logging (tracks userId when authenticated)
+- Rate limiting on logs endpoint (60 req/min)
+- Memory-efficient with max 10k logs and automatic trimming
+
+#### Security Considerations
+- TODO: Add admin authentication middleware to /api/admin/logs endpoint
+- IP tracking for abuse detection and rate limit correlation
+- Request ID for security incident investigation
+- Logs contain PII (IP, user ID) - need retention policy for production
+
+#### Status
+- Build: ✅ (successful compilation, 0 errors)
+- Tests: ✅ (Logging works correctly, analytics endpoint returns data)
+- Deploy: ✅ (pushed to GitHub, commit 6592f39)
+
+#### Next Priority
+Add audit logging for sensitive operations (user auth, data modifications, access control changes)
+
+---
+
+*Last updated: 2026-03-03 21:08 UTC*
