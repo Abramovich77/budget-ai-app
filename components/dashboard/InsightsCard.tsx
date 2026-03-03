@@ -48,12 +48,16 @@ interface InsightsCardProps {
   maxInsights?: number;
   showActions?: boolean;
   className?: string;
+  filterType?: string;
+  filterSeverity?: string;
 }
 
 export function InsightsCard({
   maxInsights = 5,
   showActions = true,
   className = "",
+  filterType = "all",
+  filterSeverity = "all",
 }: InsightsCardProps) {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,9 +98,11 @@ export function InsightsCard({
     fetchInsights();
   };
 
-  // Filter dismissed insights
+  // Filter dismissed insights and apply type/severity filters
   const visibleInsights = insights
     .filter((insight) => !dismissedInsights.has(insight.id))
+    .filter((insight) => filterType === "all" || insight.type === filterType)
+    .filter((insight) => filterSeverity === "all" || insight.severity === filterSeverity)
     .slice(0, maxInsights);
 
   if (loading) {

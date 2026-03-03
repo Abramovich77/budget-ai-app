@@ -5,7 +5,7 @@
  */
 
 import { auth } from "@/lib/auth";
-import { InsightsCard } from "@/components/dashboard/InsightsCard";
+import { FilteredInsights } from "@/components/dashboard/FilteredInsights";
 import { Sparkles, TrendingUp, AlertTriangle, Lightbulb } from "lucide-react";
 
 export default async function InsightsPage() {
@@ -84,7 +84,7 @@ export default async function InsightsPage() {
       </div>
 
       {/* Main Insights Section */}
-      <InsightsCard maxInsights={20} />
+      <FilteredInsights />
 
       {/* Help Section */}
       <div className="mt-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 border border-gray-200 dark:border-gray-700">

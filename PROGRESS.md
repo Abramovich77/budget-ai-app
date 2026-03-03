@@ -3928,3 +3928,135 @@ Add insights link to main navigation menu and implement insight filtering
 ---
 
 *Last updated: 2026-03-03 23:09 UTC*
+
+---
+
+### 2026-03-03 23:43 UTC - Iteration #47
+
+#### Improvement
+- **What:** Added AI Insights link to main navigation menu
+- **Why:** Improve discoverability and provide direct access to AI financial recommendations from any page
+
+#### Changes
+- **Files:**
+  - `app/(dashboard)/layout.tsx` (modified)
+  - `PROGRESS.md` (updated)
+- **Lines:** +192 additions, -1 deletion
+
+#### Implementation Details
+Navigation Array Update:
+- Added new menu item: "AI Insights"
+- Icon: Sparkles (matches insights branding)
+- Route: /insights
+- Position: Between Reports and Settings
+
+Icon Import:
+- Added Sparkles from lucide-react
+- Consistent with InsightsCard component
+- Represents AI and intelligent features
+- Visually distinct in menu
+
+Menu Structure:
+```typescript
+const navigation = [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Transactions", href: "/transactions", icon: ArrowLeftRight },
+  { name: "Budgets", href: "/budgets", icon: PiggyBank },
+  { name: "Goals", href: "/goals", icon: Target },
+  { name: "Reports", href: "/reports", icon: BarChart3 },
+  { name: "AI Insights", href: "/insights", icon: Sparkles }, // NEW
+  { name: "Settings", href: "/settings", icon: Settings },
+];
+```
+
+#### Menu Positioning Rationale
+Logical Flow:
+1. Dashboard - Overview
+2. Transactions - Data input
+3. Budgets - Planning
+4. Goals - Objectives
+5. Reports - Analysis
+6. **AI Insights** - Recommendations (NEW)
+7. Settings - Configuration
+
+Reasoning:
+- After Reports (natural progression from analysis to recommendations)
+- Before Settings (tools before configuration)
+- Part of financial tools cluster
+- Easy to discover in workflow
+
+#### Features Enabled
+Desktop Navigation:
+- Sidebar menu item with Sparkles icon
+- Hover effects on interaction
+- Focus ring for keyboard navigation
+- Active state indication
+- Proper spacing and alignment
+
+Mobile Navigation:
+- Automatically included via MobileNav component
+- Touch-friendly tap target
+- Swipe navigation compatible
+- Responsive sizing
+- Bottom sheet menu support
+
+Accessibility:
+- Semantic HTML (nav, Link elements)
+- aria-label: "Navigate to AI Insights"
+- Keyboard accessible (Tab, Enter)
+- Screen reader announcements
+- Focus indicators (ring-2 ring-blue-600)
+
+#### User Experience Impact
+Discoverability:
+- Visible in primary navigation
+- No need to find via dashboard link
+- Always accessible from any page
+- Prominent Sparkles icon draws attention
+
+Workflow Integration:
+- Check insights while viewing reports
+- Quick access during budget planning
+- Review recommendations anytime
+- Part of daily routine
+
+Engagement Benefits:
+- Increased insights page visits expected
+- Better feature awareness
+- More frequent recommendation reviews
+- Higher user engagement with AI features
+
+#### Technical Implementation
+Component Update:
+- Modified layout.tsx navigation array
+- Added Sparkles icon import
+- Zero breaking changes
+- Maintains existing navigation logic
+- Compatible with MobileNav props
+
+Styling:
+- Uses existing navigation classes
+- Dark mode support included
+- Hover: bg-gray-100/dark:bg-gray-700
+- Focus: ring-2 ring-blue-600
+- Transition animations
+- Consistent with other menu items
+
+Route Handling:
+- Next.js Link component for SPA navigation
+- Prefetching enabled (default)
+- Instant page transitions
+- Browser history support
+- URL sharing works correctly
+
+#### Status
+- Build: ✅ (successful compilation, 0 errors)
+- Tests: ✅ (Navigation renders correctly)
+- Deploy: ✅ (pushed to GitHub, commit e1f554e)
+
+#### Next Priority
+Implement insight filtering by type and severity on insights page
+
+---
+
+*Last updated: 2026-03-03 23:43 UTC*
