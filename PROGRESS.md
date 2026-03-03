@@ -2662,4 +2662,53 @@ Add API rate limiting and request throttling to prevent abuse
 
 ---
 
-*Last updated: 2026-03-04 02:50 UTC*
+### 2026-03-04 03:20 UTC - Iteration #38
+
+#### Improvement
+- **What:** Added API rate limiting with sliding window algorithm
+- **Why:** Prevent API abuse, protect against DoS attacks, control expensive AI API costs
+
+#### Changes
+- **Files:**
+  - `lib/middleware/rateLimit.ts` (new, 244 lines)
+  - `app/api/auth/register/route.ts` (modified)
+  - `app/api/ai/categorize/route.ts` (modified)
+  - `app/api/transactions/route.ts` (modified)
+  - `app/api/budgets/route.ts` (modified)
+- **Lines:** +320 additions, -6 deletions
+
+#### Features Implemented
+- Sliding window rate limiting algorithm with timestamp tracking
+- In-memory storage with automatic 10-minute cleanup
+- Rate limit presets: Auth (5/15min), AI (10/min), Mutation (30/min), Query (60/min)
+- Rate limit headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+- 429 status with Retry-After header when limit exceeded
+- IP-based client identification (X-Forwarded-For, X-Real-IP, CF-Connecting-IP)
+- Per-endpoint rate limits with custom configs
+- Applied to auth, AI, transactions, and budgets endpoints
+
+#### Security Improvements
+- Prevents brute force attacks (5 req/15min on auth)
+- Protects expensive AI calls (10 req/min)
+- Prevents database overload
+- Limits DoS attack surface
+- Per-IP tracking prevents monopolization
+
+#### Technical Details
+- Sliding window: more accurate than fixed window
+- Memory-efficient with automatic cleanup
+- Proxy/load balancer compatible
+- Type-safe TypeScript implementation
+- Consistent error response format
+
+#### Status
+- Build: ✅ (successful compilation, 0 errors)
+- Tests: ✅ (Rate limiting works correctly)
+- Deploy: ✅ (pushed to GitHub)
+
+#### Next Priority
+Add request logging and monitoring for API usage analytics
+
+---
+
+*Last updated: 2026-03-04 03:20 UTC*
