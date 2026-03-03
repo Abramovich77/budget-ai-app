@@ -7,6 +7,7 @@ import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyStateCard } from "@/components/ui/EmptyState";
 import { GoalMilestone } from "@/components/goals/GoalMilestone";
+import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
 
 // Mock data
 const mockGoals = [
@@ -88,11 +89,18 @@ export default function GoalsPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Goals</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Track your savings and debt payoff progress
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Goals</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Track your savings and debt payoff progress
+            </p>
+          </div>
+          <HelpTooltip
+            content="Set financial goals to save for big purchases, build emergency funds, or pay off debt. Track progress with milestones and celebrate achievements!"
+            type="help"
+            position="right"
+          />
         </div>
         <button
           onClick={() => setShowAddModal(true)}

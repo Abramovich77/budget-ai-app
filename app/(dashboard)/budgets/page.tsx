@@ -8,6 +8,7 @@ import { GridSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useBudgetAlerts, useOverallBudgetAlert } from "@/lib/hooks/useBudgetAlerts";
 import { BudgetRecommendations } from "@/components/budgets/BudgetRecommendations";
+import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
 
 // Mock data
 const mockBudget = {
@@ -128,41 +129,55 @@ export default function BudgetsPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Budgets</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Track your spending and stay on target
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Budgets</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Track your spending and stay on target
+            </p>
+          </div>
+          <HelpTooltip
+            content="Create category budgets to control spending. Set limits for groceries, dining, entertainment, and more. Get real-time alerts when you're approaching limits."
+            type="help"
+            position="right"
+          />
         </div>
         <div className="flex items-center gap-3">
           {/* Alert Toggle */}
-          <button
-            onClick={() => {
-              setAlertsEnabled(!alertsEnabled);
-              if (!alertsEnabled) {
-                resetAlerts();
-                resetOverallAlert();
-              }
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-              alertsEnabled
-                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-            title={alertsEnabled ? "Alerts enabled" : "Alerts disabled"}
-          >
-            {alertsEnabled ? (
-              <>
-                <Bell className="h-4 w-4" />
-                <span className="text-sm font-medium">Alerts On</span>
-              </>
-            ) : (
-              <>
-                <BellOff className="h-4 w-4" />
-                <span className="text-sm font-medium">Alerts Off</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setAlertsEnabled(!alertsEnabled);
+                if (!alertsEnabled) {
+                  resetAlerts();
+                  resetOverallAlert();
+                }
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                alertsEnabled
+                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+              }`}
+              title={alertsEnabled ? "Alerts enabled" : "Alerts disabled"}
+            >
+              {alertsEnabled ? (
+                <>
+                  <Bell className="h-4 w-4" />
+                  <span className="text-sm font-medium">Alerts On</span>
+                </>
+              ) : (
+                <>
+                  <BellOff className="h-4 w-4" />
+                  <span className="text-sm font-medium">Alerts Off</span>
+                </>
+              )}
+            </button>
+            <HelpTooltip
+              content="Enable alerts to get notified when you reach 80%, 95%, or exceed 100% of any budget category."
+              type="info"
+              size="sm"
+            />
+          </div>
           <button
             onClick={() => setShowAddModal(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"

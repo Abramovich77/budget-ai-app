@@ -10,6 +10,7 @@ import { exportTransactionsToCSV } from "@/lib/utils/export";
 import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
 import { TransactionFilters, applyTransactionFilters, type TransactionFilterOptions } from "@/components/transactions/TransactionFilters";
 import type { TransactionFormData } from "@/types/forms";
+import { HelpTooltip, FeatureBanner } from "@/components/ui/HelpTooltip";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -153,12 +154,19 @@ export default function TransactionsPage() {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Transactions</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            All your financial transactions in one place
-          </p>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Transactions</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              All your financial transactions in one place
+            </p>
+          </div>
+          <HelpTooltip
+            content="Track all your income and expenses here. Use AI categorization to automatically organize your transactions and gain insights into your spending patterns."
+            type="help"
+            position="right"
+          />
         </div>
         <button
           onClick={() => setShowAddModal(true)}
@@ -168,6 +176,14 @@ export default function TransactionsPage() {
           Add Transaction
         </button>
       </div>
+
+      {/* Feature Banner */}
+      <FeatureBanner
+        title="AI-Powered Categorization"
+        description="Our AI automatically categorizes your transactions based on merchant names and descriptions, saving you time and ensuring consistent tracking."
+        type="tip"
+        dismissible
+      />
 
       {/* Toolbar */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
