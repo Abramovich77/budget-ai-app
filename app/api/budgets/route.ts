@@ -1,23 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
+import { createBudgetSchema } from "@/lib/validation/schemas";
+import { validateBody, errorResponse } from "@/lib/validation/validate";
 
 export const dynamic = 'force-dynamic';
-
-const createBudgetSchema = z.object({
-  householdId: z.string(),
-  name: z.string().min(1),
-  methodology: z.enum(["zero-based", "50-30-20", "envelope"]),
-  periodType: z.enum(["weekly", "monthly", "annual"]).default("monthly"),
-  startDate: z.string(),
-  items: z.array(
-    z.object({
-      categoryId: z.string(),
-      allocatedAmount: z.number().positive(),
-    })
-  ),
-});
 
 // GET /api/budgets - List all budgets
 export async function GET(request: NextRequest) {
@@ -25,7 +12,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
     // Get user's households
@@ -65,11 +52,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ budgets });
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     console.error("Error fetching budgets:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse("Internal server error", 500);
   }
 }
 
@@ -79,21 +66,12 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
-    const body = await request.json();
-    const validated = createBudgetSchema.safeParse(body);
-
-    if (!validated.success) {
-      return NextResponse.json(
-        { error: validated.error.errors[0].message },
-        { status: 400 }
-      );
-    }
-
-    const { householdId, name, methodology, periodType, startDate, items } =
-      validated.data;
+    // Validate and sanitize request body
+    const validated = await validateBody(request, createBudgetSchema);
+    const { householdId, name, methodology, periodType, startDate, items } = validated;
 
     // Verify user is member of household
     const membership = await prisma.householdMember.findUnique({
@@ -106,10 +84,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!membership) {
-      return NextResponse.json(
-        { error: "Household not found" },
-        { status: 404 }
-      );
+      return errorResponse("Household not found or you are not a member", 404);
     }
 
     // Create budget with items
@@ -135,10 +110,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(budget, { status: 201 });
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     console.error("Error creating budget:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse("Internal server error", 500);
   }
 }

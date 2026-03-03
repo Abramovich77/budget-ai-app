@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { z } from "zod";
+import { categorizationSchema } from "@/lib/validation/schemas";
+import { validateBody, errorResponse } from "@/lib/validation/validate";
 
 export const dynamic = 'force-dynamic';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-});
-
-const categorizeSchema = z.object({
-  description: z.string().min(1),
-  amount: z.number(),
-  merchant: z.string().optional(),
 });
 
 // Standard categories for budgeting
@@ -34,19 +29,9 @@ const CATEGORIES = [
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-
-    // Validate input
-    const validated = categorizeSchema.safeParse(body);
-
-    if (!validated.success) {
-      return NextResponse.json(
-        { error: validated.error.errors[0].message },
-        { status: 400 }
-      );
-    }
-
-    const { description, amount, merchant } = validated.data;
+    // Validate and sanitize request body
+    const validated = await validateBody(request, categorizationSchema);
+    const { description, amount, merchant } = validated;
 
     // Call Claude API for categorization
     const message = await anthropic.messages.create({
@@ -59,7 +44,7 @@ export async function POST(request: NextRequest) {
 
 Transaction details:
 - Description: ${description}
-- Amount: $${Math.abs(amount)}
+${amount !== undefined ? `- Amount: $${Math.abs(amount)}` : ""}
 ${merchant ? `- Merchant: ${merchant}` : ""}
 
 Rules:
@@ -90,17 +75,17 @@ Respond with ONLY the category name, nothing else.`,
       alternatives: [], // TODO: Implement alternative suggestions
     });
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     console.error("AI categorization error:", error);
 
-    // Fallback to rule-based categorization if AI fails
-    const { description, amount } = categorizeSchema.parse(await request.json());
-    const fallbackCategory = getFallbackCategory(description, amount);
-
+    // Fallback to "Other" category if AI fails
     return NextResponse.json({
-      category: fallbackCategory,
-      confidence: 0.7,
+      category: "Other",
+      confidence: 0.5,
       alternatives: [],
-      note: "AI unavailable, used rule-based categorization",
+      note: "AI unavailable, please categorize manually",
     });
   }
 }

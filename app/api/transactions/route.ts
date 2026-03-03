@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
+import {
+  createTransactionSchema,
+  transactionQuerySchema,
+} from "@/lib/validation/schemas";
+import { validateBody, validateQuery, errorResponse } from "@/lib/validation/validate";
 
 export const dynamic = 'force-dynamic';
-
-const createTransactionSchema = z.object({
-  accountId: z.string(),
-  categoryId: z.string().optional(),
-  amount: z.number(),
-  date: z.string(),
-  description: z.string().optional(),
-  merchantName: z.string().optional(),
-});
 
 // GET /api/transactions - List all transactions
 export async function GET(request: NextRequest) {
@@ -20,19 +15,68 @@ export async function GET(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const query = validateQuery(searchParams, transactionQuerySchema);
+    const { limit, offset, categoryId, accountId, minAmount, maxAmount, startDate, endDate, search } = query as {
+      limit: number;
+      offset: number;
+      categoryId?: string;
+      accountId?: string;
+      minAmount?: number;
+      maxAmount?: number;
+      startDate?: string;
+      endDate?: string;
+      search?: string;
+    };
+
+    // Build where clause with filters
+    const where: any = {
+      account: {
+        userId: session.user.id,
+      },
+    };
+
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    if (accountId) {
+      where.accountId = accountId;
+    }
+
+    if (minAmount !== undefined || maxAmount !== undefined) {
+      where.amount = {};
+      if (minAmount !== undefined) {
+        where.amount.gte = minAmount;
+      }
+      if (maxAmount !== undefined) {
+        where.amount.lte = maxAmount;
+      }
+    }
+
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) {
+        where.date.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.date.lte = new Date(endDate);
+      }
+    }
+
+    if (search) {
+      where.OR = [
+        { description: { contains: search, mode: 'insensitive' } },
+        { merchantName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
     const transactions = await prisma.transaction.findMany({
-      where: {
-        account: {
-          userId: session.user.id,
-        },
-      },
+      where,
       include: {
         category: true,
         account: {
@@ -49,13 +93,7 @@ export async function GET(request: NextRequest) {
       skip: offset,
     });
 
-    const total = await prisma.transaction.count({
-      where: {
-        account: {
-          userId: session.user.id,
-        },
-      },
-    });
+    const total = await prisma.transaction.count({ where });
 
     return NextResponse.json({
       transactions,
@@ -64,11 +102,11 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     console.error("Error fetching transactions:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse("Internal server error", 500);
   }
 }
 
@@ -78,21 +116,12 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
-    const body = await request.json();
-    const validated = createTransactionSchema.safeParse(body);
-
-    if (!validated.success) {
-      return NextResponse.json(
-        { error: validated.error.errors[0].message },
-        { status: 400 }
-      );
-    }
-
-    const { accountId, categoryId, amount, date, description, merchantName } =
-      validated.data;
+    // Validate and sanitize request body
+    const validated = await validateBody(request, createTransactionSchema);
+    const { accountId, categoryId, amount, date, description, merchantName } = validated;
 
     // Verify the account belongs to the user
     const account = await prisma.account.findFirst({
@@ -103,10 +132,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!account) {
-      return NextResponse.json(
-        { error: "Account not found" },
-        { status: 404 }
-      );
+      return errorResponse("Account not found or does not belong to you", 404);
     }
 
     // If no category provided, try AI categorization
@@ -178,10 +204,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(transaction, { status: 201 });
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     console.error("Error creating transaction:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return errorResponse("Internal server error", 500);
   }
 }
