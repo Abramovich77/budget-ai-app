@@ -53,6 +53,8 @@ const monthlyComparisonData = [
 
 export default function ReportsPage() {
   const [timeRange, setTimeRange] = useState("6months");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const totalIncome = spendingTrendData.reduce((sum, d) => sum + d.income, 0);
   const totalExpenses = spendingTrendData.reduce((sum, d) => sum + d.expenses, 0);
@@ -84,6 +86,31 @@ export default function ReportsPage() {
     ...c,
     percentage: (c.value / categoryBreakdownData.reduce((sum, item) => sum + item.value, 0)) * 100,
   }));
+
+  // Filter comparison data based on selected category
+  const filteredComparisonData = selectedCategory
+    ? monthlyComparisonData.filter(item =>
+        item.category.toLowerCase().includes(selectedCategory.toLowerCase().split(' ')[0])
+      )
+    : monthlyComparisonData;
+
+  // Handle pie chart click
+  const handlePieClick = (data: any) => {
+    if (selectedCategory === data.name) {
+      setSelectedCategory(null); // Deselect if clicking same category
+    } else {
+      setSelectedCategory(data.name);
+    }
+  };
+
+  // Handle line chart click
+  const handleLineClick = (data: any) => {
+    if (selectedMonth === data.month) {
+      setSelectedMonth(null);
+    } else {
+      setSelectedMonth(data.month);
+    }
+  };
 
   return (
     <div>
@@ -156,13 +183,13 @@ export default function ReportsPage() {
               Income vs Expenses Trend
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Track your financial flow over time
+              {selectedMonth ? `Details for ${selectedMonth}` : 'Track your financial flow over time'} • Click for details
             </p>
           </div>
           <TrendingUp className="h-6 w-6 text-blue-600" />
         </div>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={spendingTrendData}>
+          <LineChart data={spendingTrendData} onClick={handleLineClick}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
             <XAxis dataKey="month" stroke="#9ca3af" />
             <YAxis stroke="#9ca3af" />
@@ -174,6 +201,8 @@ export default function ReportsPage() {
               stroke="#10b981"
               strokeWidth={2}
               name="Income"
+              style={{ cursor: 'pointer' }}
+              activeDot={{ r: 8, style: { cursor: 'pointer' } }}
             />
             <Line
               type="monotone"
@@ -181,6 +210,8 @@ export default function ReportsPage() {
               stroke="#ef4444"
               strokeWidth={2}
               name="Expenses"
+              style={{ cursor: 'pointer' }}
+              activeDot={{ r: 8, style: { cursor: 'pointer' } }}
             />
             <Line
               type="monotone"
@@ -188,9 +219,53 @@ export default function ReportsPage() {
               stroke="#3b82f6"
               strokeWidth={2}
               name="Savings"
+              style={{ cursor: 'pointer' }}
+              activeDot={{ r: 8, style: { cursor: 'pointer' } }}
             />
           </LineChart>
         </ResponsiveContainer>
+        {selectedMonth && (() => {
+          const monthData = spendingTrendData.find(d => d.month === selectedMonth);
+          if (!monthData) return null;
+          const netCashFlow = monthData.income - monthData.expenses;
+          const savingsRate = ((monthData.savings / monthData.income) * 100).toFixed(1);
+
+          return (
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  {selectedMonth} 2026 Details
+                </h3>
+                <button
+                  onClick={() => setSelectedMonth(null)}
+                  className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                >
+                  Clear
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Income</p>
+                  <p className="text-lg font-bold text-green-600">${monthData.income.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Expenses</p>
+                  <p className="text-lg font-bold text-red-600">${monthData.expenses.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Net Cash Flow</p>
+                  <p className={`text-lg font-bold ${netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    ${netCashFlow.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Savings Rate</p>
+                  <p className="text-lg font-bold text-blue-600">{savingsRate}%</p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Category Breakdown and Monthly Comparison */}
@@ -203,7 +278,7 @@ export default function ReportsPage() {
                 Spending by Category
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                March 2026 breakdown
+                {selectedCategory ? `Filtered: ${selectedCategory}` : 'March 2026 breakdown'} • Click to filter
               </p>
             </div>
             <PieChartIcon className="h-6 w-6 text-blue-600" />
@@ -219,14 +294,27 @@ export default function ReportsPage() {
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
+                onClick={handlePieClick}
+                style={{ cursor: 'pointer' }}
               >
                 {categoryBreakdownData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.color}
+                    opacity={selectedCategory === null || selectedCategory === entry.name ? 1 : 0.3}
+                  />
                 ))}
               </Pie>
               <Tooltip content={<CustomPieTooltip />} />
             </PieChart>
           </ResponsiveContainer>
+          {selectedCategory && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-900 dark:text-blue-100">
+                <strong>Active Filter:</strong> {selectedCategory} • Click chart again to clear
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Monthly Comparison Bar Chart */}
@@ -237,13 +325,15 @@ export default function ReportsPage() {
                 Month-over-Month Comparison
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Feb vs Mar 2026
+                {selectedCategory
+                  ? `${selectedCategory} comparison`
+                  : 'Feb vs Mar 2026'}
               </p>
             </div>
             <Calendar className="h-6 w-6 text-blue-600" />
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyComparisonData}>
+            <BarChart data={filteredComparisonData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
               <XAxis dataKey="category" stroke="#9ca3af" />
               <YAxis stroke="#9ca3af" />
@@ -253,6 +343,13 @@ export default function ReportsPage() {
               <Bar dataKey="thisMonth" fill="#3b82f6" name="This Month" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          {filteredComparisonData.length === 0 && (
+            <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                No comparison data for this category
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
