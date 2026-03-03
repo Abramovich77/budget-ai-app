@@ -3739,3 +3739,192 @@ Integrate InsightsCard into dashboard page and create dedicated insights page
 ---
 
 *Last updated: 2026-03-03 23:06 UTC*
+
+---
+
+### 2026-03-03 23:09 UTC - Iteration #46
+
+#### Improvement
+- **What:** Integrated InsightsCard into dashboard and created dedicated insights page
+- **Why:** Make AI insights visible on main dashboard and provide dedicated space for detailed review
+
+#### Changes
+- **Files:**
+  - `app/(dashboard)/dashboard/page.tsx` (modified)
+  - `app/(dashboard)/insights/page.tsx` (new, 150+ lines)
+  - `PROGRESS.md` (updated)
+- **Lines:** +341 additions, -2 deletions
+
+#### Dashboard Integration
+- Replaced AIInsightsPanel with new InsightsCard component
+- Configured to display top 3 insights on dashboard
+- Maintains existing 2-column layout (insights + quick actions)
+- Positioned below stat cards for prominence
+- Seamless integration with existing dashboard design
+- Shows most critical insights first (severity-sorted)
+
+#### Dedicated Insights Page
+Route: /insights
+
+Header Section:
+- Large Sparkles icon in blue container
+- "AI Insights" heading with description
+- Subtitle: "Personalized financial recommendations powered by AI"
+
+Feature Cards (3-column responsive grid):
+1. Smart Analysis (Blue/Lightbulb):
+   - "Our AI analyzes your spending patterns to provide actionable recommendations"
+   - Explains the intelligence behind insights
+
+2. Track Progress (Green/TrendingUp):
+   - "Monitor your financial health and see improvements over time"
+   - Emphasizes continuous monitoring
+
+3. Early Warnings (Yellow/AlertTriangle):
+   - "Get alerts before budget overruns and identify cost savings"
+   - Highlights proactive nature
+
+Main Content:
+- InsightsCard component configured for maxInsights={20}
+- Full functionality available:
+  * Expand/collapse details
+  * Dismiss insights
+  * Refresh button
+  * "Take Action" links
+  * Severity indicators
+- All insight types displayed
+- Sorted by severity (critical first)
+
+Help Section:
+Educational content explaining:
+- Severity levels with color indicators:
+  * Critical (red dot): Requires immediate attention
+  * Warning (yellow dot): Approaching limits, needs monitoring
+  * Info (blue dot): Helpful tips and positive trends
+- Usage tips:
+  * Click "Show More" for detailed recommendations
+  * Use "Take Action" to navigate to relevant pages
+- Gray background with border for visual separation
+- Divider line between sections
+
+#### Page Layout
+```
+┌─────────────────────────────────────┐
+│ Header (icon + title + subtitle)   │
+├─────────────────────────────────────┤
+│ [Smart] [Track] [Early Warnings]   │  ← Info cards
+├─────────────────────────────────────┤
+│                                     │
+│  InsightsCard (up to 20 insights)   │  ← Main content
+│                                     │
+├─────────────────────────────────────┤
+│ Help Section (severity guide)       │  ← Educational
+└─────────────────────────────────────┘
+```
+
+#### Navigation Flow
+From Dashboard:
+- Dashboard shows top 3 insights in InsightsCard
+- "View All Insights (X)" link at bottom
+- Clicking link navigates to /insights page
+
+From Insights Page:
+- Full page dedicated to insights review
+- All insights visible (up to 20)
+- Educational content helps understanding
+- Direct actions available on each insight
+
+#### Visual Design
+Color Scheme:
+- Blue: Primary (Smart Analysis, Info insights)
+- Green: Success (Track Progress, positive trends)
+- Yellow: Warning (Early Warnings, caution)
+- Red: Critical (urgent issues)
+- Gray: Neutral (help section)
+
+Layout:
+- Consistent card-based design
+- Responsive grid system
+- Proper spacing and padding
+- Icon-first visual hierarchy
+- Dark mode support throughout
+
+Typography:
+- Clear heading hierarchy (h1, h3)
+- Descriptive subtitles
+- Readable body text
+- Font weights for emphasis
+
+#### Responsive Behavior
+Mobile (< 768px):
+- Single column stack
+- Info cards stack vertically
+- Full-width insights
+- Touch-friendly buttons
+
+Tablet (768px - 1024px):
+- 2-column info cards
+- Insights span full width
+- Balanced layout
+
+Desktop (> 1024px):
+- 3-column info cards
+- Insights in main content area
+- Wide layout utilization
+- Optimal reading experience
+
+#### User Experience
+Discoverability:
+- Visible on dashboard (top 3)
+- Clear "View All" call-to-action
+- Dedicated page for deep dive
+- Can be added to main navigation
+
+Education:
+- Feature cards explain AI capabilities
+- Help section defines severity levels
+- Usage tips guide interaction
+- Confidence scores build trust
+
+Engagement:
+- Actionable insights with direct links
+- Dismissible for personalization
+- Refresh for latest recommendations
+- Expandable for full details
+
+#### Benefits
+User Benefits:
+- Immediate visibility of critical insights
+- Dedicated space for detailed review
+- Educational content improves understanding
+- Easy access to actionable recommendations
+- Personalized financial guidance
+
+Development Benefits:
+- Clean component architecture
+- Reusable InsightsCard across pages
+- Consistent design patterns
+- Maintainable code structure
+- Scalable to more features
+
+#### Future Enhancements
+- Add insights page to main navigation menu
+- Implement insight filtering by type/severity
+- Add insight history timeline
+- Enable insights export/sharing
+- Add insight bookmarking
+- Implement notification preferences
+- Show insights trends over time
+- Add insights search functionality
+
+#### Status
+- Build: ✅ (successful compilation, 0 errors)
+- Tests: ✅ (Page renders correctly, navigation works)
+- Deploy: ✅ (pushed to GitHub, commit 270b92c)
+
+#### Next Priority
+Add insights link to main navigation menu and implement insight filtering
+
+---
+
+*Last updated: 2026-03-03 23:09 UTC*

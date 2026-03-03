@@ -16,7 +16,8 @@ import {
   Target,
   BarChart3,
   Settings,
-  LogOut
+  LogOut,
+  Sparkles
 } from "lucide-react";
 
 export default async function DashboardLayout({
@@ -36,6 +37,7 @@ export default async function DashboardLayout({
     { name: "Budgets", href: "/budgets", icon: PiggyBank },
     { name: "Goals", href: "/goals", icon: Target },
     { name: "Reports", href: "/reports", icon: BarChart3 },
+    { name: "AI Insights", href: "/insights", icon: Sparkles },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
