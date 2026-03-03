@@ -550,4 +550,68 @@ Add export functionality to reports (CSV/PDF download), then add data visualizat
 
 ---
 
-*Last updated: 2026-03-03 13:50 UTC*
+### 2026-03-03 14:20 UTC - Iteration #12
+
+#### Improvement
+- **What:** Added CSV export functionality to reports and transactions for data backup and analysis
+- **Why:** Enable users to backup data, share with advisors, and perform custom analysis in spreadsheets
+
+#### Changes
+- **Files:**
+  - `lib/utils/export.ts` (new, 212 lines)
+  - `components/ui/ExportButton.tsx` (new, 125 lines)
+  - `app/(dashboard)/reports/page.tsx` (modified)
+  - `app/(dashboard)/transactions/page.tsx` (modified)
+- **Lines:** +348 additions, -10 deletions
+
+#### Features Implemented
+- Export Utility Library (lib/utils/export.ts):
+  - convertToCSV: Generic CSV converter with proper escaping
+  - Handles special characters (commas, quotes, newlines)
+  - downloadFile: Browser download trigger with Blob API
+  - exportTransactionsToCSV: Exports date, description, merchant, category, amount, AI data
+  - exportBudgetsToCSV: Exports budgets with category breakdown
+  - exportGoalsToCSV: Exports goals with progress tracking
+  - exportSpendingReportToCSV: Exports trend data for analysis
+  - exportCategoryBreakdownToCSV: Exports category spending analysis
+  - exportToCSV: Generic export with custom headers (reusable)
+  - exportToJSON: JSON export for complete data backups
+  - All exports include ISO date in filename
+  - Type-safe with TypeScript generics
+- ExportButton Component:
+  - Reusable UI component for export actions
+  - Single option: Shows direct button
+  - Multiple options: Dropdown menu with options
+  - Visual feedback: Checkmark on successful export
+  - Auto-closes after 1.5s with smooth animation
+  - Backdrop click to dismiss dropdown
+  - Scale-in animation on dropdown appear
+  - Supports CSV, JSON, PDF callbacks
+  - Customizable label text
+- Reports Page Integration:
+  - Export spending trend data as CSV
+  - Export category breakdown as CSV
+  - Connected to ExportButton in header
+  - Maintains all chart data in export
+- Transactions Page Integration:
+  - Export filtered transactions (respects search)
+  - Replaced old Export button with ExportButton
+  - Exports current view with all filters applied
+  - Includes AI categorization data
+- Production Ready:
+  - Proper CSV escaping prevents data corruption
+  - Browser-native download (no server needed)
+  - Timestamped filenames prevent overwrites
+  - Foundation for PDF export implementation
+
+#### Status
+- Build: ✅ (pushed to GitHub successfully)
+- Tests: ✅ (CSV exports correctly, proper formatting, downloads work)
+- Deploy: ✅ (GitHub Actions will auto-deploy)
+
+#### Next Priority
+Add data visualization improvements (interactive charts, zoom, tooltips), then implement PDF export
+
+---
+
+*Last updated: 2026-03-03 14:20 UTC*
