@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Upload, Brain } from "lucide-react";
+import { Plus, Search, Filter, Upload, Brain, List, Grid3x3 } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportTransactionsToCSV } from "@/lib/utils/export";
+import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -67,6 +68,7 @@ export default function TransactionsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [preferences, setPreferences] = useUserPreferences();
 
   useEffect(() => {
     // Simulate loading data
@@ -76,11 +78,40 @@ export default function TransactionsPage() {
     }, 1000);
   }, []);
 
+  // Apply filter from preferences
+  useEffect(() => {
+    if (preferences.transactionFilter) {
+      setSearchQuery(preferences.transactionFilter);
+    }
+  }, []);
+
+  // Save filter to preferences when it changes
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPreferences({ ...preferences, transactionFilter: value });
+  };
+
   const filteredTransactions = transactions.filter((t) =>
     t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Sort transactions based on preferences
+  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
+    const { transactionSortBy, transactionSortOrder } = preferences;
+    let comparison = 0;
+
+    if (transactionSortBy === "date") {
+      comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+    } else if (transactionSortBy === "amount") {
+      comparison = Math.abs(a.amount) - Math.abs(b.amount);
+    } else if (transactionSortBy === "category") {
+      comparison = a.category.localeCompare(b.category);
+    }
+
+    return transactionSortOrder === "asc" ? comparison : -comparison;
+  });
 
   const handleAddTransaction = (newTransaction: any) => {
     setTransactions((prev) => [newTransaction, ...prev]);
@@ -126,18 +157,69 @@ export default function TransactionsPage() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="Search transactions..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
 
-          {/* Filter */}
-          <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+          {/* Sort By */}
+          <select
+            value={preferences.transactionSortBy}
+            onChange={(e) =>
+              setPreferences({
+                ...preferences,
+                transactionSortBy: e.target.value as "date" | "amount" | "category",
+              })
+            }
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-600"
+          >
+            <option value="date">Sort by Date</option>
+            <option value="amount">Sort by Amount</option>
+            <option value="category">Sort by Category</option>
+          </select>
+
+          {/* Sort Order */}
+          <button
+            onClick={() =>
+              setPreferences({
+                ...preferences,
+                transactionSortOrder: preferences.transactionSortOrder === "asc" ? "desc" : "asc",
+              })
+            }
+            className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            title={`Sort ${preferences.transactionSortOrder === "asc" ? "Ascending" : "Descending"}`}
+          >
             <Filter className="h-5 w-5 mr-2" />
-            Filters
+            {preferences.transactionSortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
           </button>
+
+          {/* View Toggle */}
+          <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setPreferences({ ...preferences, transactionView: "list" })}
+              className={`px-3 py-2 ${
+                preferences.transactionView === "list"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+              } transition`}
+              title="List View"
+            >
+              <List className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setPreferences({ ...preferences, transactionView: "grid" })}
+              className={`px-3 py-2 ${
+                preferences.transactionView === "grid"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+              } transition`}
+              title="Grid View"
+            >
+              <Grid3x3 className="h-5 w-5" />
+            </button>
+          </div>
 
           {/* Import */}
           <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
@@ -198,7 +280,7 @@ export default function TransactionsPage() {
                   </tr>
                 ))}
               </>
-            ) : filteredTransactions.length === 0 ? (
+            ) : sortedTransactions.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center">
                   <p className="text-gray-500 dark:text-gray-400">
@@ -207,7 +289,7 @@ export default function TransactionsPage() {
                 </td>
               </tr>
             ) : (
-              filteredTransactions.map((transaction) => (
+              sortedTransactions.map((transaction) => (
                 <tr
                   key={transaction.id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"

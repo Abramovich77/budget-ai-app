@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TrendingUp, Calendar, PieChart as PieChartIcon } from "lucide-react";
+import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
 import {
   LineChart,
   Line,
@@ -52,9 +53,16 @@ const monthlyComparisonData = [
 ];
 
 export default function ReportsPage() {
-  const [timeRange, setTimeRange] = useState("6months");
+  const [preferences, setPreferences] = useUserPreferences();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+
+  const handleTimeRangeChange = (value: string) => {
+    setPreferences({
+      ...preferences,
+      reportsTimeRange: value as "3months" | "6months" | "year" | "all",
+    });
+  };
 
   const totalIncome = spendingTrendData.reduce((sum, d) => sum + d.income, 0);
   const totalExpenses = spendingTrendData.reduce((sum, d) => sum + d.expenses, 0);
@@ -124,8 +132,8 @@ export default function ReportsPage() {
         </div>
         <div className="flex gap-3">
           <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
+            value={preferences.reportsTimeRange}
+            onChange={(e) => handleTimeRangeChange(e.target.value)}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-600"
           >
             <option value="3months">Last 3 Months</option>
