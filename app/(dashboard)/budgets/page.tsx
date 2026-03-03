@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, PiggyBank, TrendingDown, AlertTriangle, Wallet } from "lucide-react";
+import { Plus, PiggyBank, TrendingDown, AlertTriangle, Wallet, Bell, BellOff } from "lucide-react";
 import { AddBudgetModal } from "@/components/budgets/AddBudgetModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { GridSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useBudgetAlerts, useOverallBudgetAlert } from "@/lib/hooks/useBudgetAlerts";
 
 // Mock data
 const mockBudget = {
@@ -78,6 +79,7 @@ export default function BudgetsPage() {
   const [budget, setBudget] = useState<typeof mockBudget | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [alertsEnabled, setAlertsEnabled] = useState(true);
 
   useEffect(() => {
     // Simulate loading data
@@ -89,6 +91,23 @@ export default function BudgetsPage() {
 
   const progressPercentage = budget ? (budget.totalSpent / budget.totalAllocated) * 100 : 0;
   const remaining = budget ? budget.totalAllocated - budget.totalSpent : 0;
+
+  // Budget alerts - monitors categories and triggers toasts (only if enabled)
+  const { resetAlerts } = useBudgetAlerts(
+    alertsEnabled && !loading ? budget?.categories || [] : [],
+    {
+      warning: 80,
+      critical: 95,
+      overspent: true,
+    }
+  );
+
+  // Overall budget alert
+  const { resetAlert: resetOverallAlert } = useOverallBudgetAlert(
+    budget?.totalAllocated || 0,
+    budget?.totalSpent || 0,
+    alertsEnabled && !loading && !!budget
+  );
 
   const handleAddBudget = (newBudget: any) => {
     console.log("New budget created:", newBudget);
@@ -113,13 +132,43 @@ export default function BudgetsPage() {
             Track your spending and stay on target
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Create Budget
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Alert Toggle */}
+          <button
+            onClick={() => {
+              setAlertsEnabled(!alertsEnabled);
+              if (!alertsEnabled) {
+                resetAlerts();
+                resetOverallAlert();
+              }
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+              alertsEnabled
+                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+            title={alertsEnabled ? "Alerts enabled" : "Alerts disabled"}
+          >
+            {alertsEnabled ? (
+              <>
+                <Bell className="h-4 w-4" />
+                <span className="text-sm font-medium">Alerts On</span>
+              </>
+            ) : (
+              <>
+                <BellOff className="h-4 w-4" />
+                <span className="text-sm font-medium">Alerts Off</span>
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Create Budget
+          </button>
+        </div>
       </div>
 
       {/* Loading State */}
@@ -154,6 +203,22 @@ export default function BudgetsPage() {
       {/* Budget Content */}
       {!loading && budget && (
         <>
+          {/* Alert Info Banner */}
+          {alertsEnabled && (
+            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3 animate-fade-in">
+              <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                  Smart Budget Alerts Active
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  You'll receive notifications when categories reach 80% (warning) or 95% (critical) of their budget,
+                  and when you go over budget. Alerts help you stay on track with your spending goals.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Budget Overview Card */}
           <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg p-8 text-white mb-8">
             <div className="flex items-start justify-between mb-6">
