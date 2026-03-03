@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, PiggyBank, TrendingDown, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, PiggyBank, TrendingDown, AlertTriangle, Wallet } from "lucide-react";
 import { AddBudgetModal } from "@/components/budgets/AddBudgetModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
+import { GridSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 // Mock data
 const mockBudget = {
@@ -73,14 +75,24 @@ const mockBudget = {
 };
 
 export default function BudgetsPage() {
-  const [budget] = useState(mockBudget);
+  const [budget, setBudget] = useState<typeof mockBudget | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const progressPercentage = (budget.totalSpent / budget.totalAllocated) * 100;
-  const remaining = budget.totalAllocated - budget.totalSpent;
+  useEffect(() => {
+    // Simulate loading data
+    setTimeout(() => {
+      setBudget(mockBudget);
+      setLoading(false);
+    }, 1200);
+  }, []);
+
+  const progressPercentage = budget ? (budget.totalSpent / budget.totalAllocated) * 100 : 0;
+  const remaining = budget ? budget.totalAllocated - budget.totalSpent : 0;
 
   const handleAddBudget = (newBudget: any) => {
     console.log("New budget created:", newBudget);
+    setBudget(mockBudget);
     // In production, this would update state and sync with API
   };
 
@@ -110,13 +122,45 @@ export default function BudgetsPage() {
         </button>
       </div>
 
-      {/* Budget Overview Card */}
-      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg p-8 text-white mb-8">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-              {budget.name}
-            </h2>
+      {/* Loading State */}
+      {loading && (
+        <div className="space-y-8 animate-fade-in">
+          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg p-8 animate-pulse">
+            <div className="h-8 bg-white/20 rounded w-1/3 mb-6"></div>
+            <div className="grid grid-cols-3 gap-6 mb-6">
+              <div className="h-16 bg-white/20 rounded"></div>
+              <div className="h-16 bg-white/20 rounded"></div>
+              <div className="h-16 bg-white/20 rounded"></div>
+            </div>
+            <div className="h-3 bg-white/20 rounded"></div>
+          </div>
+          <GridSkeleton items={6} />
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && !budget && (
+        <EmptyState
+          icon={Wallet}
+          title="No Budget Yet"
+          description="Create your first budget to start tracking your spending and staying on target with your financial goals."
+          action={{
+            label: "Create Budget",
+            onClick: () => setShowAddModal(true),
+          }}
+        />
+      )}
+
+      {/* Budget Content */}
+      {!loading && budget && (
+        <>
+          {/* Budget Overview Card */}
+          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg p-8 text-white mb-8">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                  {budget.name}
+                </h2>
             <p className="text-blue-100 flex items-center gap-2">
               Zero-Based Budgeting
               <InfoTooltip content="Every dollar is assigned a purpose. Income minus expenses should equal zero, ensuring complete control over your money" position="bottom" />
@@ -249,19 +293,21 @@ export default function BudgetsPage() {
         })}
       </div>
 
-      {/* Budget Methodology Info */}
-      <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-          📊 Zero-Based Budgeting
-        </h3>
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          Every dollar has a job. Allocate all your income to specific categories,
-          savings, or debt payment. No money sits unassigned.
-        </p>
-        <button className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
-          Learn more about budgeting methods →
-        </button>
-      </div>
+          {/* Budget Methodology Info */}
+          <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+              📊 Zero-Based Budgeting
+            </h3>
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              Every dollar has a job. Allocate all your income to specific categories,
+              savings, or debt payment. No money sits unassigned.
+            </p>
+            <button className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+              Learn more about budgeting methods →
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Target, TrendingUp, Calendar, DollarSign, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Target, TrendingUp, Calendar, DollarSign, CheckCircle, Crosshair } from "lucide-react";
 import { AddGoalModal } from "@/components/goals/AddGoalModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
+import { ListSkeleton } from "@/components/ui/Skeleton";
+import { EmptyStateCard } from "@/components/ui/EmptyState";
 
 // Mock data
 const mockGoals = [
@@ -50,8 +52,17 @@ const mockGoals = [
 ];
 
 export default function GoalsPage() {
-  const [goals, setGoals] = useState(mockGoals);
+  const [goals, setGoals] = useState<typeof mockGoals>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  useEffect(() => {
+    // Simulate loading data
+    setTimeout(() => {
+      setGoals(mockGoals);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   const activeGoals = goals.filter((g) => g.status === "active");
   const completedGoals = goals.filter((g) => g.status === "completed");
@@ -86,8 +97,34 @@ export default function GoalsPage() {
         </button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* Loading State */}
+      {loading && <ListSkeleton rows={4} />}
+
+      {/* Empty State */}
+      {!loading && goals.length === 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12">
+          <EmptyStateCard
+            icon={Crosshair}
+            title="No Goals Yet"
+            description="Create your first financial goal to start tracking your savings or debt payoff progress."
+          />
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Create Your First Goal
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Goals Content */}
+      {!loading && goals.length > 0 && (
+        <>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -255,20 +292,22 @@ export default function GoalsPage() {
         </div>
       )}
 
-      {/* AI Insight */}
-      <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
-          🤖 AI Recommendation
-        </h3>
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-          Based on your current spending patterns, you can accelerate your "Emergency Fund" goal
-          by reallocating $150/month from your "Dining Out" budget. You'll reach your target 3
-          months earlier!
-        </p>
-        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-          Apply suggestion →
-        </button>
-      </div>
+          {/* AI Insight */}
+          <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
+              🤖 AI Recommendation
+            </h3>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+              Based on your current spending patterns, you can accelerate your "Emergency Fund" goal
+              by reallocating $150/month from your "Dining Out" budget. You'll reach your target 3
+              months earlier!
+            </p>
+            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              Apply suggestion →
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
