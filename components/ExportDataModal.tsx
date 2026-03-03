@@ -44,7 +44,7 @@ export function ExportDataModal({ isOpen, onClose }: ExportDataModalProps) {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Mock data - in production, this would come from API
-    const exportData: any = {};
+    const exportData: Record<string, unknown> = {};
 
     if (exportOptions.transactions) {
       exportData.transactions = [

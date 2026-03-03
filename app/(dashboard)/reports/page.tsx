@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { TrendingUp, Calendar, PieChart as PieChartIcon } from "lucide-react";
 import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
+import type { PieChartDataPoint, LineChartDataPoint } from "@/types/forms";
 import {
   LineChart,
   Line,
@@ -103,20 +104,22 @@ export default function ReportsPage() {
     : monthlyComparisonData;
 
   // Handle pie chart click
-  const handlePieClick = (data: any) => {
-    if (selectedCategory === data.name) {
+  const handlePieClick = (data: unknown) => {
+    const chartData = data as PieChartDataPoint;
+    if (selectedCategory === chartData.category) {
       setSelectedCategory(null); // Deselect if clicking same category
     } else {
-      setSelectedCategory(data.name);
+      setSelectedCategory(chartData.category);
     }
   };
 
   // Handle line chart click
-  const handleLineClick = (data: any) => {
-    if (selectedMonth === data.month) {
+  const handleLineClick = (data: unknown) => {
+    const chartData = data as LineChartDataPoint;
+    if (selectedMonth === chartData.date) {
       setSelectedMonth(null);
     } else {
-      setSelectedMonth(data.month);
+      setSelectedMonth(chartData.date);
     }
   };
 

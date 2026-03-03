@@ -110,10 +110,11 @@ export default function BudgetsPage() {
     alertsEnabled && !loading && !!budget
   );
 
-  const handleAddBudget = (newBudget: any) => {
+  const handleAddBudget = (newBudget: { category: string; amount: number; period: string }) => {
     console.log("New budget created:", newBudget);
+    // In production, this would create a new budget category or update the budget
+    // For now, just refresh the mock data
     setBudget(mockBudget);
-    // In production, this would update state and sync with API
   };
 
   return (

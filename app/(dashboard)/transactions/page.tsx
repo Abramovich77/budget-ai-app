@@ -9,6 +9,7 @@ import { ExportButton } from "@/components/ui/ExportButton";
 import { exportTransactionsToCSV } from "@/lib/utils/export";
 import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
 import { TransactionFilters, applyTransactionFilters, type TransactionFilterOptions } from "@/components/transactions/TransactionFilters";
+import type { TransactionFormData } from "@/types/forms";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -123,12 +124,20 @@ export default function TransactionsPage() {
     return transactionSortOrder === "asc" ? comparison : -comparison;
   });
 
-  const handleAddTransaction = (newTransaction: any) => {
-    setTransactions((prev) => [newTransaction, ...prev]);
+  const handleAddTransaction = (newTransaction: TransactionFormData) => {
+    setTransactions((prev) => [{ ...newTransaction, id: String(Date.now()) } as typeof mockTransactions[0], ...prev]);
   };
 
   const handleExportTransactions = () => {
-    exportTransactionsToCSV(filteredTransactions as any);
+    exportTransactionsToCSV(sortedTransactions.map(t => ({
+      date: t.date,
+      description: t.description,
+      merchant: t.merchant,
+      category: t.category,
+      amount: t.amount,
+      aiCategorized: t.aiCategorized,
+      aiConfidence: t.aiConfidence,
+    })) as any); // Type assertion needed for export utility compatibility
   };
 
   // Get unique categories for filter

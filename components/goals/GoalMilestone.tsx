@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trophy, Star, Sparkles, Award, Zap, PartyPopper } from "lucide-react";
+import { Trophy, Star, Sparkles, Award, Zap, PartyPopper, LucideIcon } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 
 export interface Milestone {
@@ -20,7 +20,12 @@ interface GoalMilestoneProps {
   onMilestoneReached?: (milestone: Milestone) => void;
 }
 
-const MILESTONE_THRESHOLDS = [
+const MILESTONE_THRESHOLDS: Array<{
+  percentage: number;
+  label: string;
+  icon: LucideIcon;
+  color: string;
+}> = [
   { percentage: 25, label: "Quarter Way There!", icon: Star, color: "text-yellow-500" },
   { percentage: 50, label: "Halfway There!", icon: Zap, color: "text-orange-500" },
   { percentage: 75, label: "Three Quarters Done!", icon: Award, color: "text-purple-500" },
@@ -53,7 +58,7 @@ export function GoalMilestone({
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationData, setCelebrationData] = useState<{
     label: string;
-    icon: any;
+    icon: LucideIcon;
     color: string;
   } | null>(null);
 
