@@ -8,6 +8,7 @@ import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportTransactionsToCSV } from "@/lib/utils/export";
 import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
+import { TransactionFilters, applyTransactionFilters, type TransactionFilterOptions } from "@/components/transactions/TransactionFilters";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -69,6 +70,11 @@ export default function TransactionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [preferences, setPreferences] = useUserPreferences();
+  const [filters, setFilters] = useState<TransactionFilterOptions>({
+    categories: [],
+    showIncome: true,
+    showExpenses: true,
+  });
 
   useEffect(() => {
     // Simulate loading data
@@ -91,11 +97,15 @@ export default function TransactionsPage() {
     setPreferences({ ...preferences, transactionFilter: value });
   };
 
-  const filteredTransactions = transactions.filter((t) =>
+  // Apply search filter
+  const searchFilteredTransactions = transactions.filter((t) =>
     t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Apply advanced filters
+  const filteredTransactions = applyTransactionFilters(searchFilteredTransactions, filters);
 
   // Sort transactions based on preferences
   const sortedTransactions = [...filteredTransactions].sort((a, b) => {
@@ -120,6 +130,9 @@ export default function TransactionsPage() {
   const handleExportTransactions = () => {
     exportTransactionsToCSV(filteredTransactions as any);
   };
+
+  // Get unique categories for filter
+  const availableCategories = Array.from(new Set(transactions.map(t => t.category))).sort();
 
   return (
     <div>
@@ -242,6 +255,15 @@ export default function TransactionsPage() {
           <span className="font-semibold">{transactions.filter(t => t.aiCategorized).length} transactions</span> automatically categorized by AI with 95%+ accuracy
           <InfoTooltip content="Our AI analyzes transaction descriptions and automatically assigns the most appropriate category, learning from your patterns over time" position="bottom" />
         </p>
+      </div>
+
+      {/* Advanced Filters */}
+      <div className="mb-6">
+        <TransactionFilters
+          filters={filters}
+          onFiltersChange={setFilters}
+          availableCategories={availableCategories}
+        />
       </div>
 
       {/* Transactions Table */}
