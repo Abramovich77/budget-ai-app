@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, PiggyBank } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/Tooltip";
+import { AIInsightsPanel } from "@/components/dashboard/AIInsightsPanel";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -88,28 +89,14 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* AI Insights */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 mb-8">
-        <div className="flex items-start">
-          <AlertCircle className="h-6 w-6 text-blue-600 mr-3 mt-1 flex-shrink-0" />
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              🤖 AI Insight
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300 mb-3">
-              You're spending 40% more on dining out this month compared to last month.
-              At this rate, you'll exceed your food budget by $280.
-            </p>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-              View details →
-            </button>
-          </div>
+      {/* AI Insights & Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* AI Insights Panel - Takes 2 columns */}
+        <div className="lg:col-span-2">
+          <AIInsightsPanel />
         </div>
-      </div>
 
-      {/* Quick Actions & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Quick Actions */}
+        {/* Quick Actions - Takes 1 column */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
           <div className="space-y-3">
@@ -127,8 +114,11 @@ export default async function DashboardPage() {
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Recent Activity */}
+      {/* Recent Activity */}
+      <div>
+        {/* Recent Transactions */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Transactions</h3>
           <div className="space-y-4">
