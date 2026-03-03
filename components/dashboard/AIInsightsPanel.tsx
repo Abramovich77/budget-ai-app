@@ -1,7 +1,7 @@
 "use client";
 
-import { memo } from "react";
-import { Brain, TrendingUp, AlertTriangle, Target, Lightbulb } from "lucide-react";
+import { memo, useState } from "react";
+import { Brain, TrendingUp, AlertTriangle, Target, Lightbulb, X, Check, Sparkles } from "lucide-react";
 import type { AIInsight } from "@/types";
 
 interface AIInsightsPanelProps {
@@ -52,6 +52,28 @@ const mockInsights: AIInsight[] = [
     actionable: false,
     createdAt: new Date(),
   },
+  {
+    id: "5",
+    householdId: "mock",
+    insightType: "savings_opportunity",
+    title: "Credit Card Rewards Available",
+    description: "You have $127.50 in unclaimed cashback rewards on your Chase Freedom card. Redeem these points before they expire at the end of the month.",
+    severity: "info",
+    actionable: true,
+    actionText: "Redeem rewards now",
+    createdAt: new Date(),
+  },
+  {
+    id: "6",
+    householdId: "mock",
+    insightType: "spending_alert",
+    title: "Unusual Spending Pattern Detected",
+    description: "Your entertainment spending this week is 3x higher than usual. Recent charges include $89.99 at Steam and $49.99 at PlayStation Store.",
+    severity: "warning",
+    actionable: true,
+    actionText: "Review recent transactions",
+    createdAt: new Date(),
+  },
 ];
 
 const severityConfig = {
@@ -79,49 +101,85 @@ const severityConfig = {
 };
 
 function AIInsightsPanelComponent({ insights = mockInsights }: AIInsightsPanelProps) {
+  const [dismissedInsights, setDismissedInsights] = useState<Set<string>>(new Set());
+  const [actionedInsights, setActionedInsights] = useState<Set<string>>(new Set());
+
+  const handleDismiss = (id: string) => {
+    setDismissedInsights(prev => new Set(prev).add(id));
+  };
+
+  const handleAction = (id: string) => {
+    setActionedInsights(prev => new Set(prev).add(id));
+    // In production, this would trigger the actual action
+  };
+
+  const visibleInsights = insights.filter(insight => !dismissedInsights.has(insight.id));
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+        <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg animate-pulse-slow">
           <Brain className="h-6 w-6 text-white" />
         </div>
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="flex-1">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             AI Financial Insights
+            <Sparkles className="h-4 w-4 text-yellow-500" />
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Personalized recommendations powered by AI
+            {visibleInsights.length} personalized recommendations
           </p>
         </div>
       </div>
 
       <div className="space-y-4">
-        {insights.map((insight, index) => {
+        {visibleInsights.map((insight, index) => {
           const config = severityConfig[insight.severity];
           const Icon = config.icon;
+
+          const isActioned = actionedInsights.has(insight.id);
 
           return (
             <div
               key={insight.id}
-              className={`p-4 rounded-lg border ${config.bgColor} ${config.borderColor} animate-fade-in`}
+              className={`p-4 rounded-lg border ${config.bgColor} ${config.borderColor} animate-fade-in relative ${
+                isActioned ? 'opacity-60' : ''
+              }`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-start gap-3">
                 <Icon className={`h-5 w-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
                 <div className="flex-1">
-                  <h3 className={`font-semibold ${config.textColor} mb-1`}>
+                  <h3 className={`font-semibold ${config.textColor} mb-1 flex items-center gap-2`}>
                     {insight.title}
+                    {isActioned && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                        <Check className="h-3 w-3 mr-1" />
+                        Done
+                      </span>
+                    )}
                   </h3>
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                     {insight.description}
                   </p>
-                  {insight.actionable && insight.actionText && (
-                    <button className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1">
+                  {insight.actionable && insight.actionText && !isActioned && (
+                    <button
+                      onClick={() => handleAction(insight.id)}
+                      className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 transition"
+                    >
                       <Target className="h-4 w-4" />
                       {insight.actionText}
                     </button>
                   )}
                 </div>
+                <button
+                  onClick={() => handleDismiss(insight.id)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
+                  aria-label="Dismiss insight"
+                  title="Dismiss"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
             </div>
           );
