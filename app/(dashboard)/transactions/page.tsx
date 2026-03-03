@@ -144,7 +144,7 @@ export default function TransactionsPage() {
   const availableCategories = Array.from(new Set(transactions.map(t => t.category))).sort();
 
   return (
-    <div>
+    <div className="animate-fade-in">
       {/* Add Transaction Modal */}
       <AddTransactionModal
         isOpen={showAddModal}
@@ -170,7 +170,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
           <div className="flex-1 min-w-[200px]">
@@ -258,7 +258,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* AI Banner */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-6 flex items-center">
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-6 flex items-center animate-fade-in" style={{ animationDelay: "0.2s" }}>
         <Brain className="h-6 w-6 text-blue-600 mr-3" />
         <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
           <span className="font-semibold">{transactions.filter(t => t.aiCategorized).length} transactions</span> automatically categorized by AI with 95%+ accuracy
@@ -267,7 +267,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Advanced Filters */}
-      <div className="mb-6">
+      <div className="mb-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
         <TransactionFilters
           filters={filters}
           onFiltersChange={setFilters}
@@ -276,7 +276,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden animate-fade-in" style={{ animationDelay: "0.4s" }}>
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
             <tr>
@@ -320,10 +320,11 @@ export default function TransactionsPage() {
                 </td>
               </tr>
             ) : (
-              sortedTransactions.map((transaction) => (
+              sortedTransactions.map((transaction, index) => (
                 <tr
                   key={transaction.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   {/* Date */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">

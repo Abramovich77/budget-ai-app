@@ -79,7 +79,7 @@ export default function GoalsPage() {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       {/* Add Goal Modal */}
       <AddGoalModal
         isOpen={showAddModal}
@@ -132,7 +132,7 @@ export default function GoalsPage() {
         <>
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Goals</h3>
@@ -144,7 +144,7 @@ export default function GoalsPage() {
           <p className="text-sm text-gray-500 mt-2">In progress</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Target</h3>
             <DollarSign className="h-5 w-5 text-green-600" />
@@ -155,7 +155,7 @@ export default function GoalsPage() {
           <p className="text-sm text-gray-500 mt-2">Combined goals</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</h3>
             <CheckCircle className="h-5 w-5 text-green-600" />
@@ -169,7 +169,7 @@ export default function GoalsPage() {
       <div className="mb-8">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Active Goals</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {activeGoals.map((goal) => {
+          {activeGoals.map((goal, index) => {
             const progress = (goal.currentAmount / goal.targetAmount) * 100;
             const remaining = goal.targetAmount - goal.currentAmount;
             const daysLeft = Math.ceil(
@@ -179,7 +179,8 @@ export default function GoalsPage() {
             return (
               <div
                 key={goal.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
