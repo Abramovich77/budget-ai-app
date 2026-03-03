@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
+import { MobileNav } from "@/components/MobileNav";
 import {
   Brain,
   LayoutDashboard,
@@ -44,9 +45,17 @@ export default async function DashboardLayout({
         Skip to main content
       </a>
 
-      {/* Sidebar */}
+      {/* Mobile Navigation */}
+      <MobileNav
+        navigation={navigation}
+        userName={session.user?.name || undefined}
+        userEmail={session.user?.email || undefined}
+        userInitial={session.user?.name?.charAt(0) || undefined}
+      />
+
+      {/* Desktop Sidebar - Hidden on mobile */}
       <aside
-        className="fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
+        className="hidden lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:w-64 lg:flex lg:flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
         role="navigation"
         aria-label="Main navigation"
       >
@@ -104,9 +113,9 @@ export default async function DashboardLayout({
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main id="main-content" className="ml-64 min-h-screen" role="main">
-        <div className="px-8 py-6">
+      {/* Main Content - Responsive padding for mobile */}
+      <main id="main-content" className="lg:ml-64 min-h-screen pt-[57px] lg:pt-0" role="main">
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
