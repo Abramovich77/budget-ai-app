@@ -6,6 +6,7 @@ import { AddGoalModal } from "@/components/goals/AddGoalModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyStateCard } from "@/components/ui/EmptyState";
+import { GoalMilestone } from "@/components/goals/GoalMilestone";
 
 // Mock data
 const mockGoals = [
@@ -227,6 +228,14 @@ export default function GoalsPage() {
                     {progress.toFixed(1)}% complete
                   </p>
                 </div>
+
+                {/* Milestones */}
+                <GoalMilestone
+                  goalId={goal.id}
+                  goalName={goal.name}
+                  currentAmount={goal.currentAmount}
+                  targetAmount={goal.targetAmount}
+                />
 
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
