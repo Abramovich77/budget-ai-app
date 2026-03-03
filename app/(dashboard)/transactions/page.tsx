@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, Brain } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
+import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -78,8 +79,19 @@ export default function TransactionsPage() {
     t.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleAddTransaction = (newTransaction: any) => {
+    setTransactions((prev) => [newTransaction, ...prev]);
+  };
+
   return (
     <div>
+      {/* Add Transaction Modal */}
+      <AddTransactionModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleAddTransaction}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
