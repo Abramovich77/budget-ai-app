@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { User, Bell, Lock, CreditCard, Globe, Moon, Sun, Mail, Shield, Monitor } from "lucide-react";
+import { User, Bell, Lock, CreditCard, Globe, Moon, Sun, Mail, Shield, Monitor, Download } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useToast } from "@/components/ui/Toast";
+import { ExportDataModal } from "@/components/ExportDataModal";
 
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -12,6 +13,7 @@ export default function SettingsPage() {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [budgetAlerts, setBudgetAlerts] = useState(true);
   const [goalReminders, setGoalReminders] = useState(true);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const handleSaveProfile = () => {
     success("Profile Updated", "Your profile changes have been saved successfully.");
@@ -26,6 +28,9 @@ export default function SettingsPage() {
 
   return (
     <div>
+      {/* Export Modal */}
+      <ExportDataModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
@@ -361,6 +366,44 @@ export default function SettingsPage() {
                 <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                   Enable
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Data Export Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Data Export
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              Download your financial data for backup or analysis in CSV or JSON format.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center">
+                  <Download className="h-5 w-5 text-gray-400 mr-3" />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      Export All Data
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Transactions, budgets, goals, and settings
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowExportModal(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Export
+                </button>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  <strong>Privacy First:</strong> Your data is exported directly to your device.
+                  Nothing is sent to external servers during the export process.
+                </p>
               </div>
             </div>
           </div>
