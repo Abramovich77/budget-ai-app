@@ -3,13 +3,26 @@
 import { useState } from "react";
 import { User, Bell, Lock, CreditCard, Globe, Moon, Sun, Mail, Shield, Monitor } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import { useToast } from "@/components/ui/Toast";
 
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { success, error, warning, info } = useToast();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [budgetAlerts, setBudgetAlerts] = useState(true);
   const [goalReminders, setGoalReminders] = useState(true);
+
+  const handleSaveProfile = () => {
+    success("Profile Updated", "Your profile changes have been saved successfully.");
+  };
+
+  const handleToggleNotification = (type: string, value: boolean) => {
+    info(
+      `${type} ${value ? "Enabled" : "Disabled"}`,
+      `You will ${value ? "now" : "no longer"} receive ${type.toLowerCase()}.`
+    );
+  };
 
   return (
     <div>
@@ -152,7 +165,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setEmailNotifications(!emailNotifications)}
+                  onClick={() => {
+                    setEmailNotifications(!emailNotifications);
+                    handleToggleNotification("Email Notifications", !emailNotifications);
+                  }}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
                     emailNotifications ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
                   }`}
