@@ -23,6 +23,8 @@ import { ExportButton } from "@/components/ui/ExportButton";
 import { exportSpendingReportToCSV, exportCategoryBreakdownToCSV } from "@/lib/utils/export";
 import { ChartContainer } from "@/components/charts/ChartContainer";
 import { CustomLineTooltip, CustomPieTooltip, CustomBarTooltip } from "@/components/charts/CustomTooltip";
+import { EnhancedLineTooltip, EnhancedPieTooltip, EnhancedBarTooltip } from "@/components/charts/EnhancedTooltip";
+import { InteractiveLegend, CategoryLegend } from "@/components/charts/InteractiveLegend";
 
 // Mock data for charts
 const spendingTrendData = [
@@ -57,6 +59,7 @@ export default function ReportsPage() {
   const [preferences, setPreferences] = useUserPreferences();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [hiddenDataKeys, setHiddenDataKeys] = useState<Set<string>>(new Set());
 
   const handleTimeRangeChange = (value: string) => {
     setPreferences({
@@ -122,6 +125,23 @@ export default function ReportsPage() {
       setSelectedMonth(chartData.date);
     }
   };
+
+  // Handle legend toggle
+  const handleLegendToggle = (dataKey: string) => {
+    const newHidden = new Set(hiddenDataKeys);
+    if (newHidden.has(dataKey)) {
+      newHidden.delete(dataKey);
+    } else {
+      newHidden.add(dataKey);
+    }
+    setHiddenDataKeys(newHidden);
+  };
+
+  // Legend items for line chart
+  const lineChartLegendItems = [
+    { dataKey: "income", label: "Income", color: "#10b981" },
+    { dataKey: "expenses", label: "Expenses", color: "#ef4444" },
+  ];
 
   return (
     <div>
@@ -199,40 +219,44 @@ export default function ReportsPage() {
           </div>
           <TrendingUp className="h-6 w-6 text-blue-600" />
         </div>
+        {/* Interactive Legend */}
+        <div className="mb-4">
+          <InteractiveLegend
+            items={lineChartLegendItems}
+            hiddenItems={hiddenDataKeys}
+            onToggle={handleLegendToggle}
+            showValues={false}
+          />
+        </div>
+
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={spendingTrendData} onClick={handleLineClick}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
             <XAxis dataKey="month" stroke="#9ca3af" />
             <YAxis stroke="#9ca3af" />
-            <Tooltip content={<CustomLineTooltip />} />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="income"
-              stroke="#10b981"
-              strokeWidth={2}
-              name="Income"
-              style={{ cursor: 'pointer' }}
-              activeDot={{ r: 8, style: { cursor: 'pointer' } }}
-            />
-            <Line
-              type="monotone"
-              dataKey="expenses"
-              stroke="#ef4444"
-              strokeWidth={2}
-              name="Expenses"
-              style={{ cursor: 'pointer' }}
-              activeDot={{ r: 8, style: { cursor: 'pointer' } }}
-            />
-            <Line
-              type="monotone"
-              dataKey="savings"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              name="Savings"
-              style={{ cursor: 'pointer' }}
-              activeDot={{ r: 8, style: { cursor: 'pointer' } }}
-            />
+            <Tooltip content={<EnhancedLineTooltip />} />
+            {!hiddenDataKeys.has("income") && (
+              <Line
+                type="monotone"
+                dataKey="income"
+                stroke="#10b981"
+                strokeWidth={2}
+                name="Income"
+                style={{ cursor: 'pointer' }}
+                activeDot={{ r: 8, style: { cursor: 'pointer' } }}
+              />
+            )}
+            {!hiddenDataKeys.has("expenses") && (
+              <Line
+                type="monotone"
+                dataKey="expenses"
+                stroke="#ef4444"
+                strokeWidth={2}
+                name="Expenses"
+                style={{ cursor: 'pointer' }}
+                activeDot={{ r: 8, style: { cursor: 'pointer' } }}
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
         {selectedMonth && (() => {
@@ -294,38 +318,49 @@ export default function ReportsPage() {
             </div>
             <PieChartIcon className="h-6 w-6 text-blue-600" />
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={categoryDataWithPercentage}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-                onClick={handlePieClick}
-                style={{ cursor: 'pointer' }}
-              >
-                {categoryBreakdownData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.color}
-                    opacity={selectedCategory === null || selectedCategory === entry.name ? 1 : 0.3}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomPieTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          {selectedCategory && (
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-900 dark:text-blue-100">
-                <strong>Active Filter:</strong> {selectedCategory} • Click chart again to clear
-              </p>
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Pie Chart */}
+            <div className="flex-1">
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={categoryDataWithPercentage}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                    onClick={handlePieClick}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {categoryBreakdownData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
+                        opacity={selectedCategory === null || selectedCategory === entry.name ? 1 : 0.3}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<EnhancedPieTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          )}
+
+            {/* Category Legend */}
+            <div className="lg:w-64">
+              <CategoryLegend
+                categories={categoryDataWithPercentage.map(c => ({
+                  name: c.name,
+                  color: c.color,
+                  value: c.value,
+                  percentage: c.percentage,
+                }))}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Monthly Comparison Bar Chart */}
@@ -348,7 +383,7 @@ export default function ReportsPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
               <XAxis dataKey="category" stroke="#9ca3af" />
               <YAxis stroke="#9ca3af" />
-              <Tooltip content={<CustomBarTooltip />} />
+              <Tooltip content={<EnhancedBarTooltip />} />
               <Legend />
               <Bar dataKey="lastMonth" fill="#94a3b8" name="Last Month" radius={[4, 4, 0, 0]} />
               <Bar dataKey="thisMonth" fill="#3b82f6" name="This Month" radius={[4, 4, 0, 0]} />
