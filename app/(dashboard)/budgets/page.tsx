@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, PiggyBank, TrendingDown, AlertTriangle } from "lucide-react";
 import { AddBudgetModal } from "@/components/budgets/AddBudgetModal";
+import { InfoTooltip } from "@/components/ui/Tooltip";
 
 // Mock data
 const mockBudget = {
@@ -113,8 +114,13 @@ export default function BudgetsPage() {
       <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg p-8 text-white mb-8">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold mb-2">{budget.name}</h2>
-            <p className="text-blue-100">Zero-Based Budgeting</p>
+            <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+              {budget.name}
+            </h2>
+            <p className="text-blue-100 flex items-center gap-2">
+              Zero-Based Budgeting
+              <InfoTooltip content="Every dollar is assigned a purpose. Income minus expenses should equal zero, ensuring complete control over your money" position="bottom" />
+            </p>
           </div>
           <PiggyBank className="h-12 w-12 opacity-80" />
         </div>

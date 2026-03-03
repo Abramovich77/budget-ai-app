@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Target, TrendingUp, Calendar, DollarSign, CheckCircle } from "lucide-react";
 import { AddGoalModal } from "@/components/goals/AddGoalModal";
+import { InfoTooltip } from "@/components/ui/Tooltip";
 
 // Mock data
 const mockGoals = [
@@ -89,7 +90,10 @@ export default function GoalsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Goals</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Goals</h3>
+              <InfoTooltip content="Goals you're currently working towards. Set target amounts and deadlines to stay motivated" position="bottom" />
+            </div>
             <Target className="h-5 w-5 text-blue-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">{activeGoals.length}</p>

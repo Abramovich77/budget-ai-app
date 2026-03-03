@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, Brain } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
+import { InfoTooltip } from "@/components/ui/Tooltip";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -149,8 +150,9 @@ export default function TransactionsPage() {
       {/* AI Banner */}
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-6 flex items-center">
         <Brain className="h-6 w-6 text-blue-600 mr-3" />
-        <p className="text-sm text-gray-700 dark:text-gray-300">
+        <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
           <span className="font-semibold">{transactions.filter(t => t.aiCategorized).length} transactions</span> automatically categorized by AI with 95%+ accuracy
+          <InfoTooltip content="Our AI analyzes transaction descriptions and automatically assigns the most appropriate category, learning from your patterns over time" position="bottom" />
         </p>
       </div>
 

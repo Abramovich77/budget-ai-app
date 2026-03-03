@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, PiggyBank } from "lucide-react";
+import { InfoTooltip } from "@/components/ui/Tooltip";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -29,7 +30,10 @@ export default async function DashboardPage() {
         {/* Total Balance */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance</h3>
+              <InfoTooltip content="Sum of all your account balances across checking, savings, and investment accounts" />
+            </div>
             <DollarSign className="h-5 w-5 text-blue-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -41,7 +45,10 @@ export default async function DashboardPage() {
         {/* Monthly Income */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.1s" }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Income</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Income</h3>
+              <InfoTooltip content="Total income received this month from salary, side hustles, investments, and other sources" />
+            </div>
             <TrendingUp className="h-5 w-5 text-green-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -53,7 +60,10 @@ export default async function DashboardPage() {
         {/* Monthly Expenses */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.2s" }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Expenses</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Expenses</h3>
+              <InfoTooltip content="Total amount spent this month across all categories including bills, groceries, entertainment, and more" />
+            </div>
             <TrendingDown className="h-5 w-5 text-red-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -65,7 +75,10 @@ export default async function DashboardPage() {
         {/* Budget Remaining */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.3s" }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Budget Remaining</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Budget Remaining</h3>
+              <InfoTooltip content="Amount left to spend this month within your budget. Stay within this to meet your financial goals!" />
+            </div>
             <PiggyBank className="h-5 w-5 text-purple-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">
