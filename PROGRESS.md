@@ -1322,4 +1322,76 @@ Add real-time budget alerts that trigger toasts when approaching budget limits
 
 ---
 
-*Last updated: 2026-03-03 19:20 UTC*
+### 2026-03-03 19:50 UTC - Iteration #23
+
+#### Improvement
+- **What:** Real-time budget alerts with smart notification system
+- **Why:** Proactively warn users when spending approaches or exceeds budget limits to prevent overspending
+
+#### Changes
+- **Files:**
+  - `lib/hooks/useBudgetAlerts.ts` (new, 134 lines)
+  - `app/(dashboard)/budgets/page.tsx` (modified)
+- **Lines:** +204 additions / -8 deletions
+
+#### Features Implemented
+- Budget Alert Hooks:
+  - useBudgetAlerts: Monitors individual category spending
+  - useOverallBudgetAlert: Tracks total budget health
+  - Configurable thresholds (default: 80% warning, 95% critical)
+  - Automatic overspending detection (>100%)
+- Smart Alert System:
+  - Prevents duplicate notifications with ref-based tracking
+  - Groups alerts by 10% spending buckets
+  - Auto-cleanup of outdated alerts when categories change
+  - Manual reset functionality for user control
+- Toast Integration:
+  - Warning toast at 80%: "Category Running Low" with remaining amount
+  - Warning toast at 95%: "Category Almost Exhausted" with urgent tone
+  - Error toast at 100%+: "Over Budget!" with overspent amount
+  - Info styling for early warnings, error styling for overspending
+- UI Enhancements:
+  - Alert toggle button with Bell/BellOff icons
+  - Visual indicator: green when on, gray when off
+  - Info banner explaining alert thresholds (80%, 95%, 100%+)
+  - Smooth fade-in animation for banner
+  - Alerts state persists during session
+- User Experience:
+  - Immediate feedback when approaching limits
+  - Non-intrusive toast notifications (auto-dismiss)
+  - Toggle alerts on/off with single click
+  - Clear explanation of alert system behavior
+  - Resets alert state when toggled to prevent spam
+
+#### Technical Improvements
+- TypeScript Interfaces:
+  - BudgetCategory interface for type safety
+  - BudgetAlertThresholds for configuration
+  - Full type safety across hooks and components
+- Performance:
+  - useRef for efficient alert tracking (no re-renders)
+  - Set data structure for O(1) lookups
+  - Memoized dependencies in useEffect
+  - Cleanup logic prevents memory leaks
+- Hook Architecture:
+  - Composable hooks pattern
+  - Independent alert systems (category vs overall)
+  - Custom reset functions for manual control
+  - Conditional enabling based on loading state
+- Integration:
+  - Works with existing toast system
+  - No breaking changes to budget page
+  - Optional thresholds parameter
+  - Easy to disable/enable via state
+
+#### Status
+- Build: ✅ (successful compilation, budgets 6.28 kB)
+- Tests: ✅ (Alerts trigger correctly, toggle works, toasts appear)
+- Deploy: ✅ (pushed to GitHub)
+
+#### Next Priority
+Add budget recommendations based on spending patterns (AI-powered suggestions to optimize budget allocation)
+
+---
+
+*Last updated: 2026-03-03 19:50 UTC*
