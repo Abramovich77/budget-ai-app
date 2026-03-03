@@ -4,145 +4,127 @@ import { prisma } from "@/lib/prisma";
 import { createBudgetSchema } from "@/lib/validation/schemas";
 import { validateBody, errorResponse } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
+import {
+  withErrorHandler,
+  assertAuthorized,
+  assertExists,
+  NotFoundError,
+} from "@/lib/errors/apiErrors";
 
 export const dynamic = 'force-dynamic';
 
 // GET /api/budgets - List all budgets
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandler(async (request: NextRequest) => {
   // Apply rate limiting
   const rateLimitResponse = rateLimit(request, RATE_LIMITS.query);
   if (rateLimitResponse) {
     return rateLimitResponse;
   }
 
-  try {
-    const session = await auth();
+  const session = await auth();
+  assertAuthorized(!!session?.user?.id, "Please sign in to view budgets");
 
-    if (!session?.user?.id) {
-      return errorResponse("Unauthorized", 401);
-    }
+  // Get user's households
+  const households = await prisma.householdMember.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    select: {
+      householdId: true,
+    },
+  });
 
-    // Get user's households
-    const households = await prisma.householdMember.findMany({
-      where: {
-        userId: session.user.id,
+  const householdIds = households.map((h) => h.householdId);
+
+  const budgets = await prisma.budget.findMany({
+    where: {
+      householdId: {
+        in: householdIds,
       },
-      select: {
-        householdId: true,
-      },
-    });
-
-    const householdIds = households.map((h) => h.householdId);
-
-    const budgets = await prisma.budget.findMany({
-      where: {
-        householdId: {
-          in: householdIds,
+    },
+    include: {
+      items: {
+        include: {
+          category: true,
         },
       },
-      include: {
-        items: {
-          include: {
-            category: true,
-          },
-        },
-        household: {
-          select: {
-            name: true,
-          },
+      household: {
+        select: {
+          name: true,
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-    const response = NextResponse.json({ budgets });
+  const response = NextResponse.json({ budgets });
 
-    // Add rate limit headers
-    const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.query);
-    for (const [key, value] of Object.entries(rateLimitHeaders)) {
-      response.headers.set(key, value);
-    }
-
-    return response;
-  } catch (error) {
-    if (error instanceof NextResponse) {
-      return error;
-    }
-    console.error("Error fetching budgets:", error);
-    return errorResponse("Internal server error", 500);
+  // Add rate limit headers
+  const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.query);
+  for (const [key, value] of Object.entries(rateLimitHeaders)) {
+    response.headers.set(key, value);
   }
-}
+
+  return response;
+});
 
 // POST /api/budgets - Create a new budget
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandler(async (request: NextRequest) => {
   // Apply rate limiting
   const rateLimitResponse = rateLimit(request, RATE_LIMITS.mutation);
   if (rateLimitResponse) {
     return rateLimitResponse;
   }
 
-  try {
-    const session = await auth();
+  const session = await auth();
+  assertAuthorized(!!session?.user?.id, "Please sign in to create a budget");
 
-    if (!session?.user?.id) {
-      return errorResponse("Unauthorized", 401);
-    }
+  // Validate and sanitize request body
+  const validated = await validateBody(request, createBudgetSchema);
+  const { householdId, name, methodology, periodType, startDate, items } = validated;
 
-    // Validate and sanitize request body
-    const validated = await validateBody(request, createBudgetSchema);
-    const { householdId, name, methodology, periodType, startDate, items } = validated;
-
-    // Verify user is member of household
-    const membership = await prisma.householdMember.findUnique({
-      where: {
-        householdId_userId: {
-          householdId,
-          userId: session.user.id,
-        },
-      },
-    });
-
-    if (!membership) {
-      return errorResponse("Household not found or you are not a member", 404);
-    }
-
-    // Create budget with items
-    const budget = await prisma.budget.create({
-      data: {
+  // Verify user is member of household
+  const membership = await prisma.householdMember.findUnique({
+    where: {
+      householdId_userId: {
         householdId,
-        name,
-        methodology,
-        periodType,
-        startDate: new Date(startDate),
-        items: {
-          create: items,
+        userId: session.user.id,
+      },
+    },
+  });
+
+  assertExists(membership, "Household");
+
+  // Create budget with items
+  const budget = await prisma.budget.create({
+    data: {
+      householdId,
+      name,
+      methodology,
+      periodType,
+      startDate: new Date(startDate),
+      items: {
+        create: items,
+      },
+    },
+    include: {
+      items: {
+        include: {
+          category: true,
         },
       },
-      include: {
-        items: {
-          include: {
-            category: true,
-          },
-        },
-      },
-    });
+    },
+  });
 
-    const response = NextResponse.json(budget, { status: 201 });
+  const response = NextResponse.json(budget, { status: 201 });
 
-    // Add rate limit headers
-    const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.mutation);
-    for (const [key, value] of Object.entries(rateLimitHeaders)) {
-      response.headers.set(key, value);
-    }
-
-    return response;
-  } catch (error) {
-    if (error instanceof NextResponse) {
-      return error;
-    }
-    console.error("Error creating budget:", error);
-    return errorResponse("Internal server error", 500);
+  // Add rate limit headers
+  const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.mutation);
+  for (const [key, value] of Object.entries(rateLimitHeaders)) {
+    response.headers.set(key, value);
   }
-}
+
+  return response;
+});
