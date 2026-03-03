@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Download, Upload, Brain } from "lucide-react";
+import { TableRowSkeleton } from "@/components/ui/Skeleton";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -58,9 +59,18 @@ const mockTransactions = [
 ];
 
 export default function TransactionsPage() {
-  const [transactions] = useState(mockTransactions);
+  const [transactions, setTransactions] = useState<typeof mockTransactions>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+
+  useEffect(() => {
+    // Simulate loading data
+    setTimeout(() => {
+      setTransactions(mockTransactions);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   const filteredTransactions = transactions.filter((t) =>
     t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -158,7 +168,17 @@ export default function TransactionsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredTransactions.length === 0 ? (
+            {loading ? (
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={6} className="px-6 py-4">
+                      <TableRowSkeleton />
+                    </td>
+                  </tr>
+                ))}
+              </>
+            ) : filteredTransactions.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center">
                   <p className="text-gray-500 dark:text-gray-400">

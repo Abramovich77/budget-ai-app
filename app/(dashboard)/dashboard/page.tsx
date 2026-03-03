@@ -13,7 +13,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -27,7 +27,7 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Balance */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance</h3>
             <DollarSign className="h-5 w-5 text-blue-600" />
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Monthly Income */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.1s" }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Income</h3>
             <TrendingUp className="h-5 w-5 text-green-600" />
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Monthly Expenses */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.2s" }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Expenses</h3>
             <TrendingDown className="h-5 w-5 text-red-600" />
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Budget Remaining */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.3s" }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Budget Remaining</h3>
             <PiggyBank className="h-5 w-5 text-purple-600" />
