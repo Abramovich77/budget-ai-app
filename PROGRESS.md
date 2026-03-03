@@ -2114,8 +2114,115 @@ Add data visualization improvements with interactive tooltips and legends on cha
 - Deploy: ✅ (pushed to GitHub)
 
 #### Next Priority
-Add data visualization improvements with interactive tooltips and legends on charts
+Add help tooltips and contextual hints throughout the application
 
 ---
 
-*Last updated: 2026-03-03 23:50 UTC*
+### 2026-03-04 00:20 UTC - Iteration #32
+
+#### Improvement
+- **What:** Enhanced chart tooltips and interactive legends with richer data insights
+- **Why:** Improve data visualization experience with more informative tooltips and interactive legend controls for better chart exploration
+
+#### Changes
+- **Files:**
+  - `components/charts/EnhancedTooltip.tsx` (new, 256 lines)
+  - `components/charts/InteractiveLegend.tsx` (new, 197 lines)
+  - `app/(dashboard)/reports/page.tsx` (modified)
+- **Lines:** +514 additions / -61 deletions
+
+#### Features Implemented
+- Enhanced Tooltip Components:
+  - EnhancedLineTooltip: Comprehensive financial overview
+    - Shows income (green), expenses (red) with formatted amounts
+    - Net cash flow calculation with surplus/deficit indicator
+    - Trend icons (TrendingUp/Down) for visual feedback
+    - Savings rate percentage with highlighted display
+    - Color-coded sections for easy reading
+    - Dividers between sections for clarity
+  - EnhancedPieTooltip: Category spending insights
+    - Category name with color indicator
+    - Total spent amount in large, bold font
+    - Percentage of total budget with progress bar
+    - Visual percentage bar with category color
+    - Average per transaction calculation (mock data)
+    - Compact, informative layout
+  - EnhancedBarTooltip: Month-over-month comparison
+    - Last month vs this month values
+    - Difference calculation with trend icon
+    - Percentage change with +/- indicator
+    - Color-coded by direction (green = saved, red = increased)
+    - "Saved" or "Increased" label for clarity
+- Interactive Legend Components:
+  - InteractiveLegend: Click-to-toggle chart data
+    - Toggle button for each data series
+    - Eye/EyeOff icons show visibility state
+    - Color indicator matching chart lines
+    - Optional value display
+    - Hover scale animation
+    - Opacity changes for hidden items
+    - Border highlighting for active items
+  - CategoryLegend: Interactive pie chart categories
+    - Clickable category cards
+    - Percentage bars for each category
+    - Amount and percentage display
+    - Selected state highlighting (blue border/bg)
+    - Opacity reduction for non-selected items
+    - Total amount footer
+    - Responsive layout
+- Reports Page Integration:
+  - Integrated InteractiveLegend for line chart
+    - Toggle income/expenses visibility
+    - Conditional rendering of Line components
+    - State management with hiddenDataKeys Set
+  - Integrated CategoryLegend for pie chart
+    - Side-by-side layout (chart + legend)
+    - Click legend items to filter
+    - Selected state synchronized with chart
+    - Responsive: stacks on mobile
+  - All charts now use EnhancedTooltip variants
+  - Better layout for pie chart section (flex container)
+- User Experience:
+  - More informative tooltips with key metrics
+  - Interactive legends enable data exploration
+  - Click to show/hide data series
+  - Visual feedback on all interactions
+  - Color-coded indicators throughout
+  - Formatted numbers with thousands separators
+  - Trend analysis with directional icons
+  - Percentage calculations and displays
+
+#### Technical Improvements
+- Component Architecture:
+  - Reusable tooltip components
+  - Props-based configuration
+  - TypeScript interfaces for type safety
+  - Conditional rendering patterns
+- Data Management:
+  - Set data structure for hidden items
+  - Toggle logic for show/hide
+  - Synchronized state between chart and legend
+  - Conditional Line rendering based on visibility
+- Visual Design:
+  - Lucide icons: TrendingUp, TrendingDown, DollarSign, Percent, Eye, EyeOff
+  - Color-coded sections matching chart colors
+  - Smooth transitions and hover effects
+  - Dark mode compatible throughout
+  - Border and background color variations
+- Performance:
+  - Efficient Set operations for toggles
+  - Minimal re-renders with proper state management
+  - CSS-only animations
+  - Optimized conditional rendering
+
+#### Status
+- Build: ✅ (successful compilation, reports 116 kB)
+- Tests: ✅ (Interactive legends work, enhanced tooltips display correctly, filtering functional)
+- Deploy: ✅ (pushed to GitHub)
+
+#### Next Priority
+Add help tooltips and contextual hints throughout the application
+
+---
+
+*Last updated: 2026-03-04 00:20 UTC*
