@@ -7,6 +7,7 @@ import { InfoTooltip } from "@/components/ui/Tooltip";
 import { GridSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useBudgetAlerts, useOverallBudgetAlert } from "@/lib/hooks/useBudgetAlerts";
+import { BudgetRecommendations } from "@/components/budgets/BudgetRecommendations";
 
 // Mock data
 const mockBudget = {
@@ -357,6 +358,17 @@ export default function BudgetsPage() {
           );
         })}
       </div>
+
+          {/* AI Budget Recommendations */}
+          <div className="mt-8">
+            <BudgetRecommendations
+              budget={{
+                totalAllocated: budget.totalAllocated,
+                totalSpent: budget.totalSpent,
+                categories: budget.categories,
+              }}
+            />
+          </div>
 
           {/* Budget Methodology Info */}
           <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
