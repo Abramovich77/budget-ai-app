@@ -988,9 +988,87 @@ Add data visualization improvements (interactive charts, zoom, tooltips), then i
 - Tests: ✅ (Preferences persist, sort works, view toggle works, cross-tab sync works)
 - Deploy: ✅ (pushed to GitHub)
 
+---
+
+### 2026-03-03 17:20 UTC - Iteration #18
+
+#### Improvement
+- **What:** Added comprehensive loading skeletons and empty states throughout the application
+- **Why:** Improve perceived performance and provide better UX when data is loading or when no data exists
+
+#### Changes
+- **Files:**
+  - `components/ui/EmptyState.tsx` (new, 60 lines)
+  - `components/ui/Skeleton.tsx` (modified)
+  - `app/(dashboard)/budgets/page.tsx` (modified)
+  - `app/(dashboard)/goals/page.tsx` (modified)
+- **Lines:** +257 additions / -44 deletions
+
+#### Features Implemented
+- EmptyState Component:
+  - Full-featured empty state with icon, title, description
+  - Optional action button with onClick handler
+  - Optional children for custom content
+  - Centered layout with proper spacing
+  - Icon background with circular badge
+  - Responsive design
+- EmptyStateCard Component:
+  - Compact variant for smaller spaces
+  - Configurable compact mode
+  - Same icon + title + description pattern
+  - No action button (for read-only displays)
+- New Skeleton Components:
+  - ListSkeleton: Configurable rows with avatar + text
+  - GridSkeleton: Configurable grid items with image placeholder
+  - StatCardSkeleton: Perfect for dashboard stat cards
+  - FormSkeleton: Complete form with labels and inputs
+  - All use animate-pulse for smooth loading effect
+- Budgets Page Enhancements:
+  - Loading state with gradient card skeleton + GridSkeleton
+  - Empty state with Wallet icon and "Create Budget" CTA
+  - Conditional rendering: loading → empty → content
+  - Simulated 1.2s load time for realistic effect
+  - Smooth fade-in animation
+- Goals Page Enhancements:
+  - Loading state with ListSkeleton (4 rows)
+  - Empty state with Crosshair icon and detailed message
+  - "Create Your First Goal" prominent CTA button
+  - Conditional rendering for all three states
+  - Simulated 1s load time
+  - Better UX for first-time users
+- User Experience:
+  - No blank screens during loading
+  - Visual feedback that data is loading
+  - Clear messaging when no data exists
+  - Actionable CTAs to add data
+  - Consistent animation patterns
+  - Dark mode compatible throughout
+
+#### Technical Improvements
+- Component Architecture:
+  - Reusable EmptyState patterns
+  - Configurable skeleton components
+  - Props-driven customization
+  - TypeScript interfaces for type safety
+- Loading Strategy:
+  - useEffect with setTimeout for simulated loading
+  - State management for loading boolean
+  - Conditional rendering based on loading + data
+  - Graceful degradation
+- Performance:
+  - CSS animations (no JS)
+  - Lightweight skeleton components
+  - No external dependencies
+  - Optimized re-renders
+
+#### Status
+- Build: ✅ (successful compilation, budgets 4.17 kB, goals 4.46 kB)
+- Tests: ✅ (Loading states show correctly, empty states render, CTAs work)
+- Deploy: ✅ (pushed to GitHub)
+
 #### Next Priority
-Add loading skeleton screens and empty states for better perceived performance
+Add responsive mobile navigation and hamburger menu for better mobile experience
 
 ---
 
-*Last updated: 2026-03-03 16:50 UTC*
+*Last updated: 2026-03-03 17:20 UTC*
