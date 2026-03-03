@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   Brain,
   LayoutDashboard,
@@ -87,7 +88,9 @@ export default async function DashboardLayout({
       {/* Main Content */}
       <main className="ml-64 min-h-screen">
         <div className="px-8 py-6">
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </div>
       </main>
     </div>
