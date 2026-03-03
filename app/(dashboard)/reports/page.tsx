@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, TrendingUp, Calendar, PieChart as PieChartIcon } from "lucide-react";
+import { TrendingUp, Calendar, PieChart as PieChartIcon } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -17,6 +17,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { exportSpendingReportToCSV, exportCategoryBreakdownToCSV } from "@/lib/utils/export";
 
 // Mock data for charts
 const spendingTrendData = [
@@ -55,6 +57,26 @@ export default function ReportsPage() {
   const totalSavings = totalIncome - totalExpenses;
   const savingsRate = ((totalSavings / totalIncome) * 100).toFixed(1);
 
+  const handleExportSpendingTrend = () => {
+    const exportData = spendingTrendData.map(d => ({
+      date: d.month,
+      income: d.income,
+      expenses: d.expenses,
+      net: d.savings,
+    }));
+    exportSpendingReportToCSV(exportData);
+  };
+
+  const handleExportCategoryBreakdown = () => {
+    const exportData = categoryBreakdownData.map(c => ({
+      category: c.name,
+      amount: c.value,
+      percentage: (c.value / totalExpenses) * 100,
+      count: 0, // Mock value
+    }));
+    exportCategoryBreakdownToCSV(exportData);
+  };
+
   return (
     <div>
       {/* Header */}
@@ -76,10 +98,10 @@ export default function ReportsPage() {
             <option value="year">Last Year</option>
             <option value="all">All Time</option>
           </select>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition">
-            <Download className="h-5 w-5 mr-2" />
-            Export PDF
-          </button>
+          <ExportButton
+            onExportCSV={handleExportSpendingTrend}
+            label="Export Report"
+          />
         </div>
       </div>
 

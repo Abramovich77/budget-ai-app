@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Download, Upload, Brain } from "lucide-react";
+import { Plus, Search, Filter, Upload, Brain } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { exportTransactionsToCSV } from "@/lib/utils/export";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -84,6 +86,10 @@ export default function TransactionsPage() {
     setTransactions((prev) => [newTransaction, ...prev]);
   };
 
+  const handleExportTransactions = () => {
+    exportTransactionsToCSV(filteredTransactions as any);
+  };
+
   return (
     <div>
       {/* Add Transaction Modal */}
@@ -140,10 +146,10 @@ export default function TransactionsPage() {
           </button>
 
           {/* Export */}
-          <button className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-            <Download className="h-5 w-5 mr-2" />
-            Export
-          </button>
+          <ExportButton
+            onExportCSV={handleExportTransactions}
+            label="Export"
+          />
         </div>
       </div>
 
