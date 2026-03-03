@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Plus, Search, Filter, Upload, Brain, List, Grid3x3 } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
@@ -8,6 +8,7 @@ import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportTransactionsToCSV } from "@/lib/utils/export";
 import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
+import { useSortedData, useSearchResults } from "@/lib/hooks/useOptimizedData";
 import { TransactionFilters, applyTransactionFilters, type TransactionFilterOptions } from "@/components/transactions/TransactionFilters";
 import type { TransactionFormData } from "@/types/forms";
 import { HelpTooltip, FeatureBanner } from "@/components/ui/HelpTooltip";
@@ -99,31 +100,25 @@ export default function TransactionsPage() {
     setPreferences({ ...preferences, transactionFilter: value });
   };
 
-  // Apply search filter
-  const searchFilteredTransactions = transactions.filter((t) =>
-    t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.category.toLowerCase().includes(searchQuery.toLowerCase())
+  // Apply search filter using optimized search hook
+  const searchFilteredTransactions = useSearchResults(
+    transactions,
+    searchQuery,
+    ["description", "merchant", "category"]
   );
 
-  // Apply advanced filters
-  const filteredTransactions = applyTransactionFilters(searchFilteredTransactions, filters);
+  // Apply advanced filters - memoized
+  const filteredTransactions = useMemo(() =>
+    applyTransactionFilters(searchFilteredTransactions, filters),
+    [searchFilteredTransactions, filters]
+  );
 
-  // Sort transactions based on preferences
-  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
-    const { transactionSortBy, transactionSortOrder } = preferences;
-    let comparison = 0;
-
-    if (transactionSortBy === "date") {
-      comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-    } else if (transactionSortBy === "amount") {
-      comparison = Math.abs(a.amount) - Math.abs(b.amount);
-    } else if (transactionSortBy === "category") {
-      comparison = a.category.localeCompare(b.category);
-    }
-
-    return transactionSortOrder === "asc" ? comparison : -comparison;
-  });
+  // Sort transactions using optimized sort hook
+  const sortedTransactions = useSortedData(
+    filteredTransactions,
+    preferences.transactionSortBy,
+    preferences.transactionSortOrder
+  );
 
   const handleAddTransaction = (newTransaction: TransactionFormData) => {
     setTransactions((prev) => [{ ...newTransaction, id: String(Date.now()) } as typeof mockTransactions[0], ...prev]);
@@ -141,8 +136,11 @@ export default function TransactionsPage() {
     })) as any); // Type assertion needed for export utility compatibility
   };
 
-  // Get unique categories for filter
-  const availableCategories = Array.from(new Set(transactions.map(t => t.category))).sort();
+  // Get unique categories for filter - memoized
+  const availableCategories = useMemo(() =>
+    Array.from(new Set(transactions.map(t => t.category))).sort(),
+    [transactions]
+  );
 
   return (
     <div className="animate-fade-in">

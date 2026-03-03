@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Plus, PiggyBank, TrendingDown, AlertTriangle, Wallet, Bell, BellOff } from "lucide-react";
 import { AddBudgetModal } from "@/components/budgets/AddBudgetModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { GridSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useBudgetAlerts, useOverallBudgetAlert } from "@/lib/hooks/useBudgetAlerts";
+import { useBudgetProgress } from "@/lib/hooks/useOptimizedData";
 import { BudgetRecommendations } from "@/components/budgets/BudgetRecommendations";
 import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
 
@@ -90,6 +91,15 @@ export default function BudgetsPage() {
       setLoading(false);
     }, 1200);
   }, []);
+
+  // Use optimized budget progress calculation
+  const budgetProgressData = useBudgetProgress(
+    budget?.categories.map(c => ({
+      name: c.name,
+      allocated: c.allocated,
+      spent: c.spent
+    })) || []
+  );
 
   const progressPercentage = budget ? (budget.totalSpent / budget.totalAllocated) * 100 : 0;
   const remaining = budget ? budget.totalAllocated - budget.totalSpent : 0;

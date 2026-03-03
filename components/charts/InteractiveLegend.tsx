@@ -2,6 +2,7 @@
  * Interactive legend component with click-to-toggle functionality
  */
 
+import { memo } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 interface LegendItem {
@@ -18,7 +19,7 @@ interface InteractiveLegendProps {
   showValues?: boolean;
 }
 
-export function InteractiveLegend({
+export const InteractiveLegend = memo(function InteractiveLegend({
   items,
   hiddenItems,
   onToggle,
@@ -80,7 +81,7 @@ export function InteractiveLegend({
       })}
     </div>
   );
-}
+});
 
 /**
  * Simple legend for pie charts with categories
@@ -96,7 +97,7 @@ interface CategoryLegendProps {
   onSelectCategory?: (category: string | null) => void;
 }
 
-export function CategoryLegend({
+export const CategoryLegend = memo(function CategoryLegend({
   categories,
   selectedCategory,
   onSelectCategory,
@@ -176,4 +177,4 @@ export function CategoryLegend({
       </div>
     </div>
   );
-}
+});

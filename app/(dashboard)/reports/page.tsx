@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { TrendingUp, Calendar, PieChart as PieChartIcon } from "lucide-react";
 import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
+import { useSpendingStats, useChartData } from "@/lib/hooks/useOptimizedData";
 import type { PieChartDataPoint, LineChartDataPoint } from "@/types/forms";
 import {
   LineChart,
@@ -68,6 +69,14 @@ export default function ReportsPage() {
     });
   };
 
+  // Use optimized spending stats calculation with memoization
+  const spendingStats = useSpendingStats(
+    useMemo(() => spendingTrendData.flatMap(d => [
+      { amount: d.income, category: 'Income' },
+      { amount: -d.expenses, category: 'Expenses' }
+    ]), [])
+  );
+
   const totalIncome = spendingTrendData.reduce((sum, d) => sum + d.income, 0);
   const totalExpenses = spendingTrendData.reduce((sum, d) => sum + d.expenses, 0);
   const totalSavings = totalIncome - totalExpenses;
@@ -93,18 +102,22 @@ export default function ReportsPage() {
     exportCategoryBreakdownToCSV(exportData);
   };
 
-  // Add percentage to category data for tooltip
-  const categoryDataWithPercentage = categoryBreakdownData.map(c => ({
-    ...c,
-    percentage: (c.value / categoryBreakdownData.reduce((sum, item) => sum + item.value, 0)) * 100,
-  }));
+  // Add percentage to category data for tooltip - memoized
+  const categoryDataWithPercentage = useMemo(() =>
+    categoryBreakdownData.map(c => ({
+      ...c,
+      percentage: (c.value / categoryBreakdownData.reduce((sum, item) => sum + item.value, 0)) * 100,
+    })), []);
 
-  // Filter comparison data based on selected category
-  const filteredComparisonData = selectedCategory
-    ? monthlyComparisonData.filter(item =>
-        item.category.toLowerCase().includes(selectedCategory.toLowerCase().split(' ')[0])
-      )
-    : monthlyComparisonData;
+  // Filter comparison data based on selected category - memoized
+  const filteredComparisonData = useMemo(() =>
+    selectedCategory
+      ? monthlyComparisonData.filter(item =>
+          item.category.toLowerCase().includes(selectedCategory.toLowerCase().split(' ')[0])
+        )
+      : monthlyComparisonData,
+    [selectedCategory]
+  );
 
   // Handle pie chart click
   const handlePieClick = (data: unknown) => {

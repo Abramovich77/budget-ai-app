@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Plus, Target, TrendingUp, Calendar, DollarSign, CheckCircle, Crosshair } from "lucide-react";
 import { AddGoalModal } from "@/components/goals/AddGoalModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyStateCard } from "@/components/ui/EmptyState";
 import { GoalMilestone } from "@/components/goals/GoalMilestone";
+import { useGoalProgress } from "@/lib/hooks/useOptimizedData";
 import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
 
 // Mock data
@@ -66,8 +67,17 @@ export default function GoalsPage() {
     }, 1000);
   }, []);
 
-  const activeGoals = goals.filter((g) => g.status === "active");
-  const completedGoals = goals.filter((g) => g.status === "completed");
+  const activeGoals = useMemo(() => goals.filter((g) => g.status === "active"), [goals]);
+  const completedGoals = useMemo(() => goals.filter((g) => g.status === "completed"), [goals]);
+
+  // Use optimized goal progress calculation
+  const goalsWithProgress = useGoalProgress(
+    activeGoals.map(g => ({
+      targetAmount: g.targetAmount,
+      currentAmount: g.currentAmount,
+      targetDate: g.targetDate
+    }))
+  );
 
   const handleAddGoal = (newGoal: { id: string; name: string; goalType: string; targetAmount: number; currentAmount: number; targetDate: string; priority: number; status: string }) => {
     const goalForState = {

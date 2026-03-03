@@ -2,6 +2,7 @@
  * Enhanced tooltip components for charts with better formatting and insights
  */
 
+import { memo } from "react";
 import { TrendingUp, TrendingDown, DollarSign, Percent } from "lucide-react";
 
 interface TooltipProps {
@@ -13,7 +14,7 @@ interface TooltipProps {
 /**
  * Enhanced Line Chart Tooltip with trend analysis
  */
-export function EnhancedLineTooltip({ active, payload, label }: TooltipProps) {
+export const EnhancedLineTooltip = memo(function EnhancedLineTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
 
   const income = payload.find((p) => p.dataKey === "income")?.value || 0;
@@ -90,12 +91,12 @@ export function EnhancedLineTooltip({ active, payload, label }: TooltipProps) {
       </div>
     </div>
   );
-}
+});
 
 /**
  * Enhanced Pie Chart Tooltip with category insights
  */
-export function EnhancedPieTooltip({ active, payload }: TooltipProps) {
+export const EnhancedPieTooltip = memo(function EnhancedPieTooltip({ active, payload }: TooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
 
   const data = payload[0].payload;
@@ -148,12 +149,12 @@ export function EnhancedPieTooltip({ active, payload }: TooltipProps) {
       </div>
     </div>
   );
-}
+});
 
 /**
  * Enhanced Bar Chart Tooltip with comparison analysis
  */
-export function EnhancedBarTooltip({ active, payload, label }: TooltipProps) {
+export const EnhancedBarTooltip = memo(function EnhancedBarTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
 
   const lastMonth = payload.find((p) => p.dataKey === "lastMonth")?.value || 0;
@@ -236,4 +237,4 @@ export function EnhancedBarTooltip({ active, payload, label }: TooltipProps) {
       </div>
     </div>
   );
-}
+});
