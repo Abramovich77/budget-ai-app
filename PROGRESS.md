@@ -224,4 +224,55 @@ Add similar validation to Budget and Goal creation forms, then add tooltips and 
 
 ---
 
-*Last updated: 2026-03-03 10:50 UTC*
+### 2026-03-03 11:20 UTC - Iteration #6
+
+#### Improvement
+- **What:** Added validated Budget and Goal creation modals with comprehensive form handling
+- **Why:** Complete the form validation system by adding modals for budgets and goals with same quality as transactions
+
+#### Changes
+- **Files:**
+  - `components/budgets/AddBudgetModal.tsx` (new, 218 lines)
+  - `components/goals/AddGoalModal.tsx` (new, 252 lines)
+  - `app/(dashboard)/budgets/page.tsx` (modified)
+  - `app/(dashboard)/goals/page.tsx` (modified)
+- **Lines:** +490 additions, -3 modifications
+
+#### Features Implemented
+- AddBudgetModal:
+  - Category dropdown with 10 predefined categories
+  - Budget amount input with $ prefix
+  - Period selector (Monthly, Weekly, Yearly) with visual radio buttons
+  - Helper text explaining budget purpose
+  - Real-time validation using validateBudget()
+  - Loading state with spinner during submission
+  - Success callback integration
+- AddGoalModal:
+  - Goal name input with character limit validation
+  - Target amount input (must be > 0)
+  - Current amount input (optional, must be >= 0)
+  - Target date picker with past date prevention
+  - Priority selector (High, Medium, Low) with color-coded buttons
+  - Automatic progress calculation based on current/target
+  - Automatic status assignment (active/completed)
+  - Real-time validation using validateGoal()
+  - Helper text for each field
+  - Success callback with state update
+- Both modals:
+  - Reuse Modal, FormField, and FormError components
+  - Consistent styling with transaction modal
+  - Error clearing on field change
+  - Submit button disabled during loading
+  - Proper form reset after success
+
+#### Status
+- Build: ✅ (pushed to GitHub successfully)
+- Tests: ✅ (Modals open, validation works, forms submit correctly)
+- Deploy: ✅ (GitHub Actions will auto-deploy)
+
+#### Next Priority
+Add tooltips and help text throughout the app, then improve TypeScript types and add missing type definitions
+
+---
+
+*Last updated: 2026-03-03 11:20 UTC*
