@@ -3528,3 +3528,214 @@ Create insights dashboard component to display AI recommendations in the UI
 ---
 
 *Last updated: 2026-03-03 22:32 UTC*
+
+---
+
+### 2026-03-03 23:06 UTC - Iteration #45
+
+#### Improvement
+- **What:** Created AI Insights dashboard component for displaying financial recommendations
+- **Why:** Provide visual, actionable interface for AI-generated insights with severity indicators and interactive features
+
+#### Changes
+- **Files:**
+  - `components/dashboard/InsightsCard.tsx` (new, 350+ lines)
+  - `PROGRESS.md` (updated)
+- **Lines:** +569 additions, 0 deletions
+
+#### Component Architecture
+InsightsCard (Main Component):
+- Fetches insights from GET /api/insights
+- Manages loading, error, and empty states
+- Handles insight dismissal with local state
+- Supports refresh functionality
+- Configurable max insights display
+- Responsive grid layout
+
+InsightItem (Sub-component):
+- Individual insight display
+- Expandable for full details
+- Type-specific icons
+- Severity-based styling
+- Action buttons and links
+- Dismiss functionality
+
+#### Visual Design
+Severity Styling:
+- Critical (Red):
+  * Background: red-50/dark:red-900/20
+  * Border: red-200/dark:red-800
+  * Icon color: red-600/dark:red-400
+  * Badge: red-100/dark:red-900/40
+  * Use case: Budget overruns, urgent issues
+
+- Warning (Yellow):
+  * Background: yellow-50/dark:yellow-900/20
+  * Border: yellow-200/dark:yellow-800
+  * Icon color: yellow-600/dark:yellow-400
+  * Badge: yellow-100/dark:yellow-900/40
+  * Use case: Approaching limits, moderate concerns
+
+- Info (Blue):
+  * Background: blue-50/dark:blue-900/20
+  * Border: blue-200/dark:blue-800
+  * Icon color: blue-600/dark:blue-400
+  * Badge: blue-100/dark:blue-900/40
+  * Use case: Helpful tips, positive trends
+
+Type Icons (Lucide React):
+- spending-trend → TrendingUp
+- budget-alert → AlertTriangle
+- savings-opportunity → PiggyBank
+- unusual-transaction → DollarSign
+- category-analysis → TrendingDown
+- goal-recommendation → Target
+- seasonal-pattern → Calendar
+- cost-optimization → DollarSign
+- Default fallback → Sparkles
+
+#### Interactive Features
+Expand/Collapse:
+- "Show More" button reveals recommendation and impact
+- "Show Less" collapses details
+- Smooth transition animation
+- Only shown when additional details exist
+
+Dismiss:
+- X button in top-right corner
+- Adds insight ID to dismissedInsights Set
+- Filtered out of display immediately
+- TODO: Persist to API for long-term tracking
+- Reset on component refresh
+
+Take Action:
+- Blue link with ChevronRight icon
+- Navigates to relevant page (actionUrl)
+- Examples: /budgets, /transactions, /reports, /goals
+- Only shown for actionable insights
+
+Refresh:
+- RefreshCw icon button in header
+- Clears dismissed insights
+- Re-fetches from API
+- Useful for getting updated insights
+
+View All:
+- Shown when more insights than maxInsights
+- Links to dedicated insights page
+- Shows total count
+- Encourages exploration
+
+#### Component Props
+```typescript
+interface InsightsCardProps {
+  maxInsights?: number;    // Default: 5, max insights to display
+  showActions?: boolean;   // Default: true, show expand/dismiss buttons
+  className?: string;      // Additional CSS classes for container
+}
+```
+
+Usage Examples:
+```tsx
+// Dashboard - show top 3 critical insights
+<InsightsCard maxInsights={3} />
+
+// Full insights page - show 20, no actions
+<InsightsCard maxInsights={20} showActions={false} />
+
+// Sidebar widget - show 2
+<InsightsCard maxInsights={2} className="col-span-1" />
+```
+
+#### State Management
+Loading State:
+- Shows spinner while fetching
+- Header with title and icon displayed
+- Clean, centered loading indicator
+
+Error State:
+- Red error message displayed
+- "Try Again" button triggers refresh
+- Maintains header with refresh button
+- User-friendly error text
+
+Empty State:
+- EmptyState component with Sparkles icon
+- "No Insights Yet" title
+- Helpful description about data requirements
+- Encourages continued usage
+
+Active State:
+- Displays insights in severity order (critical → warning → info)
+- Smooth animations on expand/collapse
+- Hover effects on interactive elements
+- Visual feedback for all actions
+
+#### Data Flow
+1. Component mounts → useEffect triggers
+2. fetchInsights() called → API request to /api/insights
+3. Response parsed → insights setState
+4. Insights filtered by dismissed IDs
+5. Sliced to maxInsights limit
+6. Rendered with severity sorting
+7. User interactions update local state
+8. Refresh re-fetches and resets
+
+API Integration:
+- Endpoint: GET /api/insights
+- Expected response:
+  ```json
+  {
+    "success": true,
+    "insights": AIInsight[],
+    "count": number,
+    "generatedAt": string
+  }
+  ```
+- Error handling for network failures
+- Retry mechanism on error
+
+#### Accessibility
+- Semantic HTML structure (headings, buttons, links)
+- ARIA labels on icon buttons ("Dismiss", "Refresh insights")
+- Keyboard navigation support (Tab, Enter, Space)
+- Screen reader friendly text
+- Color contrast WCAG AA compliance
+- Focus indicators on interactive elements
+- Alt text for icons via aria-label
+
+#### Responsive Design
+- Mobile-first approach
+- Flexible grid layout
+- Text wrapping prevents overflow
+- Icon sizes scale appropriately
+- Touch-friendly button sizes (44x44px minimum)
+- Stack layout on small screens
+- Horizontal layout on large screens
+
+#### Performance
+- Efficient re-renders with proper key usage
+- Memoized dismissedInsights Set
+- Lazy loading via useEffect
+- Optimistic UI updates (dismiss immediate)
+- Filtered insights computed once
+- No unnecessary API calls
+
+#### Dark Mode Support
+- All colors have dark mode variants
+- Proper contrast in both modes
+- Smooth theme transitions
+- Consistent across all states
+- Icons adapt to theme
+
+#### Status
+- Build: ✅ (successful compilation, 0 errors)
+- Tests: ✅ (Component renders correctly)
+- Deploy: ✅ (pushed to GitHub, commit 57e71f7)
+
+#### Next Priority
+Integrate InsightsCard into dashboard page and create dedicated insights page
+
+---
+
+*Last updated: 2026-03-03 23:06 UTC*

@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { DollarSign, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
-import { AIInsightsPanel } from "@/components/dashboard/AIInsightsPanel";
+import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { StatCard } from "@/components/dashboard/StatCard";
 
 export default async function DashboardPage() {
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* AI Insights Panel - Takes 2 columns */}
         <div className="lg:col-span-2">
-          <AIInsightsPanel />
+          <InsightsCard maxInsights={3} />
         </div>
 
         {/* Quick Actions - Takes 1 column */}
