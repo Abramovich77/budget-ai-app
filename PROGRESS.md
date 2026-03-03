@@ -746,9 +746,80 @@ Add data visualization improvements (interactive charts, zoom, tooltips), then i
 - Tests: ✅ (Theme switching works, persistence verified)
 - Deploy: ✅ (pushed to GitHub - requires Vercel deployment now)
 
+---
+
+### 2026-03-03 15:50 UTC - Iteration #15
+
+#### Improvement
+- **What:** Added interactive chart features with click-to-filter and drill-down capabilities
+- **Why:** Enhance data exploration and user engagement - allow users to interactively explore their financial data through charts
+
+#### Changes
+- **Files:**
+  - `app/(dashboard)/reports/page.tsx` (modified)
+- **Lines:** +103 additions / -6 deletions
+
+#### Features Implemented
+- Click-to-Filter on Pie Chart:
+  - Click any category slice to filter the comparison chart
+  - Visual feedback with opacity changes (selected: 100%, others: 30%)
+  - Active filter indicator showing current selection
+  - Click again to deselect and clear filter
+  - Updates chart subtitle to show filtered state
+  - "Click to filter" hint in subtitle
+- Filtered Comparison Chart:
+  - Automatically filters based on pie chart selection
+  - Matches category names intelligently (partial matching)
+  - Shows empty state when no data matches filter
+  - Dynamic subtitle updates with filtered category
+  - Smooth transition when filter applied/removed
+- Click-to-Drill-Down on Line Chart:
+  - Click any point to see detailed month information
+  - Expandable detail panel with gradient background
+  - Shows 4 key metrics in grid:
+    - Income (green)
+    - Expenses (red)
+    - Net Cash Flow (green/red based on value)
+    - Savings Rate (blue percentage)
+  - Clear button to collapse details
+  - Chart subtitle updates with selected month
+  - "Click for details" hint in subtitle
+- Interactive Enhancements:
+  - Cursor pointer on all interactive elements
+  - Larger active dots (radius 8) on line chart
+  - Smooth hover states
+  - Responsive grid layouts for detail panels
+  - Dark mode compatible styling throughout
+- User Experience:
+  - Clear visual indicators for active states
+  - Intuitive click interactions
+  - Non-destructive filtering (easy to reset)
+  - Helpful empty states
+  - Consistent interaction patterns
+
+#### Technical Improvements
+- State Management:
+  - Added selectedCategory state for pie chart filtering
+  - Added selectedMonth state for line chart drill-down
+  - Computed filteredComparisonData based on selection
+  - Conditional rendering for detail panels
+- Event Handlers:
+  - handlePieClick for category filtering
+  - handleLineClick for month selection
+  - Toggle logic (click again to deselect)
+- Performance:
+  - Efficient filtering with Array.filter
+  - Conditional rendering prevents unnecessary DOM
+  - No additional API calls or data fetching
+
+#### Status
+- Build: ✅ (successful compilation, reports page 114 kB)
+- Tests: ✅ (Click interactions work, filtering accurate, drill-down displays correctly)
+- Deploy: ✅ (pushed to GitHub)
+
 #### Next Priority
-Add chart interactivity (click-to-filter, drill-down), then implement dark mode toggle in settings
+Add keyboard shortcuts and accessibility features (arrow keys for navigation, focus management, ARIA labels)
 
 ---
 
-*Last updated: 2026-03-03 14:50 UTC*
+*Last updated: 2026-03-03 15:50 UTC*
