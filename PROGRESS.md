@@ -2527,4 +2527,92 @@ Add keyboard shortcuts and accessibility improvements for better navigation
 
 ---
 
-*Last updated: 2026-03-04 01:50 UTC*
+### 2026-03-04 02:20 UTC - Iteration #36
+
+#### Improvement
+- **What:** Added enhanced keyboard shortcuts and accessibility improvements
+- **Why:** Enable power users to navigate without mouse and improve accessibility for screen reader users (WCAG 2.1 Level AA compliance)
+
+#### Changes
+- **Files:**
+  - `lib/hooks/useKeyboardShortcut.ts` (new, 77 lines)
+  - `components/ui/AccessibilityAnnouncer.tsx` (new, 66 lines)
+  - `app/(dashboard)/transactions/page.tsx` (modified)
+  - `app/(dashboard)/budgets/page.tsx` (modified)
+  - `app/(dashboard)/goals/page.tsx` (modified)
+  - `components/KeyboardShortcuts.tsx` (modified)
+  - `app/(dashboard)/layout.tsx` (modified)
+- **Lines:** +238 additions, -19 deletions
+
+#### Features Implemented
+- useKeyboardShortcut Hook:
+  - Reusable hook for any component to register shortcuts
+  - Configurable key combinations (ctrl, alt, shift, meta)
+  - Option to ignore input fields automatically
+  - Conditional enabling/disabling
+  - Automatic event listener cleanup
+  - TypeScript type safety with full config interface
+- Page-Specific Shortcuts:
+  - Transactions: N (new transaction), F (focus search), E (export data)
+  - Budgets: N (new budget), A (toggle alerts)
+  - Goals: N (new goal)
+  - Navigation: Alt+D/T/B/G/R/S for Dashboard/Transactions/Budgets/Goals/Reports/Settings
+  - Global: Cmd/Ctrl+K (search), ? (help menu), Esc (close dialogs)
+- AccessibilityAnnouncer Component:
+  - ARIA live regions for screen reader announcements
+  - Polite and assertive modes (polite = non-interrupting, assertive = urgent)
+  - Queue system for multiple announcements
+  - Global announce() function for easy usage anywhere
+  - Automatic message clearing after delivery
+- Enhanced KeyboardShortcuts Modal:
+  - Added 5 new page-specific shortcuts to help menu
+  - Organized with section dividers (Navigation, Page Actions)
+  - Scrollable modal for longer shortcut lists
+  - Clear context labels for each shortcut
+  - Proper handling of separator items in UI
+- Accessibility Improvements:
+  - aria-label on all interactive search inputs
+  - Enhanced placeholder text with keyboard hints
+  - Refs for programmatic focus control
+  - Skip-to-content link (already present in layout)
+  - ARIA live regions for dynamic updates
+  - Proper ARIA roles on modals and dialogs
+
+#### Technical Improvements
+- Keyboard Event Handling:
+  - Ignores shortcuts when user is typing in inputs
+  - Prevents default browser behavior for custom shortcuts
+  - Proper event listener cleanup prevents memory leaks
+  - Works with all modifier keys (ctrl, alt, shift, meta)
+- Focus Management:
+  - Search input focuses programmatically with F key
+  - Modals auto-close with Escape key
+  - Focus trap in help modal
+  - Tab order preserved for keyboard navigation
+- Screen Reader Support:
+  - Live region announcer with polite/assertive modes
+  - Descriptive ARIA labels on all interactive elements
+  - Clear role and state information
+  - Non-visual feedback for dynamic changes
+- Type Safety:
+  - Full TypeScript interfaces for all configs
+  - Generic types for flexible usage
+  - Proper event type annotations
+  - No 'any' types used
+- Performance:
+  - Event listeners only when shortcuts are enabled
+  - Efficient key combination matching
+  - Minimal re-renders with proper dependencies
+  - Cleanup on unmount prevents memory leaks
+
+#### Status
+- Build: ✅ (successful compilation, 0 errors)
+- Tests: ✅ (All shortcuts work correctly, no conflicts)
+- Deploy: ✅ (pushed to GitHub)
+
+#### Next Priority
+Add data validation and sanitization with Zod schemas for API endpoints
+
+---
+
+*Last updated: 2026-03-04 02:20 UTC*
