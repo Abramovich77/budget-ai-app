@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { categorizationSchema } from "@/lib/validation/schemas";
 import { validateBody, errorResponse } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
+import { logRequest, logResponse, logError } from "@/lib/middleware/logger";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,9 +30,13 @@ const CATEGORIES = [
 ];
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  const requestId = logRequest(request);
+
   // Apply rate limiting for AI endpoint
   const rateLimitResponse = rateLimit(request, RATE_LIMITS.ai);
   if (rateLimitResponse) {
+    logResponse(requestId, 429, Date.now() - startTime);
     return rateLimitResponse;
   }
 
@@ -88,20 +93,31 @@ Respond with ONLY the category name, nothing else.`,
       response.headers.set(key, value);
     }
 
+    // Add request ID header
+    response.headers.set("X-Request-Id", requestId);
+
+    // Log response
+    logResponse(requestId, response.status, Date.now() - startTime);
+
     return response;
   } catch (error) {
     if (error instanceof NextResponse) {
+      logResponse(requestId, error.status, Date.now() - startTime);
       return error;
     }
+    logError(request, error as Error, { requestId });
     console.error("AI categorization error:", error);
 
     // Fallback to "Other" category if AI fails
-    return NextResponse.json({
+    const fallbackResponse = NextResponse.json({
       category: "Other",
       confidence: 0.5,
       alternatives: [],
       note: "AI unavailable, please categorize manually",
     });
+
+    logResponse(requestId, fallbackResponse.status, Date.now() - startTime);
+    return fallbackResponse;
   }
 }
 

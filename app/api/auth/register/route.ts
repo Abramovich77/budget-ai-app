@@ -4,16 +4,20 @@ import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validation/schemas";
 import { validateBody, errorResponse } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
+import { logRequest, logResponse, logError } from "@/lib/middleware/logger";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  const requestId = logRequest(request);
+
   // Apply rate limiting
   const rateLimitResponse = rateLimit(request, RATE_LIMITS.auth);
   if (rateLimitResponse) {
+    logResponse(requestId, 429, Date.now() - startTime);
     return rateLimitResponse;
   }
-
 
   try {
     // Validate and sanitize request body
@@ -61,11 +65,19 @@ export async function POST(request: NextRequest) {
       response.headers.set(key, value);
     }
 
+    // Add request ID header
+    response.headers.set("X-Request-Id", requestId);
+
+    // Log response
+    logResponse(requestId, response.status, Date.now() - startTime);
+
     return response;
   } catch (error) {
     if (error instanceof NextResponse) {
+      logResponse(requestId, error.status, Date.now() - startTime);
       return error;
     }
+    logError(request, error as Error, { requestId });
     console.error("Registration error:", error);
     return errorResponse("Internal server error", 500);
   }

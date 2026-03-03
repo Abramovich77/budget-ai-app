@@ -7,19 +7,25 @@ import {
 } from "@/lib/validation/schemas";
 import { validateBody, validateQuery, errorResponse } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
+import { logRequest, logResponse, logError } from "@/lib/middleware/logger";
 
 export const dynamic = 'force-dynamic';
 
 // GET /api/transactions - List all transactions
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  const requestId = logRequest(request);
+  let session;
+
   // Apply rate limiting for query endpoints
   const rateLimitResponse = rateLimit(request, RATE_LIMITS.query);
   if (rateLimitResponse) {
+    logResponse(requestId, 429, Date.now() - startTime);
     return rateLimitResponse;
   }
 
   try {
-    const session = await auth();
+    session = await auth();
 
     if (!session?.user?.id) {
       return errorResponse("Unauthorized", 401);
@@ -115,11 +121,19 @@ export async function GET(request: NextRequest) {
       response.headers.set(key, value);
     }
 
+    // Add request ID header
+    response.headers.set("X-Request-Id", requestId);
+
+    // Log response
+    logResponse(requestId, response.status, Date.now() - startTime);
+
     return response;
   } catch (error) {
     if (error instanceof NextResponse) {
+      logResponse(requestId, error.status, Date.now() - startTime);
       return error;
     }
+    logError(request, error as Error, { requestId, userId: session?.user?.id });
     console.error("Error fetching transactions:", error);
     return errorResponse("Internal server error", 500);
   }
@@ -127,14 +141,19 @@ export async function GET(request: NextRequest) {
 
 // POST /api/transactions - Create a new transaction
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  const requestId = logRequest(request);
+  let session;
+
   // Apply rate limiting for mutation endpoints
   const rateLimitResponse = rateLimit(request, RATE_LIMITS.mutation);
   if (rateLimitResponse) {
+    logResponse(requestId, 429, Date.now() - startTime);
     return rateLimitResponse;
   }
 
   try {
-    const session = await auth();
+    session = await auth();
 
     if (!session?.user?.id) {
       return errorResponse("Unauthorized", 401);
@@ -231,11 +250,19 @@ export async function POST(request: NextRequest) {
       response.headers.set(key, value);
     }
 
+    // Add request ID header
+    response.headers.set("X-Request-Id", requestId);
+
+    // Log response
+    logResponse(requestId, response.status, Date.now() - startTime);
+
     return response;
   } catch (error) {
     if (error instanceof NextResponse) {
+      logResponse(requestId, error.status, Date.now() - startTime);
       return error;
     }
+    logError(request, error as Error, { requestId, userId: session?.user?.id });
     console.error("Error creating transaction:", error);
     return errorResponse("Internal server error", 500);
   }
