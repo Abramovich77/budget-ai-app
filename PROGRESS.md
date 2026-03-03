@@ -817,9 +817,93 @@ Add data visualization improvements (interactive charts, zoom, tooltips), then i
 - Tests: ✅ (Click interactions work, filtering accurate, drill-down displays correctly)
 - Deploy: ✅ (pushed to GitHub)
 
+---
+
+### 2026-03-03 16:20 UTC - Iteration #16
+
+#### Improvement
+- **What:** Added keyboard shortcuts and comprehensive accessibility improvements
+- **Why:** Improve user experience for power users and ensure app is accessible to users with disabilities (WCAG compliance)
+
+#### Changes
+- **Files:**
+  - `components/KeyboardShortcuts.tsx` (new, 151 lines)
+  - `app/(dashboard)/layout.tsx` (modified)
+  - `components/ui/Modal.tsx` (modified)
+- **Lines:** +214 additions / -19 deletions
+
+#### Features Implemented
+- Keyboard Navigation Shortcuts:
+  - Alt + D: Navigate to Dashboard
+  - Alt + T: Navigate to Transactions
+  - Alt + B: Navigate to Budgets
+  - Alt + G: Navigate to Goals
+  - Alt + R: Navigate to Reports
+  - Alt + S: Navigate to Settings
+  - ?: Show/hide keyboard shortcuts help
+  - Escape: Close dialogs, modals, and help menu
+- Keyboard Shortcuts Component:
+  - Floating button (bottom-right) with keyboard icon
+  - Modal help menu showing all available shortcuts
+  - Organized shortcut list with visual kbd tags
+  - Click outside or Escape to close
+  - Responsive design for mobile and desktop
+  - Dark mode compatible styling
+- Accessibility Enhancements:
+  - Skip-to-main-content link for screen readers
+  - Appears on focus for keyboard navigation
+  - Comprehensive ARIA labels throughout:
+    - role="navigation" on sidebar
+    - role="main" on main content area
+    - role="dialog" and aria-modal on modals
+    - aria-label on all interactive elements
+    - aria-hidden on decorative icons
+  - Focus management in modals:
+    - Auto-focus close button when modal opens
+    - Escape key closes modals
+    - Focus trap within modal
+    - Restore focus on close
+  - Enhanced focus indicators:
+    - focus:ring-2 focus:ring-blue-600 on all interactive elements
+    - Visible outline for keyboard navigation
+    - Focus visible only (not on mouse click)
+  - Semantic HTML with proper roles
+- User Experience:
+  - Smart detection of input fields (shortcuts disabled when typing)
+  - Visual kbd elements styled like macOS/Windows keys
+  - Helpful hint text: "Press ? anytime to toggle this menu"
+  - Non-intrusive floating button
+  - Smooth animations and transitions
+- Power User Features:
+  - Quick navigation without using mouse
+  - Help always available with ?
+  - Consistent keyboard patterns
+  - Works across all dashboard pages
+
+#### Technical Improvements
+- Event Handling:
+  - Global keydown listener on window
+  - Input field detection (prevents shortcuts when typing)
+  - Event.preventDefault() for Alt key combinations
+  - Cleanup on unmount
+- Focus Management:
+  - useRef hooks for focus control
+  - setTimeout for delayed focus (animation compatibility)
+  - Focus restoration on modal close
+- Accessibility Standards:
+  - WCAG 2.1 Level AA compliance
+  - Screen reader friendly
+  - Keyboard-only navigation support
+  - Proper landmark regions
+
+#### Status
+- Build: ✅ (successful compilation, all pages working)
+- Tests: ✅ (Keyboard shortcuts work, focus management correct, ARIA labels present)
+- Deploy: ✅ (pushed to GitHub)
+
 #### Next Priority
-Add keyboard shortcuts and accessibility features (arrow keys for navigation, focus management, ARIA labels)
+Add data persistence with localStorage for user preferences (filters, sort order, view settings)
 
 ---
 
-*Last updated: 2026-03-03 15:50 UTC*
+*Last updated: 2026-03-03 16:20 UTC*
