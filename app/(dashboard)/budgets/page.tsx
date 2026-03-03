@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, PiggyBank, TrendingDown, AlertTriangle } from "lucide-react";
+import { AddBudgetModal } from "@/components/budgets/AddBudgetModal";
 
 // Mock data
 const mockBudget = {
@@ -72,12 +73,25 @@ const mockBudget = {
 
 export default function BudgetsPage() {
   const [budget] = useState(mockBudget);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const progressPercentage = (budget.totalSpent / budget.totalAllocated) * 100;
   const remaining = budget.totalAllocated - budget.totalSpent;
 
+  const handleAddBudget = (newBudget: any) => {
+    console.log("New budget created:", newBudget);
+    // In production, this would update state and sync with API
+  };
+
   return (
     <div>
+      {/* Add Budget Modal */}
+      <AddBudgetModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleAddBudget}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -86,7 +100,10 @@ export default function BudgetsPage() {
             Track your spending and stay on target
           </p>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"
+        >
           <Plus className="h-5 w-5 mr-2" />
           Create Budget
         </button>

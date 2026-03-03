@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Target, TrendingUp, Calendar, DollarSign, CheckCircle } from "lucide-react";
+import { AddGoalModal } from "@/components/goals/AddGoalModal";
 
 // Mock data
 const mockGoals = [
@@ -48,13 +49,25 @@ const mockGoals = [
 ];
 
 export default function GoalsPage() {
-  const [goals] = useState(mockGoals);
+  const [goals, setGoals] = useState(mockGoals);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const activeGoals = goals.filter((g) => g.status === "active");
   const completedGoals = goals.filter((g) => g.status === "completed");
 
+  const handleAddGoal = (newGoal: any) => {
+    setGoals((prev) => [...prev, newGoal]);
+  };
+
   return (
     <div>
+      {/* Add Goal Modal */}
+      <AddGoalModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleAddGoal}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -63,7 +76,10 @@ export default function GoalsPage() {
             Track your savings and debt payoff progress
           </p>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"
+        >
           <Plus className="h-5 w-5 mr-2" />
           New Goal
         </button>
