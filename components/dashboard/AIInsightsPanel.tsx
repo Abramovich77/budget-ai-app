@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Brain, TrendingUp, AlertTriangle, Target, Lightbulb } from "lucide-react";
 import type { AIInsight } from "@/types";
 
@@ -77,7 +78,7 @@ const severityConfig = {
   },
 };
 
-export function AIInsightsPanel({ insights = mockInsights }: AIInsightsPanelProps) {
+function AIInsightsPanelComponent({ insights = mockInsights }: AIInsightsPanelProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <div className="flex items-center gap-3 mb-6">
@@ -135,3 +136,6 @@ export function AIInsightsPanel({ insights = mockInsights }: AIInsightsPanelProp
     </div>
   );
 }
+
+// Memoized to prevent re-renders when insights haven't changed
+export const AIInsightsPanel = memo(AIInsightsPanelComponent);

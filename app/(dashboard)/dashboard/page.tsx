@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { DollarSign, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
-import { InfoTooltip } from "@/components/ui/Tooltip";
 import { AIInsightsPanel } from "@/components/dashboard/AIInsightsPanel";
+import { StatCard } from "@/components/dashboard/StatCard";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -28,65 +28,47 @@ export default async function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Balance */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance</h3>
-              <InfoTooltip content="Sum of all your account balances across checking, savings, and investment accounts" />
-            </div>
-            <DollarSign className="h-5 w-5 text-blue-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">
-            ${stats.totalBalance.toLocaleString()}
-          </p>
-          <p className="text-sm text-green-600 mt-2">+12.5% from last month</p>
-        </div>
+        <StatCard
+          title="Total Balance"
+          value={`$${stats.totalBalance.toLocaleString()}`}
+          subtitle=""
+          icon={DollarSign}
+          iconColor="text-blue-600"
+          trend="+12.5% from last month"
+          trendColor="text-green-600"
+          tooltip="Sum of all your account balances across checking, savings, and investment accounts"
+          delay="0s"
+        />
 
-        {/* Monthly Income */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.1s" }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Income</h3>
-              <InfoTooltip content="Total income received this month from salary, side hustles, investments, and other sources" />
-            </div>
-            <TrendingUp className="h-5 w-5 text-green-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">
-            ${stats.monthlyIncome.toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-500 mt-2">This month</p>
-        </div>
+        <StatCard
+          title="Monthly Income"
+          value={`$${stats.monthlyIncome.toLocaleString()}`}
+          subtitle="This month"
+          icon={TrendingUp}
+          iconColor="text-green-600"
+          tooltip="Total income received this month from salary, side hustles, investments, and other sources"
+          delay="0.1s"
+        />
 
-        {/* Monthly Expenses */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.2s" }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Expenses</h3>
-              <InfoTooltip content="Total amount spent this month across all categories including bills, groceries, entertainment, and more" />
-            </div>
-            <TrendingDown className="h-5 w-5 text-red-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">
-            ${stats.monthlyExpenses.toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-500 mt-2">65% of budget</p>
-        </div>
+        <StatCard
+          title="Monthly Expenses"
+          value={`$${stats.monthlyExpenses.toLocaleString()}`}
+          subtitle="65% of budget"
+          icon={TrendingDown}
+          iconColor="text-red-600"
+          tooltip="Total amount spent this month across all categories including bills, groceries, entertainment, and more"
+          delay="0.2s"
+        />
 
-        {/* Budget Remaining */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in" style={{ animationDelay: "0.3s" }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">Budget Remaining</h3>
-              <InfoTooltip content="Amount left to spend this month within your budget. Stay within this to meet your financial goals!" />
-            </div>
-            <PiggyBank className="h-5 w-5 text-purple-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">
-            ${stats.budgetRemaining.toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-500 mt-2">35% left</p>
-        </div>
+        <StatCard
+          title="Budget Remaining"
+          value={`$${stats.budgetRemaining.toLocaleString()}`}
+          subtitle="35% left"
+          icon={PiggyBank}
+          iconColor="text-purple-600"
+          tooltip="Amount left to spend this month within your budget. Stay within this to meet your financial goals!"
+          delay="0.3s"
+        />
       </div>
 
       {/* AI Insights & Quick Actions */}
