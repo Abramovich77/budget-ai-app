@@ -1,13 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  // Removed 'output: export' to support API routes and server-side features
+  // This app requires server-side rendering for authentication and database access
   images: {
     unoptimized: true,
   },
-  // GitHub Pages configuration
-  basePath: process.env.NODE_ENV === 'production' ? '/budget-ai-app' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/budget-ai-app/' : '',
 };
 
 export default nextConfig;

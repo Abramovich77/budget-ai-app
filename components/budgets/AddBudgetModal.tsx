@@ -8,10 +8,19 @@ import { BUDGET_CATEGORIES, BUDGET_PERIODS } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
 import type { Budget, BudgetFormData } from "@/types";
 
+interface SimpleBudget {
+  id: string;
+  category: string;
+  amount: number;
+  period: string;
+  spent: number;
+  progress: number;
+}
+
 interface AddBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (budget: Budget) => void;
+  onSuccess?: (budget: SimpleBudget) => void;
 }
 
 export function AddBudgetModal({ isOpen, onClose, onSuccess }: AddBudgetModalProps) {
@@ -51,8 +60,9 @@ export function AddBudgetModal({ isOpen, onClose, onSuccess }: AddBudgetModalPro
 
       const budget = {
         id: Date.now().toString(),
-        ...formData,
-        amount: parseFloat(formData.amount),
+        category: formData.category,
+        amount: typeof formData.amount === 'string' ? parseFloat(formData.amount) : formData.amount,
+        period: formData.period,
         spent: 0,
         progress: 0,
       };

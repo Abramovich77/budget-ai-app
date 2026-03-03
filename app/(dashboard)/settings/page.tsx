@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { User, Bell, Lock, CreditCard, Globe, Moon, Sun, Mail, Shield } from "lucide-react";
+import { User, Bell, Lock, CreditCard, Globe, Moon, Sun, Mail, Shield, Monitor } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 export default function SettingsPage() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [budgetAlerts, setBudgetAlerts] = useState(true);
@@ -241,32 +242,68 @@ export default function SettingsPage() {
             </h2>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  {darkMode ? (
-                    <Moon className="h-5 w-5 text-gray-400 mr-3" />
-                  ) : (
-                    <Sun className="h-5 w-5 text-gray-400 mr-3" />
-                  )}
+              <div>
+                <div className="flex items-center mb-4">
+                  {theme === "light" && <Sun className="h-5 w-5 text-gray-400 mr-3" />}
+                  {theme === "dark" && <Moon className="h-5 w-5 text-gray-400 mr-3" />}
+                  {theme === "system" && <Monitor className="h-5 w-5 text-gray-400 mr-3" />}
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">Dark Mode</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Theme</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Switch between light and dark theme
+                      Choose your preferred theme
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setDarkMode(!darkMode)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                    darkMode ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                      darkMode ? "translate-x-6" : "translate-x-1"
+
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => setTheme("light")}
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition ${
+                      theme === "light"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                        : "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                     }`}
-                  />
-                </button>
+                  >
+                    <Sun className="h-6 w-6 mb-2 text-gray-700 dark:text-gray-300" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      Light
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => setTheme("dark")}
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition ${
+                      theme === "dark"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                        : "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <Moon className="h-6 w-6 mb-2 text-gray-700 dark:text-gray-300" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      Dark
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => setTheme("system")}
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition ${
+                      theme === "system"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                        : "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <Monitor className="h-6 w-6 mb-2 text-gray-700 dark:text-gray-300" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      System
+                    </span>
+                  </button>
+                </div>
+
+                {theme === "system" && (
+                  <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    Currently using: {resolvedTheme === "dark" ? "Dark" : "Light"} (based on system preference)
+                  </p>
+                )}
               </div>
             </div>
           </div>

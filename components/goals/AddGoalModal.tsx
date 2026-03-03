@@ -8,10 +8,21 @@ import { GOAL_PRIORITIES } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
 import type { Goal, GoalFormData } from "@/types";
 
+interface SimpleGoal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline?: string;
+  priority: string;
+  progress: number;
+  status: "active" | "completed";
+}
+
 interface AddGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (goal: Goal) => void;
+  onSuccess?: (goal: SimpleGoal) => void;
 }
 
 export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) {
@@ -52,15 +63,21 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const targetAmount = parseFloat(formData.targetAmount);
-      const currentAmount = parseFloat(formData.currentAmount || "0");
+      const targetAmount = typeof formData.targetAmount === 'string'
+        ? parseFloat(formData.targetAmount)
+        : formData.targetAmount;
+      const currentAmount = typeof formData.currentAmount === 'string'
+        ? parseFloat(formData.currentAmount || "0")
+        : (formData.currentAmount || 0);
       const progress = (currentAmount / targetAmount) * 100;
 
-      const goal = {
+      const goal: SimpleGoal = {
         id: Date.now().toString(),
-        ...formData,
+        name: formData.name,
         targetAmount,
         currentAmount,
+        deadline: formData.deadline,
+        priority: formData.priority,
         progress: Math.min(progress, 100),
         status: progress >= 100 ? "completed" : "active",
       };

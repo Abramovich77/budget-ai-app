@@ -6,12 +6,22 @@ import { FormField } from "@/components/ui/FormError";
 import { validateTransaction } from "@/lib/validation";
 import { TRANSACTION_CATEGORIES } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
-import type { Transaction, TransactionFormData } from "@/types";
+import type { TransactionFormData } from "@/types";
+
+interface SimpleTransaction {
+  id: string;
+  description: string;
+  amount: number;
+  category: string;
+  date: string;
+  type: "income" | "expense";
+  aiCategorized: boolean;
+}
 
 interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (transaction: Transaction) => void;
+  onSuccess?: (transaction: SimpleTransaction) => void;
 }
 
 export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransactionModalProps) {
@@ -52,10 +62,14 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
+      const parsedAmount = typeof formData.amount === 'string' ? parseFloat(formData.amount) : formData.amount;
       const transaction = {
         id: Date.now().toString(),
-        ...formData,
-        amount: formData.type === "expense" ? -Math.abs(parseFloat(formData.amount)) : Math.abs(parseFloat(formData.amount)),
+        description: formData.description,
+        amount: formData.type === "expense" ? -Math.abs(parsedAmount) : Math.abs(parsedAmount),
+        category: formData.category,
+        date: formData.date,
+        type: formData.type,
         aiCategorized: false,
       };
 
