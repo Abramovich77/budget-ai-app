@@ -6,6 +6,7 @@ import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { MobileNav } from "@/components/MobileNav";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { ToastProvider } from "@/components/ui/Toast";
+import { NetworkStatusIndicator } from "@/components/ui/ErrorDisplay";
 import {
   Brain,
   LayoutDashboard,
@@ -128,8 +129,11 @@ export default async function DashboardLayout({
       {/* Keyboard Shortcuts */}
       <KeyboardShortcuts />
 
-        {/* Global Search */}
-        <GlobalSearch />
+      {/* Global Search */}
+      <GlobalSearch />
+
+      {/* Network Status Indicator */}
+      <NetworkStatusIndicator />
       </div>
     </ToastProvider>
   );
