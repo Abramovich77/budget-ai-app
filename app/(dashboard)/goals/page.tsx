@@ -8,6 +8,7 @@ import { ListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyStateCard } from "@/components/ui/EmptyState";
 import { GoalMilestone } from "@/components/goals/GoalMilestone";
 import { useGoalProgress } from "@/lib/hooks/useOptimizedData";
+import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
 
 // Mock data
@@ -58,6 +59,13 @@ export default function GoalsPage() {
   const [goals, setGoals] = useState<typeof mockGoals>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Keyboard shortcuts for this page
+  useKeyboardShortcut({
+    key: "n",
+    callback: () => setShowAddModal(true),
+    enabled: !showAddModal,
+  });
 
   useEffect(() => {
     // Simulate loading data

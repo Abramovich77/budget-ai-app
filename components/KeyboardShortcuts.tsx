@@ -70,15 +70,21 @@ export function KeyboardShortcuts() {
   }, [router, showHelp]);
 
   const shortcuts: Shortcut[] = [
-    { key: "⌘ K / Ctrl K", description: "Open search", action: () => {} },
+    { key: "⌘ K / Ctrl K", description: "Open global search", action: () => {} },
+    { key: "?", description: "Show keyboard shortcuts", action: () => setShowHelp(!showHelp) },
+    { key: "Esc", description: "Close dialogs/modals", action: () => {} },
+    { key: "", description: "─── Navigation ───", action: () => {} },
     { key: "Alt + D", description: "Go to Dashboard", action: () => router.push("/dashboard") },
     { key: "Alt + T", description: "Go to Transactions", action: () => router.push("/transactions") },
     { key: "Alt + B", description: "Go to Budgets", action: () => router.push("/budgets") },
     { key: "Alt + G", description: "Go to Goals", action: () => router.push("/goals") },
     { key: "Alt + R", description: "Go to Reports", action: () => router.push("/reports") },
     { key: "Alt + S", description: "Go to Settings", action: () => router.push("/settings") },
-    { key: "?", description: "Show keyboard shortcuts", action: () => setShowHelp(!showHelp) },
-    { key: "Esc", description: "Close dialogs/modals", action: () => {} },
+    { key: "", description: "─── Page Actions ───", action: () => {} },
+    { key: "N", description: "Create new item (Transactions/Budgets/Goals)", action: () => {} },
+    { key: "F", description: "Focus search (Transactions)", action: () => {} },
+    { key: "E", description: "Export data (Transactions)", action: () => {} },
+    { key: "A", description: "Toggle alerts (Budgets)", action: () => {} },
   ];
 
   return (
@@ -123,20 +129,33 @@ export function KeyboardShortcuts() {
               </button>
             </div>
 
-            <div className="space-y-3">
-              {shortcuts.map((shortcut) => (
-                <div
-                  key={shortcut.key}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                >
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {shortcut.description}
-                  </span>
-                  <kbd className="px-3 py-1 text-xs font-semibold text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded shadow">
-                    {shortcut.key}
-                  </kbd>
-                </div>
-              ))}
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+              {shortcuts.map((shortcut, index) => {
+                // Check if this is a section divider
+                if (!shortcut.key) {
+                  return (
+                    <div key={`separator-${index}`} className="py-2">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 text-center">
+                        {shortcut.description}
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={shortcut.key}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  >
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {shortcut.description}
+                    </span>
+                    <kbd className="px-3 py-1 text-xs font-semibold text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded shadow">
+                      {shortcut.key}
+                    </kbd>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">

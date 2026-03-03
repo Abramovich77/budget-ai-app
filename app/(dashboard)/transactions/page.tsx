@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Plus, Search, Filter, Upload, Brain, List, Grid3x3 } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
@@ -9,6 +9,7 @@ import { ExportButton } from "@/components/ui/ExportButton";
 import { exportTransactionsToCSV } from "@/lib/utils/export";
 import { useUserPreferences } from "@/lib/hooks/useLocalStorage";
 import { useSortedData, useSearchResults } from "@/lib/hooks/useOptimizedData";
+import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import { TransactionFilters, applyTransactionFilters, type TransactionFilterOptions } from "@/components/transactions/TransactionFilters";
 import type { TransactionFormData } from "@/types/forms";
 import { HelpTooltip, FeatureBanner } from "@/components/ui/HelpTooltip";
@@ -77,6 +78,24 @@ export default function TransactionsPage() {
     categories: [],
     showIncome: true,
     showExpenses: true,
+  });
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcuts for this page
+  useKeyboardShortcut({
+    key: "n",
+    callback: () => setShowAddModal(true),
+    enabled: !showAddModal,
+  });
+
+  useKeyboardShortcut({
+    key: "f",
+    callback: () => searchInputRef.current?.focus(),
+  });
+
+  useKeyboardShortcut({
+    key: "e",
+    callback: () => handleExportTransactions(),
   });
 
   useEffect(() => {
@@ -191,11 +210,13 @@ export default function TransactionsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="Search transactions..."
+                placeholder="Search transactions... (press F to focus)"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                aria-label="Search transactions"
               />
             </div>
           </div>

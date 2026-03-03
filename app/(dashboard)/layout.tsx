@@ -7,6 +7,7 @@ import { MobileNav } from "@/components/MobileNav";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { ToastProvider } from "@/components/ui/Toast";
 import { NetworkStatusIndicator } from "@/components/ui/ErrorDisplay";
+import { AccessibilityAnnouncer } from "@/components/ui/AccessibilityAnnouncer";
 import {
   Brain,
   LayoutDashboard,
@@ -134,6 +135,9 @@ export default async function DashboardLayout({
 
       {/* Network Status Indicator */}
       <NetworkStatusIndicator />
+
+      {/* Accessibility Announcer for screen readers */}
+      <AccessibilityAnnouncer />
       </div>
     </ToastProvider>
   );

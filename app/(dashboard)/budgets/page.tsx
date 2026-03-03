@@ -8,6 +8,7 @@ import { GridSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useBudgetAlerts, useOverallBudgetAlert } from "@/lib/hooks/useBudgetAlerts";
 import { useBudgetProgress } from "@/lib/hooks/useOptimizedData";
+import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import { BudgetRecommendations } from "@/components/budgets/BudgetRecommendations";
 import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
 
@@ -83,6 +84,24 @@ export default function BudgetsPage() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
+
+  // Keyboard shortcuts for this page
+  useKeyboardShortcut({
+    key: "n",
+    callback: () => setShowAddModal(true),
+    enabled: !showAddModal,
+  });
+
+  useKeyboardShortcut({
+    key: "a",
+    callback: () => {
+      setAlertsEnabled(!alertsEnabled);
+      if (!alertsEnabled) {
+        resetAlerts();
+        resetOverallAlert();
+      }
+    },
+  });
 
   useEffect(() => {
     // Simulate loading data
