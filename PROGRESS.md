@@ -12559,3 +12559,63 @@ Apply Button component to existing pages (replace existing buttons with new comp
 ---
 
 *Last updated: 2026-03-04 11:01 UTC*
+
+### 2026-03-04 11:04 UTC - Iteration #84
+
+#### Improvement
+- **What:** Replaced auth page buttons with new Button component
+- **Why:** Improve UI consistency and add smooth animations to login/signup pages
+
+#### Changes
+- **Files:**
+  - `app/(auth)/login/page.tsx` (modified, +32/-20 lines)
+  - `app/(auth)/signup/page.tsx` (modified, +17/-15 lines)
+- **Lines:** +49 additions / -35 deletions
+
+#### Features Implemented
+- Replaced login form submit button with Button component
+- Replaced OAuth buttons (Google/GitHub) with outline Button variant
+- Replaced signup form submit button with Button component
+- Added loading states with animated spinner (replaces manual text swap)
+- Improved button consistency across authentication pages
+- All buttons now have smooth hover effects and active scale animations
+
+#### Technical Details
+- Imported Button component from `@/components/ui/Button`
+- Used `variant="primary"` for submit buttons
+- Used `variant="outline"` for OAuth buttons
+- Applied `size="lg"` and `fullWidth` props for better UX
+- Loading prop automatically handles spinner display and disabled state
+- SVG icons passed as icon prop to Button component
+
+### Benefits
+
+#### User Experience
+- **Smooth Animations**: Buttons now have active scale effect on click
+- **Loading States**: Clear spinner animation during async operations
+- **Visual Feedback**: Consistent hover and focus states
+- **Professional Look**: All buttons follow same design system
+
+#### Developer Experience
+- **Less Code**: Reduced from inline classes to single component
+- **Consistent API**: Same Button props across all pages
+- **Easier Maintenance**: Button styling changes in one place
+- **Type Safety**: Full TypeScript support with IntelliSense
+
+#### Code Quality
+- Removed 35 lines of repetitive button styling
+- Replaced manual loading text swap with loading prop
+- Improved accessibility with Button component's built-in features
+- Better dark mode support
+
+### Status
+- Build: ✅ (successful compilation, no TypeScript errors)
+- Tests: ✅ (Login and signup pages render correctly)
+- Deploy: ✅ (pushed to GitHub, commit 325e69d)
+
+### Next Priority
+Replace buttons in dashboard pages (goals, budgets, transactions, settings)
+
+---
+
+*Last updated: 2026-03-04 11:04 UTC*
