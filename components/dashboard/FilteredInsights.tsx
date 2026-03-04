@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { InsightsCard } from "./InsightsCard";
-import { Filter, X, Search } from "lucide-react";
+import { Filter, X, Search, ArrowUpDown } from "lucide-react";
 
 type InsightType =
   | "all"
@@ -16,6 +16,8 @@ type InsightType =
   | "cost-optimization";
 
 type InsightSeverity = "all" | "info" | "warning" | "critical";
+
+type SortOption = "severity" | "date" | "confidence" | "alphabetical";
 
 const insightTypes: { value: InsightType; label: string }[] = [
   { value: "all", label: "All Types" },
@@ -36,11 +38,19 @@ const severityLevels: { value: InsightSeverity; label: string; color: string }[]
   { value: "info", label: "Info", color: "blue" },
 ];
 
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: "severity", label: "Severity" },
+  { value: "date", label: "Date" },
+  { value: "confidence", label: "Confidence" },
+  { value: "alphabetical", label: "A-Z" },
+];
+
 export function FilteredInsights() {
   const [selectedType, setSelectedType] = useState<InsightType>("all");
   const [selectedSeverity, setSelectedSeverity] = useState<InsightSeverity>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("severity");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const hasActiveFilters = selectedType !== "all" || selectedSeverity !== "all" || searchQuery.trim() !== "";
@@ -115,21 +125,39 @@ export function FilteredInsights() {
         </div>
       </div>
 
-      {/* Filter Controls */}
+      {/* Filter and Sort Controls */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-          >
-            <Filter className="h-4 w-4" />
-            <span className="font-medium">Filters</span>
-            {hasActiveFilters && (
-              <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                Active
-              </span>
-            )}
-          </button>
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >
+              <Filter className="h-4 w-4" />
+              <span className="font-medium">Filters</span>
+              {hasActiveFilters && (
+                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+                  Active
+                </span>
+              )}
+            </button>
+
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    Sort: {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           {hasActiveFilters && (
             <button
@@ -247,6 +275,7 @@ export function FilteredInsights() {
         filterType={selectedType}
         filterSeverity={selectedSeverity}
         searchQuery={searchQuery}
+        sortBy={sortBy}
       />
     </div>
   );

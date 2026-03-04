@@ -51,6 +51,7 @@ interface InsightsCardProps {
   filterType?: string;
   filterSeverity?: string;
   searchQuery?: string;
+  sortBy?: "severity" | "date" | "confidence" | "alphabetical";
 }
 
 export function InsightsCard({
@@ -60,6 +61,7 @@ export function InsightsCard({
   filterType = "all",
   filterSeverity = "all",
   searchQuery = "",
+  sortBy = "severity",
 }: InsightsCardProps) {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +102,7 @@ export function InsightsCard({
     fetchInsights();
   };
 
-  // Filter dismissed insights and apply type/severity/search filters
+  // Filter dismissed insights and apply type/severity/search filters, then sort
   const visibleInsights = insights
     .filter((insight) => !dismissedInsights.has(insight.id))
     .filter((insight) => filterType === "all" || insight.type === filterType)
@@ -114,6 +116,25 @@ export function InsightsCard({
         (insight.recommendation && insight.recommendation.toLowerCase().includes(query)) ||
         (insight.impact && insight.impact.toLowerCase().includes(query))
       );
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "severity":
+          // Critical > Warning > Info
+          const severityOrder = { critical: 0, warning: 1, info: 2 };
+          return severityOrder[a.severity] - severityOrder[b.severity];
+        case "date":
+          // Newest first
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "confidence":
+          // Highest confidence first
+          return b.confidence - a.confidence;
+        case "alphabetical":
+          // A-Z by title
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
     })
     .slice(0, maxInsights);
 
