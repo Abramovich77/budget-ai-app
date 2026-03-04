@@ -65,7 +65,7 @@ export function QuickActions() {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-all duration-300 hover:shadow-lg">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Quick Actions
       </h3>
@@ -76,15 +76,20 @@ export function QuickActions() {
             <button
               key={index}
               onClick={action.onClick}
-              className="w-full text-left px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 group"
+              className="w-full text-left px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 group hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
+              style={{
+                animation: `fadeInUp 0.4s ease-out ${index * 0.1}s both`,
+              }}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`h-5 w-5 ${action.color} group-hover:scale-110 transition-transform`} />
-                <div>
+                <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 group-hover:scale-110 transition-transform">
+                  <Icon className={`h-5 w-5 ${action.color}`} />
+                </div>
+                <div className="flex-1">
                   <p className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {action.title}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                     {action.description}
                   </p>
                 </div>

@@ -114,49 +114,49 @@ export default async function DashboardPage() {
         <CategorySpendingChart data={categorySpending} />
 
         {/* Recent Transactions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-all duration-300 hover:shadow-lg">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Transactions</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group hover:scale-[1.02]">
               <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <TrendingDown className="h-5 w-5 text-red-600" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Whole Foods</p>
-                  <p className="text-xs text-gray-500">Groceries • Today</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-100 transition-colors">Whole Foods</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Groceries • Today</p>
                 </div>
               </div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">-$124.50</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">-$124.50</p>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group hover:scale-[1.02]">
               <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <TrendingUp className="h-5 w-5 text-green-600" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Payroll Deposit</p>
-                  <p className="text-xs text-gray-500">Income • Mar 1</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-100 transition-colors">Payroll Deposit</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Income • Mar 1</p>
                 </div>
               </div>
-              <p className="text-sm font-semibold text-green-600">+$5,000.00</p>
+              <p className="text-sm font-semibold text-green-600 group-hover:scale-105 transition-transform">+$5,000.00</p>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group hover:scale-[1.02]">
               <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <TrendingDown className="h-5 w-5 text-red-600" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Netflix</p>
-                  <p className="text-xs text-gray-500">Entertainment • Mar 1</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-100 transition-colors">Netflix</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Entertainment • Mar 1</p>
                 </div>
               </div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">-$15.99</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">-$15.99</p>
             </div>
           </div>
-          <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+          <button className="w-full mt-4 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">
             View all transactions →
           </button>
         </div>
