@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
+import type { Transaction, Budget, Goal } from "@/lib/types";
 
 const STORAGE_KEYS = {
   TRANSACTIONS: "budget-ai-transactions",
@@ -71,7 +72,7 @@ export function getLastSyncTime(): Date | null {
 /**
  * Hook for managing transactions with localStorage persistence
  */
-export function usePersistedTransactions<T>(initialData: T[]) {
+export function usePersistedTransactions<T extends { id: string }>(initialData: T[]) {
   const [transactions, setTransactions] = useState<T[]>(() => {
     if (typeof window === "undefined") return initialData;
     return loadFromStorage(STORAGE_KEYS.TRANSACTIONS, initialData);
@@ -99,12 +100,12 @@ export function usePersistedTransactions<T>(initialData: T[]) {
 
   const updateTransaction = (id: string, updates: Partial<T>) => {
     setTransactions((prev) =>
-      prev.map((t) => ((t as any).id === id ? { ...t, ...updates } : t))
+      prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
     );
   };
 
   const deleteTransaction = (id: string) => {
-    setTransactions((prev) => prev.filter((t) => (t as any).id !== id));
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
 
   const clearTransactions = () => {
@@ -126,7 +127,7 @@ export function usePersistedTransactions<T>(initialData: T[]) {
 /**
  * Hook for managing budgets with localStorage persistence
  */
-export function usePersistedBudgets<T>(initialData: T[]) {
+export function usePersistedBudgets<T extends { id: string }>(initialData: T[]) {
   const [budgets, setBudgets] = useState<T[]>(() => {
     if (typeof window === "undefined") return initialData;
     return loadFromStorage(STORAGE_KEYS.BUDGETS, initialData);
@@ -154,12 +155,12 @@ export function usePersistedBudgets<T>(initialData: T[]) {
 
   const updateBudget = (id: string, updates: Partial<T>) => {
     setBudgets((prev) =>
-      prev.map((b) => ((b as any).id === id ? { ...b, ...updates } : b))
+      prev.map((b) => (b.id === id ? { ...b, ...updates } : b))
     );
   };
 
   const deleteBudget = (id: string) => {
-    setBudgets((prev) => prev.filter((b) => (b as any).id !== id));
+    setBudgets((prev) => prev.filter((b) => b.id !== id));
   };
 
   const clearBudgets = () => {
@@ -181,7 +182,7 @@ export function usePersistedBudgets<T>(initialData: T[]) {
 /**
  * Hook for managing goals with localStorage persistence
  */
-export function usePersistedGoals<T>(initialData: T[]) {
+export function usePersistedGoals<T extends { id: string }>(initialData: T[]) {
   const [goals, setGoals] = useState<T[]>(() => {
     if (typeof window === "undefined") return initialData;
     return loadFromStorage(STORAGE_KEYS.GOALS, initialData);
@@ -209,12 +210,12 @@ export function usePersistedGoals<T>(initialData: T[]) {
 
   const updateGoal = (id: string, updates: Partial<T>) => {
     setGoals((prev) =>
-      prev.map((g) => ((g as any).id === id ? { ...g, ...updates } : g))
+      prev.map((g) => (g.id === id ? { ...g, ...updates } : g))
     );
   };
 
   const deleteGoal = (id: string) => {
-    setGoals((prev) => prev.filter((g) => (g as any).id !== id));
+    setGoals((prev) => prev.filter((g) => g.id !== id));
   };
 
   const clearGoals = () => {
@@ -250,9 +251,9 @@ export function exportAllData() {
  * Import data from backup
  */
 export function importAllData(data: {
-  transactions?: any[];
-  budgets?: any[];
-  goals?: any[];
+  transactions?: Transaction[];
+  budgets?: Budget[];
+  goals?: Goal[];
 }) {
   try {
     if (data.transactions) {

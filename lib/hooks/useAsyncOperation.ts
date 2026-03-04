@@ -4,30 +4,24 @@
 
 import { useState, useCallback } from "react";
 import { withRetry, parseError, logError, AppError } from "@/lib/utils/errorHandling";
+import type { AsyncState, MutationOptions } from "@/lib/types";
 
-interface UseAsyncOperationOptions {
-  onSuccess?: (data: any) => void;
+interface UseAsyncOperationOptions<T = unknown> {
+  onSuccess?: (data: T) => void;
   onError?: (error: AppError) => void;
   enableRetry?: boolean;
   maxRetries?: number;
 }
 
-interface AsyncOperationState<T> {
-  data: T | null;
-  error: AppError | null;
-  isLoading: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-}
-
-export function useAsyncOperation<T = any>(
-  options: UseAsyncOperationOptions = {}
+export function useAsyncOperation<T = unknown>(
+  options: UseAsyncOperationOptions<T> = {}
 ) {
   const { onSuccess, onError, enableRetry = true, maxRetries = 3 } = options;
 
-  const [state, setState] = useState<AsyncOperationState<T>>({
+  const [state, setState] = useState<AsyncState<T>>({
     data: null,
     error: null,
+    status: 'idle',
     isLoading: false,
     isSuccess: false,
     isError: false,
@@ -38,6 +32,7 @@ export function useAsyncOperation<T = any>(
       setState({
         data: null,
         error: null,
+        status: 'loading',
         isLoading: true,
         isSuccess: false,
         isError: false,
@@ -55,6 +50,7 @@ export function useAsyncOperation<T = any>(
         setState({
           data: result,
           error: null,
+          status: 'success',
           isLoading: false,
           isSuccess: true,
           isError: false,
@@ -69,6 +65,7 @@ export function useAsyncOperation<T = any>(
         setState({
           data: null,
           error: parsedError,
+          status: 'error',
           isLoading: false,
           isSuccess: false,
           isError: true,
@@ -85,6 +82,7 @@ export function useAsyncOperation<T = any>(
     setState({
       data: null,
       error: null,
+      status: 'idle',
       isLoading: false,
       isSuccess: false,
       isError: false,
@@ -109,9 +107,9 @@ export function useAsyncOperation<T = any>(
 /**
  * Hook for mutations (create, update, delete operations)
  */
-export function useMutation<TData = any, TVariables = any>(
+export function useMutation<TData = unknown, TVariables = unknown>(
   mutationFn: (variables: TVariables) => Promise<TData>,
-  options: UseAsyncOperationOptions = {}
+  options: UseAsyncOperationOptions<TData> = {}
 ) {
   const operation = useAsyncOperation<TData>(options);
 
@@ -131,9 +129,9 @@ export function useMutation<TData = any, TVariables = any>(
 /**
  * Hook for queries (fetch operations)
  */
-export function useQuery<T = any>(
+export function useQuery<T = unknown>(
   queryFn: () => Promise<T>,
-  options: UseAsyncOperationOptions & { enabled?: boolean } = {}
+  options: UseAsyncOperationOptions<T> & { enabled?: boolean } = {}
 ) {
   const { enabled = true, ...restOptions } = options;
   const operation = useAsyncOperation<T>(restOptions);

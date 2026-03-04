@@ -200,11 +200,11 @@ export function getRateLimitHeaders(
 /**
  * Higher-order function to wrap API route handlers with rate limiting
  */
-export function withRateLimit<T extends (...args: any[]) => Promise<NextResponse>>(
+export function withRateLimit<T extends (request: NextRequest, ...args: unknown[]) => Promise<NextResponse>>(
   handler: T,
   config: RateLimitConfig
 ): T {
-  return (async (request: NextRequest, ...args: any[]) => {
+  return (async (request: NextRequest, ...args: unknown[]) => {
     // Check rate limit
     const rateLimitResponse = rateLimit(request, config);
     if (rateLimitResponse) {

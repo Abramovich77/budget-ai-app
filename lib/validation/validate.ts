@@ -129,24 +129,24 @@ export function sanitizeHtml(text: string): string {
 /**
  * Sanitize object recursively
  */
-export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
-  const sanitized = { ...obj };
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
+  const sanitized = { ...obj } as Record<string, unknown>;
 
   for (const key in sanitized) {
     const value = sanitized[key];
 
     if (typeof value === "string") {
-      sanitized[key] = sanitizeHtml(value) as any;
+      sanitized[key] = sanitizeHtml(value);
     } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      sanitized[key] = sanitizeObject(value);
+      sanitized[key] = sanitizeObject(value as Record<string, unknown>);
     } else if (Array.isArray(value)) {
-      sanitized[key] = value.map((item: any) =>
-        typeof item === "object" && item !== null ? sanitizeObject(item) : item
-      ) as any;
+      sanitized[key] = value.map((item: unknown) =>
+        typeof item === "object" && item !== null ? sanitizeObject(item as Record<string, unknown>) : item
+      );
     }
   }
 
-  return sanitized;
+  return sanitized as T;
 }
 
 /**
