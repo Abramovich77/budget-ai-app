@@ -5,20 +5,40 @@ import { CheckCircle, XCircle, AlertTriangle, Info, X } from "lucide-react";
 
 type ToastType = "success" | "error" | "warning" | "info";
 
+interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface Toast {
   id: string;
   type: ToastType;
   title: string;
   message?: string;
   duration?: number;
+  action?: ToastAction;
+  persistent?: boolean; // Don't auto-dismiss if true
 }
 
 interface ToastContextType {
-  showToast: (type: ToastType, title: string, message?: string, duration?: number) => void;
-  success: (title: string, message?: string) => void;
-  error: (title: string, message?: string) => void;
-  warning: (title: string, message?: string) => void;
-  info: (title: string, message?: string) => void;
+  showToast: (
+    type: ToastType,
+    title: string,
+    message?: string,
+    duration?: number,
+    action?: ToastAction,
+    persistent?: boolean
+  ) => void;
+  success: (title: string, message?: string, duration?: number) => void;
+  error: (title: string, message?: string, duration?: number) => void;
+  warning: (title: string, message?: string, duration?: number) => void;
+  info: (title: string, message?: string, duration?: number) => void;
+  successWithUndo: (
+    title: string,
+    message: string,
+    onUndo: () => void,
+    duration?: number
+  ) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -70,13 +90,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const showToast = useCallback(
-    (type: ToastType, title: string, message?: string, duration = 5000) => {
+    (
+      type: ToastType,
+      title: string,
+      message?: string,
+      duration = 5000,
+      action?: ToastAction,
+      persistent = false
+    ) => {
       const id = Math.random().toString(36).substring(7);
-      const toast: Toast = { id, type, title, message, duration };
+      const toast: Toast = { id, type, title, message, duration, action, persistent };
 
       setToasts((prev) => [...prev, toast]);
 
-      if (duration > 0) {
+      // Only auto-dismiss if not persistent and has positive duration
+      if (!persistent && duration > 0) {
         setTimeout(() => removeToast(id), duration);
       }
     },
@@ -99,12 +127,31 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 
   const info = useCallback(
-    (title: string, message?: string) => showToast("info", title, message),
+    (title: string, message?: string, duration?: number) => showToast("info", title, message, duration),
+    [showToast]
+  );
+
+  const successWithUndo = useCallback(
+    (title: string, message: string, onUndo: () => void, duration = 5000) => {
+      showToast(
+        "success",
+        title,
+        message,
+        duration,
+        {
+          label: "Undo",
+          onClick: onUndo,
+        },
+        false // Not persistent - will auto-dismiss after duration
+      );
+    },
     [showToast]
   );
 
   return (
-    <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
+    <ToastContext.Provider
+      value={{ showToast, success, error, warning, info, successWithUndo }}
+    >
       {children}
 
       {/* Toast Container */}
@@ -116,7 +163,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           return (
             <div
               key={toast.id}
-              className={`${config.bgColor} ${config.borderColor} border-l-4 p-4 rounded-lg shadow-lg animate-slide-in-right`}
+              className={`${config.bgColor} ${config.borderColor} border-l-4 p-4 rounded-lg shadow-lg animate-slide-in-right min-w-[320px]`}
             >
               <div className="flex items-start gap-3">
                 <Icon className={`h-5 w-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
@@ -128,6 +175,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
                       {toast.message}
                     </p>
+                  )}
+                  {toast.action && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => {
+                          toast.action?.onClick();
+                          removeToast(toast.id);
+                        }}
+                        className={`text-sm font-medium ${config.iconColor} hover:opacity-80 transition underline`}
+                      >
+                        {toast.action.label}
+                      </button>
+                    </div>
                   )}
                 </div>
                 <button

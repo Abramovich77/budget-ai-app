@@ -16,6 +16,7 @@ import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import { TransactionFilters, applyTransactionFilters, type TransactionFilterOptions } from "@/components/transactions/TransactionFilters";
 import type { TransactionFormData } from "@/types/forms";
 import { HelpTooltip, FeatureBanner } from "@/components/ui/HelpTooltip";
+import { useToast } from "@/components/ui/Toast";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -84,6 +85,7 @@ export default function TransactionsPage() {
     showExpenses: true,
   });
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { success, successWithUndo, error } = useToast();
 
   // Keyboard shortcuts for this page
   useKeyboardShortcut({
@@ -145,8 +147,29 @@ export default function TransactionsPage() {
 
   const handleAddTransaction = (newTransaction: TransactionFormData) => {
     setTransactions((prev) => [{ ...newTransaction, id: String(Date.now()) } as typeof mockTransactions[0], ...prev]);
+    success("Transaction Added", "Your transaction has been successfully saved.");
   };
 
+  const handleDeleteTransaction = (id: string) => {
+    // Store the deleted transaction for undo functionality
+    const deletedTransaction = transactions.find((t) => t.id === id);
+    if (!deletedTransaction) return;
+
+    // Remove transaction
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+
+    // Show success toast with undo action
+    successWithUndo(
+      "Transaction Deleted",
+      "The transaction has been removed.",
+      () => {
+        // Undo: restore the transaction
+        setTransactions((prev) => [deletedTransaction, ...prev]);
+        success("Transaction Restored", "The transaction has been restored.");
+      },
+      5000 // 5 seconds to undo
+    );
+  };
 
   // Get unique categories for filter - memoized
   const availableCategories = useMemo(() =>
@@ -447,10 +470,19 @@ export default function TransactionsPage() {
 
                   {/* Actions */}
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 mr-3">
+                    <button
+                      onClick={() => {
+                        // TODO: Implement edit functionality
+                        error("Not Implemented", "Edit functionality coming soon!");
+                      }}
+                      className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 mr-3 transition"
+                    >
                       Edit
                     </button>
-                    <button className="text-red-600 hover:text-red-900 dark:hover:text-red-400">
+                    <button
+                      onClick={() => handleDeleteTransaction(transaction.id)}
+                      className="text-red-600 hover:text-red-900 dark:hover:text-red-400 transition"
+                    >
                       Delete
                     </button>
                   </td>
