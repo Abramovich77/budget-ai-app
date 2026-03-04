@@ -251,3 +251,123 @@ export function validateGoalForm(data: {
       amounts.isValid,
   };
 }
+
+/**
+ * Password strength levels
+ */
+export type PasswordStrength = "weak" | "fair" | "good" | "strong";
+
+export interface PasswordValidationResult extends ValidationResult {
+  strength?: PasswordStrength;
+  suggestions?: string[];
+}
+
+/**
+ * Validates password strength and returns detailed feedback
+ */
+export function validatePassword(password: string): PasswordValidationResult {
+  if (!password || password.trim() === "") {
+    return {
+      isValid: false,
+      error: "Password is required",
+      strength: "weak",
+    };
+  }
+
+  const suggestions: string[] = [];
+  let strength: PasswordStrength = "weak";
+  let score = 0;
+
+  // Length check
+  if (password.length < 6) {
+    return {
+      isValid: false,
+      error: "Password must be at least 6 characters long",
+      strength: "weak",
+      suggestions: ["Use at least 6 characters"],
+    };
+  }
+
+  // Length scoring
+  if (password.length >= 8) score += 1;
+  if (password.length >= 12) score += 1;
+
+  // Contains lowercase
+  if (/[a-z]/.test(password)) {
+    score += 1;
+  } else {
+    suggestions.push("Add lowercase letters");
+  }
+
+  // Contains uppercase
+  if (/[A-Z]/.test(password)) {
+    score += 1;
+  } else {
+    suggestions.push("Add uppercase letters");
+  }
+
+  // Contains numbers
+  if (/[0-9]/.test(password)) {
+    score += 1;
+  } else {
+    suggestions.push("Add numbers");
+  }
+
+  // Contains special characters
+  if (/[^a-zA-Z0-9]/.test(password)) {
+    score += 1;
+  } else {
+    suggestions.push("Add special characters (!@#$%...)");
+  }
+
+  // Determine strength
+  if (score <= 2) {
+    strength = "weak";
+  } else if (score === 3) {
+    strength = "fair";
+  } else if (score === 4) {
+    strength = "good";
+  } else {
+    strength = "strong";
+  }
+
+  // Weak passwords are not valid
+  if (strength === "weak") {
+    return {
+      isValid: false,
+      error: "Password is too weak - add more variety",
+      strength,
+      suggestions,
+    };
+  }
+
+  return {
+    isValid: true,
+    strength,
+    suggestions: suggestions.length > 0 ? suggestions : undefined,
+  };
+}
+
+/**
+ * Validates password confirmation
+ */
+export function validatePasswordMatch(
+  password: string,
+  confirmPassword: string
+): ValidationResult {
+  if (!confirmPassword || confirmPassword.trim() === "") {
+    return {
+      isValid: false,
+      error: "Please confirm your password",
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return {
+      isValid: false,
+      error: "Passwords do not match",
+    };
+  }
+
+  return { isValid: true };
+}
