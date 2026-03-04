@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Brain, Mail, Lock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { validateEmail } from "@/lib/validation/formValidation";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,10 +14,39 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+  });
+
+  // Real-time email validation
+  const emailValidation = useMemo(() => validateEmail(email), [email]);
+
+  const isFormValid =
+    emailValidation.isValid &&
+    password.length >= 6;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Mark all fields as touched
+    setTouched({
+      email: true,
+      password: true,
+    });
+
+    // Validate before submitting
+    if (!emailValidation.isValid) {
+      setError(emailValidation.error || "Invalid email address");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -73,11 +103,21 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
                   required
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent dark:bg-gray-700 dark:text-white ${
+                    touched.email && !emailValidation.isValid
+                      ? "border-red-500 focus:ring-red-600"
+                      : "border-gray-300 dark:border-gray-600 focus:ring-blue-600"
+                  }`}
                   placeholder="you@example.com"
                 />
               </div>
+              {touched.email && !emailValidation.isValid && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {emailValidation.error}
+                </p>
+              )}
             </div>
 
             {/* Password */}
@@ -92,11 +132,22 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
                   required
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  minLength={6}
+                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent dark:bg-gray-700 dark:text-white ${
+                    touched.password && password.length > 0 && password.length < 6
+                      ? "border-red-500 focus:ring-red-600"
+                      : "border-gray-300 dark:border-gray-600 focus:ring-blue-600"
+                  }`}
                   placeholder="••••••••"
                 />
               </div>
+              {touched.password && password.length > 0 && password.length < 6 && (
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  Password must be at least 6 characters
+                </p>
+              )}
             </div>
 
             {/* Forgot Password */}
@@ -123,6 +174,7 @@ export default function LoginPage() {
               size="lg"
               fullWidth
               loading={isLoading}
+              disabled={!isFormValid}
             >
               Sign in
             </Button>
