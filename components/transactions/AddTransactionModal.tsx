@@ -5,8 +5,9 @@ import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormField";
 import { validateAmount, validateRequired, validateDate } from "@/lib/validation/formValidation";
 import { TRANSACTION_CATEGORIES } from "@/lib/constants";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import type { TransactionFormData } from "@/types/forms";
+import { Button } from "@/components/ui/Button";
 
 interface SimpleTransaction {
   id: string;
@@ -254,22 +255,22 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
         {/* Actions */}
         <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 text-gray-700 dark:text-gray-300"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            disabled={isSubmitting || !isFormValid}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            variant="primary"
+            disabled={!isFormValid}
+            loading={isSubmitting}
           >
-            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? "Adding..." : "Add Transaction"}
-          </button>
+            Add Transaction
+          </Button>
         </div>
       </form>
     </Modal>

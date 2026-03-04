@@ -9,7 +9,7 @@ import {
   validateFutureDate,
   validateGoalAmounts,
 } from "@/lib/validation/formValidation";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface SimpleGoal {
   id: string;
@@ -263,22 +263,22 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
 
         {/* Actions */}
         <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 text-gray-700 dark:text-gray-300"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            disabled={isSubmitting || !isFormValid}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            variant="primary"
+            disabled={!isFormValid}
+            loading={isSubmitting}
           >
-            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? "Creating..." : "Create Goal"}
-          </button>
+            Create Goal
+          </Button>
         </div>
       </form>
     </Modal>
