@@ -5,6 +5,7 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { generateAdvancedInsights } from "./advancedInsights";
 
 /**
  * Insight types
@@ -76,6 +77,9 @@ export async function generateInsights(
 
   // Generate rule-based insights (fast, no AI needed)
   insights.push(...generateRuleBasedInsights(transactions, budgets));
+
+  // Generate advanced pattern-based insights
+  insights.push(...generateAdvancedInsights(transactions, budgets));
 
   // Generate AI-powered insights (slower, more intelligent)
   if (process.env.ANTHROPIC_API_KEY) {
