@@ -5,6 +5,7 @@ import { Plus, PiggyBank, TrendingDown, AlertTriangle, Wallet, Bell, BellOff } f
 import { AddBudgetModal } from "@/components/budgets/AddBudgetModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { GridSkeleton } from "@/components/ui/Skeleton";
+import { ProgressLoadingScreen } from "@/components/ui/ProgressLoader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useBudgetAlerts, useOverallBudgetAlert } from "@/lib/hooks/useBudgetAlerts";
 import { useBudgetProgress } from "@/lib/hooks/useOptimizedData";
@@ -146,6 +147,16 @@ export default function BudgetsPage() {
     // For now, just refresh the mock data
     setBudget(mockBudget);
   };
+
+  if (loading) {
+    return (
+      <ProgressLoadingScreen
+        message="Loading budgets..."
+        simulate={true}
+        estimatedDuration={1000}
+      />
+    );
+  }
 
   return (
     <div>

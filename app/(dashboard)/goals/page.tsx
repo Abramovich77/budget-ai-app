@@ -5,6 +5,7 @@ import { Plus, Target, TrendingUp, Calendar, DollarSign, CheckCircle, Crosshair 
 import { AddGoalModal } from "@/components/goals/AddGoalModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ListSkeleton } from "@/components/ui/Skeleton";
+import { ProgressLoadingScreen } from "@/components/ui/ProgressLoader";
 import { EmptyStateCard } from "@/components/ui/EmptyState";
 import { GoalMilestone } from "@/components/goals/GoalMilestone";
 import { useGoalProgress } from "@/lib/hooks/useOptimizedData";
@@ -95,6 +96,16 @@ export default function GoalsPage() {
     };
     setGoals((prev) => [...prev, goalForState]);
   };
+
+  if (loading) {
+    return (
+      <ProgressLoadingScreen
+        message="Loading goals..."
+        simulate={true}
+        estimatedDuration={1000}
+      />
+    );
+  }
 
   return (
     <div className="animate-fade-in">

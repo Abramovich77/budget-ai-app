@@ -22,6 +22,7 @@ import {
   Filter,
 } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { InlineProgressLoader } from "@/components/ui/ProgressLoader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import Link from "next/link";
 
@@ -148,31 +149,10 @@ export function InsightsCard({
             AI Insights
           </h2>
         </div>
-        <div className="space-y-3">
-          {/* Skeleton loaders */}
-          {Array.from({ length: Math.min(maxInsights, 3) }).map((_, i) => (
-            <div
-              key={i}
-              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-pulse"
-            >
-              {/* Skeleton header */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-                  </div>
-                </div>
-              </div>
-              {/* Skeleton description */}
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <InlineProgressLoader
+          message="Generating AI insights..."
+          simulate={true}
+        />
       </div>
     );
   }

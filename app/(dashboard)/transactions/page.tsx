@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Plus, Search, Filter, Upload, Brain, List, Grid3x3 } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
+import { ProgressLoadingScreen } from "@/components/ui/ProgressLoader";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ExportButton } from "@/components/ui/ExportButton";
@@ -160,6 +161,16 @@ export default function TransactionsPage() {
     Array.from(new Set(transactions.map(t => t.category))).sort(),
     [transactions]
   );
+
+  if (loading) {
+    return (
+      <ProgressLoadingScreen
+        message="Loading transactions..."
+        simulate={true}
+        estimatedDuration={1000}
+      />
+    );
+  }
 
   return (
     <div className="animate-fade-in">
