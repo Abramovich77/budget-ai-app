@@ -17,6 +17,7 @@ import { TransactionFilters, applyTransactionFilters, type TransactionFilterOpti
 import type { TransactionFormData } from "@/types/forms";
 import { HelpTooltip, FeatureBanner } from "@/components/ui/HelpTooltip";
 import { useToast } from "@/components/ui/Toast";
+import { Button } from "@/components/ui/Button";
 
 // Mock data - в продакшене будет загружаться из API
 const mockTransactions = [
@@ -325,14 +326,15 @@ export default function TransactionsPage() {
             position="right"
           />
         </div>
-        <button
+        <Button
           onClick={() => setShowAddModal(true)}
-          className="group bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
+          variant="primary"
+          icon={<Plus className="h-5 w-5" />}
+          className="group"
         >
-          <Plus className="h-5 w-5" />
           <span>Add Transaction</span>
           <KeyboardHint shortcut="N" showOnHover size="xs" className="bg-blue-700 border-blue-600" />
-        </button>
+        </Button>
       </div>
 
       {/* Feature Banner */}

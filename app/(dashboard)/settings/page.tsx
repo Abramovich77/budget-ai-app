@@ -6,6 +6,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useToast } from "@/components/ui/Toast";
 import { ExportDataModal } from "@/components/ExportDataModal";
 import { DataManagement } from "@/components/settings/DataManagement";
+import { Button } from "@/components/ui/Button";
 
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -155,12 +156,12 @@ export default function SettingsPage() {
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Try adjusting your search or browse all settings below.
               </p>
-              <button
+              <Button
                 onClick={() => setSearchQuery("")}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                variant="primary"
               >
                 Clear search
-              </button>
+              </Button>
             </div>
           )}
 
@@ -238,12 +239,12 @@ export default function SettingsPage() {
             </div>
 
             <div className="mt-6 flex gap-3">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              <Button variant="primary" onClick={handleSaveProfile}>
                 Save Changes
-              </button>
-              <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+              </Button>
+              <Button variant="outline">
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
           )}
