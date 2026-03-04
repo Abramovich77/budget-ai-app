@@ -4810,3 +4810,158 @@ Add loading skeleton for insights while fetching to improve perceived performanc
 ---
 
 *Last updated: 2026-03-04 02:18 UTC*
+
+---
+
+### 2026-03-04 02:48 UTC - Iteration #53
+
+#### Improvement
+- **What:** Added loading skeleton for insights to improve perceived performance
+- **Why:** Replace generic spinner with structured skeleton loaders that mimic actual insight cards, reducing perceived loading time and improving UX
+
+#### Changes
+- **Files:**
+  - `components/dashboard/InsightsCard.tsx` (modified)
+  - `PROGRESS.md` (updated)
+- **Lines:** +24 additions, -2 deletions
+
+#### Features Implemented
+Skeleton Loader Design:
+- **Structure Matching**: Skeleton mimics actual insight card layout
+  * Icon placeholder: 40x40 rounded square
+  * Title line: 3/4 width, 20px height
+  * Badge placeholder: 1/4 width, 16px height
+  * Description lines: Full width and 5/6 width
+  * Border and padding match real cards
+- **Count Logic**: Shows Math.min(maxInsights, 3) skeletons
+  * Dashboard shows 3 skeletons (maxInsights=5)
+  * Insights page shows 3 skeletons (maxInsights=20)
+  * Prevents excessive skeleton display
+- **Animation**: animate-pulse class for shimmer effect
+  * Built-in Tailwind animation
+  * Smooth, subtle pulsing
+  * Professional appearance
+  * No custom CSS needed
+
+Visual Design:
+- **Color Scheme**:
+  * Light mode: gray-200 backgrounds
+  * Dark mode: gray-700 backgrounds
+  * Matches theme consistently
+  * Proper contrast ratios
+- **Layout**:
+  * Border: gray-200/gray-700
+  * Rounded corners: rounded-lg
+  * Padding: p-4 (matches real cards)
+  * Spacing: space-y-3 between skeletons
+  * Spacing: space-y-2 within skeleton
+- **Dimensions**:
+  * Icon: w-10 h-10 (40x40px)
+  * Title: h-5 (20px height)
+  * Badge: h-4 (16px height)
+  * Description: h-4 (16px per line)
+  * Responsive widths (w-3/4, w-1/4, w-full, w-5/6)
+
+#### Technical Implementation
+Array Generation:
+```typescript
+{Array.from({ length: Math.min(maxInsights, 3) }).map((_, i) => (
+  <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-pulse">
+    {/* Skeleton structure */}
+  </div>
+))}
+```
+
+Component Structure:
+- Maintains header during loading
+- Shows "AI Insights" title with Sparkles icon
+- No refresh button during loading (logical UX)
+- Same container styling as loaded state
+- Smooth transition when data arrives
+
+Removed Dependencies:
+- No longer uses LoadingSpinner for this component
+- Pure Tailwind CSS approach
+- Lighter weight (no extra component)
+- Simpler implementation
+
+#### User Experience Benefits
+Perceived Performance:
+- Shows structure immediately
+- Brain processes familiar patterns
+- Reduces perceived wait time
+- Less frustrating than spinner
+- Industry-standard approach
+
+Visual Continuity:
+- Skeleton matches final layout
+- Smooth transition to content
+- No layout shift on load
+- Professional appearance
+- Familiar pattern (used by Facebook, LinkedIn, etc.)
+
+Loading Feedback:
+- Clear indication of loading state
+- Shows what's coming
+- Sets expectations
+- Maintains context
+- Reduces bounce rate
+
+#### Comparison: Before vs After
+Before (Spinner):
+- Generic spinner animation
+- Centered in empty space
+- No indication of content structure
+- Less professional appearance
+- Higher perceived load time
+
+After (Skeleton):
+- Content-like placeholders
+- Shows expected structure
+- Familiar loading pattern
+- More professional
+- Lower perceived load time
+
+#### Benefits
+User Benefits:
+- Faster perceived load time
+- Better understanding of loading state
+- Professional experience
+- Reduced frustration
+- Smooth visual transition
+
+Product Benefits:
+- Modern UX pattern
+- Improved engagement
+- Lower bounce rate
+- Professional appearance
+- Competitive with major apps
+
+Development Benefits:
+- Simple implementation
+- Pure CSS solution
+- No external dependencies
+- Easy to maintain
+- Reusable pattern
+
+#### Future Enhancements
+- Add skeleton for individual insight expansion
+- Skeleton for search results
+- Skeleton for filter changes
+- Staggered reveal animation
+- Custom skeleton component
+- Configurable skeleton count
+- Skeleton for empty state transitions
+- Progressive loading skeletons
+
+#### Status
+- Build: ✅ (successful compilation, insights 2.32 kB)
+- Tests: ✅ (Skeleton displays correctly)
+- Deploy: ✅ (pushed to GitHub, commit 1d248af)
+
+#### Next Priority
+Add toast notifications for user actions (dismiss, refresh, errors)
+
+---
+
+*Last updated: 2026-03-04 02:48 UTC*
