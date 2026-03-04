@@ -4658,3 +4658,155 @@ Add insight bookmarking/favoriting functionality for important insights
 ---
 
 *Last updated: 2026-03-04 01:48 UTC*
+
+---
+
+### 2026-03-04 02:18 UTC - Iteration #52
+
+#### Improvement
+- **What:** Added "no matching results" state for filtered insights
+- **Why:** Improve user experience by clearly differentiating between "no insights exist" vs "no results match current filters", reducing confusion
+
+#### Changes
+- **Files:**
+  - `components/dashboard/InsightsCard.tsx` (modified)
+  - `PROGRESS.md` (updated)
+- **Lines:** +27 additions, -5 deletions
+
+#### Features Implemented
+Smart Empty State Detection:
+- **Two Distinct States**:
+  * No insights at all: "No Insights Yet" (original state)
+  * No matching results: "No Matching Insights" (new state)
+- **Conditional Logic**:
+  * hasInsights: Checks if insights.length > 0
+  * isFiltered: Checks if filters or search are active
+  * Shows appropriate message based on combination
+- **Visual Differentiation**:
+  * Filter icon instead of Sparkles icon
+  * Blue circular background (blue-50/blue-900/20)
+  * Different messaging and guidance
+
+No Matching Results State:
+- **Visual Design**:
+  * Filter icon (8x8) in circular container
+  * Blue accent color scheme
+  * Centered layout with proper spacing
+  * Two-line description for clarity
+- **Messaging**:
+  * Title: "No Matching Insights"
+  * Primary: "No insights match your current filters or search query."
+  * Secondary: "Try adjusting your filters or search terms."
+- **User Guidance**:
+  * Clear explanation of why no results appear
+  * Actionable suggestion to adjust filters
+  * Reduces user confusion
+  * Encourages problem-solving
+
+Original Empty State (No Insights):
+- Maintained existing behavior
+- Shows when truly no insights exist
+- Sparkles icon with encouraging message
+- "Your AI insights will appear here once you have more financial data."
+
+#### Technical Implementation
+Detection Logic:
+```typescript
+const hasInsights = insights.length > 0;
+const isFiltered = filterType !== "all" || filterSeverity !== "all" || searchQuery.trim() !== "";
+
+if (hasInsights && isFiltered) {
+  // Show "No Matching Insights" state
+} else {
+  // Show original "No Insights Yet" state
+}
+```
+
+Component Structure:
+- Added Filter icon import
+- Conditional rendering based on state
+- Separate UI for each state
+- Dark mode compatible
+- Maintains existing refresh functionality
+
+#### User Experience Benefits
+Clarity:
+- Users understand why no results appear
+- Distinction between empty and filtered states
+- Reduces "where are my insights?" questions
+- Clear path to resolution
+
+Guidance:
+- Actionable feedback ("Try adjusting...")
+- Encourages filter exploration
+- Reduces frustration
+- Professional error messaging
+
+Consistency:
+- Matches filter/search UX patterns
+- Follows empty state conventions
+- Professional appearance
+- Maintains design system
+
+#### Use Cases
+Scenario 1 - No Insights Exist:
+- New user with no financial data
+- Shows: "No Insights Yet" with Sparkles icon
+- Message: Encourages adding financial data
+
+Scenario 2 - Aggressive Filters:
+- User filters for "Critical" + "Budget Alerts"
+- No insights match both criteria
+- Shows: "No Matching Insights" with Filter icon
+- Message: Suggests adjusting filters
+
+Scenario 3 - Search with No Results:
+- User searches for "mortgage"
+- No insights contain "mortgage"
+- Shows: "No Matching Insights"
+- Message: Suggests trying different terms
+
+Scenario 4 - Dismissed All Visible:
+- User dismisses all matching insights
+- Shows: "No Matching Insights"
+- Message: Can refresh to restore
+
+#### Benefits
+User Benefits:
+- Clear feedback on why no results
+- Reduced confusion and frustration
+- Actionable guidance
+- Professional experience
+
+Product Benefits:
+- Better UX perception
+- Reduced support questions
+- Encourages feature usage
+- Polished feel
+
+Development Benefits:
+- Simple implementation
+- No API changes
+- Client-side logic
+- Easy to maintain
+
+#### Future Enhancements
+- Add "Clear filters" button in no results state
+- Show filter summary in empty state
+- Suggest related filters that have results
+- Track "no results" events for analytics
+- Add animation for state transitions
+- Show count of total insights available
+- Offer "view all" option to bypass filters
+
+#### Status
+- Build: ✅ (successful compilation, insights 2.32 kB)
+- Tests: ✅ (Empty states work correctly)
+- Deploy: ✅ (pushed to GitHub, commit 11e60d0)
+
+#### Next Priority
+Add loading skeleton for insights while fetching to improve perceived performance
+
+---
+
+*Last updated: 2026-03-04 02:18 UTC*
