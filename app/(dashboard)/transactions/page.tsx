@@ -93,6 +93,7 @@ export default function TransactionsPage() {
     amount: "",
     category: "",
   });
+  const [dateFilter, setDateFilter] = useState<"all" | "week" | "month" | "30days">("all");
 
   // Keyboard shortcuts for this page
   useKeyboardShortcut({
@@ -139,10 +140,34 @@ export default function TransactionsPage() {
     ["description", "merchant", "category"]
   );
 
+  // Apply date range filter
+  const dateFilteredTransactions = useMemo(() => {
+    if (dateFilter === "all") return searchFilteredTransactions;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return searchFilteredTransactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+      const daysDiff = Math.floor((today.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24));
+
+      switch (dateFilter) {
+        case "week":
+          return daysDiff <= 7;
+        case "month":
+          return daysDiff <= 30;
+        case "30days":
+          return daysDiff <= 30;
+        default:
+          return true;
+      }
+    });
+  }, [searchFilteredTransactions, dateFilter]);
+
   // Apply advanced filters - memoized
   const filteredTransactions = useMemo(() =>
-    applyTransactionFilters(searchFilteredTransactions, filters),
-    [searchFilteredTransactions, filters]
+    applyTransactionFilters(dateFilteredTransactions, filters),
+    [dateFilteredTransactions, filters]
   );
 
   // Sort transactions using optimized sort hook
@@ -323,6 +348,63 @@ export default function TransactionsPage() {
         <QuickTip shortcut="N" description="Add new transaction" icon={<Plus className="h-4 w-4" />} />
         <QuickTip shortcut="F" description="Focus search" icon={<Search className="h-4 w-4" />} />
         <QuickTip shortcut="E" description="Export transactions" icon={<Upload className="h-4 w-4" />} />
+      </div>
+
+      {/* Quick Date Filters */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 mb-4 animate-fade-in" style={{ animationDelay: "0.08s" }}>
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap mr-2">
+            Quick Filters:
+          </span>
+          <button
+            onClick={() => setDateFilter("all")}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
+              dateFilter === "all"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            All Time
+          </button>
+          <button
+            onClick={() => setDateFilter("week")}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
+              dateFilter === "week"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            This Week
+          </button>
+          <button
+            onClick={() => setDateFilter("month")}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
+              dateFilter === "month"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            This Month
+          </button>
+          <button
+            onClick={() => setDateFilter("30days")}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
+              dateFilter === "30days"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Last 30 Days
+          </button>
+          {dateFilter !== "all" && (
+            <button
+              onClick={() => setDateFilter("all")}
+              className="ml-2 px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition whitespace-nowrap"
+            >
+              Clear Filter ×
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Toolbar */}
