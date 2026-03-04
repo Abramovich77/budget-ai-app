@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { DollarSign, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { StatCard } from "@/components/dashboard/StatCard";
+import { CategorySpendingChart } from "@/components/dashboard/CategorySpendingChart";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -13,6 +14,16 @@ export default async function DashboardPage() {
     monthlyExpenses: 3250,
     budgetRemaining: 1750,
   };
+
+  const categorySpending = [
+    { name: "Groceries", amount: 650, color: "#10b981" },
+    { name: "Rent", amount: 2000, color: "#6366f1" },
+    { name: "Transportation", amount: 320, color: "#3b82f6" },
+    { name: "Dining Out", amount: 280, color: "#f59e0b" },
+    { name: "Entertainment", amount: 180, color: "#8b5cf6" },
+    { name: "Utilities", amount: 240, color: "#84cc16" },
+    { name: "Healthcare", amount: 80, color: "#06b6d4" },
+  ];
 
   return (
     <div className="animate-fade-in">
@@ -98,8 +109,11 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div>
+      {/* Category Spending Chart & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Category Spending Chart */}
+        <CategorySpendingChart data={categorySpending} />
+
         {/* Recent Transactions */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Transactions</h3>
