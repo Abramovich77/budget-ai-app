@@ -12,6 +12,7 @@ import { GoalMilestone } from "@/components/goals/GoalMilestone";
 import { useGoalProgress } from "@/lib/hooks/useOptimizedData";
 import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
+import { Button } from "@/components/ui/Button";
 
 // Mock data
 const mockGoals = [
@@ -132,14 +133,15 @@ export default function GoalsPage() {
             position="right"
           />
         </div>
-        <button
+        <Button
           onClick={() => setShowAddModal(true)}
-          className="group bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
+          variant="primary"
+          icon={<Plus className="h-5 w-5" />}
+          className="group"
         >
-          <Plus className="h-5 w-5" />
           <span>New Goal</span>
           <KeyboardHint shortcut="N" showOnHover size="xs" className="bg-blue-700 border-blue-600" />
-        </button>
+        </Button>
       </div>
 
       {/* Keyboard Shortcuts Quick Tip */}

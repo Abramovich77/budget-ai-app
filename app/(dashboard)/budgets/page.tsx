@@ -14,6 +14,7 @@ import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import { BudgetRecommendations } from "@/components/budgets/BudgetRecommendations";
 import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
 import { AnimatedProgressBar } from "@/components/budgets/AnimatedProgressBar";
+import { Button } from "@/components/ui/Button";
 
 // Mock data
 const mockBudget = {
@@ -187,7 +188,7 @@ export default function BudgetsPage() {
         <div className="flex items-center gap-3">
           {/* Alert Toggle */}
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => {
                 setAlertsEnabled(!alertsEnabled);
                 if (!alertsEnabled) {
@@ -195,41 +196,29 @@ export default function BudgetsPage() {
                   resetOverallAlert();
                 }
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                alertsEnabled
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`}
+              variant={alertsEnabled ? "success" : "secondary"}
+              size="md"
+              icon={alertsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
               title={alertsEnabled ? "Alerts enabled" : "Alerts disabled"}
             >
-              {alertsEnabled ? (
-                <>
-                  <Bell className="h-4 w-4" />
-                  <span className="text-sm font-medium">Alerts On</span>
-                  <KeyboardHint shortcut="A" showOnHover size="xs" />
-                </>
-              ) : (
-                <>
-                  <BellOff className="h-4 w-4" />
-                  <span className="text-sm font-medium">Alerts Off</span>
-                  <KeyboardHint shortcut="A" showOnHover size="xs" />
-                </>
-              )}
-            </button>
+              <span className="text-sm font-medium">{alertsEnabled ? "Alerts On" : "Alerts Off"}</span>
+              <KeyboardHint shortcut="A" showOnHover size="xs" />
+            </Button>
             <HelpTooltip
               content="Enable alerts to get notified when you reach 80%, 95%, or exceed 100% of any budget category."
               type="info"
               size="sm"
             />
           </div>
-          <button
+          <Button
             onClick={() => setShowAddModal(true)}
-            className="group bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
+            variant="primary"
+            icon={<Plus className="h-5 w-5" />}
+            className="group"
           >
-            <Plus className="h-5 w-5" />
             <span>Create Budget</span>
             <KeyboardHint shortcut="N" showOnHover size="xs" className="bg-blue-700 border-blue-600" />
-          </button>
+          </Button>
         </div>
       </div>
 
