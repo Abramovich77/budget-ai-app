@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { User, Bell, Lock, CreditCard, Globe, Moon, Sun, Mail, Shield, Monitor, Download } from "lucide-react";
+import { useState, useMemo } from "react";
+import { User, Bell, Lock, CreditCard, Globe, Moon, Sun, Mail, Shield, Monitor, Download, Search, X } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useToast } from "@/components/ui/Toast";
 import { ExportDataModal } from "@/components/ExportDataModal";
@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const [budgetAlerts, setBudgetAlerts] = useState(true);
   const [goalReminders, setGoalReminders] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSaveProfile = () => {
     success("Profile Updated", "Your profile changes have been saved successfully.");
@@ -27,6 +28,50 @@ export default function SettingsPage() {
     );
   };
 
+  // Define searchable sections with keywords
+  const sections = useMemo(() => [
+    {
+      id: "profile",
+      title: "Profile Information",
+      keywords: ["profile", "name", "email", "personal", "account", "information", "user"],
+    },
+    {
+      id: "notifications",
+      title: "Notification Settings",
+      keywords: ["notifications", "alerts", "email", "push", "budget", "goals", "reminders"],
+    },
+    {
+      id: "security",
+      title: "Security & Privacy",
+      keywords: ["security", "privacy", "password", "two-factor", "2fa", "authentication", "login"],
+    },
+    {
+      id: "appearance",
+      title: "Appearance",
+      keywords: ["appearance", "theme", "dark", "light", "mode", "display", "ui"],
+    },
+    {
+      id: "data",
+      title: "Data Management",
+      keywords: ["data", "export", "import", "download", "backup", "delete", "account"],
+    },
+  ], []);
+
+  // Filter sections based on search query
+  const visibleSections = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return sections.map(s => s.id);
+    }
+
+    const query = searchQuery.toLowerCase();
+    return sections
+      .filter(section =>
+        section.title.toLowerCase().includes(query) ||
+        section.keywords.some(keyword => keyword.includes(query))
+      )
+      .map(s => s.id);
+  }, [searchQuery, sections]);
+
   return (
     <div>
       {/* Export Modal */}
@@ -34,10 +79,41 @@ export default function SettingsPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Manage your account and preferences
-        </p>
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Manage your account and preferences
+            </p>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mt-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search settings..."
+              className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Found {visibleSections.length} matching section{visibleSections.length !== 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -69,7 +145,27 @@ export default function SettingsPage() {
 
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* No Results */}
+          {searchQuery && visibleSections.length === 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
+              <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                No settings found
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Try adjusting your search or browse all settings below.
+              </p>
+              <button
+                onClick={() => setSearchQuery("")}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Clear search
+              </button>
+            </div>
+          )}
+
           {/* Profile Section */}
+          {visibleSections.includes("profile") && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -150,8 +246,10 @@ export default function SettingsPage() {
               </button>
             </div>
           </div>
+          )}
 
           {/* Notifications Section */}
+          {visibleSections.includes("notifications") && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Notification Preferences
@@ -256,8 +354,10 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Appearance Section */}
+          {visibleSections.includes("appearance") && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Appearance
@@ -329,8 +429,10 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Security Section */}
+          {visibleSections.includes("security") && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Security
@@ -370,9 +472,12 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Data Management Section */}
+          {visibleSections.includes("data") && (
           <DataManagement />
+          )}
 
           {/* Danger Zone */}
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
