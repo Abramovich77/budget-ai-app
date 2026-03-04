@@ -4255,3 +4255,90 @@ Add insight search functionality with keyword matching across titles and descrip
 ---
 
 *Last updated: 2026-03-04 00:17 UTC*
+
+---
+
+### 2026-03-04 00:48 UTC - Iteration #49
+
+#### Improvement
+- **What:** Added insight search functionality with keyword matching
+- **Why:** Enable users to quickly find specific insights using keywords, improving discoverability and user experience
+
+#### Changes
+- **Files:**
+  - `components/dashboard/FilteredInsights.tsx` (modified)
+  - `components/dashboard/InsightsCard.tsx` (modified)
+  - `PROGRESS.md` (updated)
+- **Lines:** +244 additions, -5 deletions
+
+#### Features Implemented
+Search Input Field:
+- Prominent search bar at top of insights page
+- Search icon on left side for visual clarity
+- Placeholder text: "Search insights by keyword..."
+- Clear button (X icon) appears when text entered
+- Real-time filtering as user types
+- No submit button needed - instant results
+- Full-width responsive input
+- Focus ring for accessibility
+
+Search Functionality:
+- Keyword Matching:
+  * Searches insight titles
+  * Searches descriptions
+  * Searches recommendations (optional field)
+  * Searches impact text (optional field)
+- Case-insensitive matching (toLowerCase())
+- Whitespace trimming for clean queries
+- Partial word matching (includes())
+- Filters applied after type/severity filters
+- Works seamlessly with existing filter system
+
+Active Search Display:
+- Shows search query as green badge
+- Search icon included in badge
+- Format: "Showing: 🔍 "keyword""
+- Appears alongside type/severity filter badges
+- Clear visual distinction with green color
+- Updates automatically as user types
+
+#### Search Algorithm
+Filter Pipeline:
+1. Filter dismissed insights (not shown to user)
+2. Filter by insight type (if selected)
+3. Filter by severity level (if selected)
+4. Filter by search query (if entered):
+   - Convert query to lowercase
+   - Check title.toLowerCase().includes(query)
+   - Check description.toLowerCase().includes(query)
+   - Check recommendation?.toLowerCase().includes(query)
+   - Check impact?.toLowerCase().includes(query)
+   - Return true if ANY field matches
+5. Slice to maxInsights limit
+
+#### Benefits
+User Benefits:
+- Find specific insights quickly
+- No need to scroll through all insights
+- Search by any relevant keyword
+- Instant results (no waiting)
+- Clear visual feedback
+- Easy to reset search
+
+Use Cases:
+- "budget" → finds all budget-related insights
+- "spending" → finds spending trends and patterns
+- "save" → finds savings opportunities
+- "exceeded" → finds budget overrun alerts
+
+#### Status
+- Build: ✅ (successful compilation, insights 1.84 kB)
+- Tests: ✅ (Search works correctly, filters properly)
+- Deploy: ✅ (pushed to GitHub, commit e303281)
+
+#### Next Priority
+Add keyboard shortcuts for quick access to search (Ctrl/Cmd+K, F key for focus)
+
+---
+
+*Last updated: 2026-03-04 00:48 UTC*
