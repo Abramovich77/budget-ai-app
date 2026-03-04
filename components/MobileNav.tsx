@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, LogOut, Brain } from "lucide-react";
 import { LucideIcon } from "lucide-react";
+import { MobileThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface NavigationItem {
   name: string;
@@ -134,7 +135,9 @@ export function MobileNav({ navigation, userName, userEmail, userInitial }: Mobi
             <Brain className="h-6 w-6 text-blue-600" aria-hidden="true" />
             <span className="text-xl font-bold text-gray-900 dark:text-white">Budget AI</span>
           </div>
-          <button
+          <div className="flex items-center gap-2">
+            <MobileThemeToggle />
+            <button
             onClick={() => setIsOpen(!isOpen)}
             className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors"
             aria-label={isOpen ? "Close menu" : "Open menu"}
@@ -145,7 +148,8 @@ export function MobileNav({ navigation, userName, userEmail, userInitial }: Mobi
             ) : (
               <Menu className="h-6 w-6 transition-transform duration-200" />
             )}
-          </button>
+            </button>
+          </div>
         </div>
       </div>
 

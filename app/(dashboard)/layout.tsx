@@ -5,6 +5,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { MobileNav } from "@/components/MobileNav";
 import { GlobalSearch } from "@/components/GlobalSearch";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ToastProvider } from "@/components/ui/Toast";
 import { NetworkStatusIndicator } from "@/components/ui/ErrorDisplay";
 import { AccessibilityAnnouncer } from "@/components/ui/AccessibilityAnnouncer";
@@ -67,9 +68,12 @@ export default async function DashboardLayout({
         aria-label="Main navigation"
       >
         {/* Logo */}
-        <div className="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <Brain className="h-8 w-8 text-blue-600 mr-3" aria-hidden="true" />
-          <span className="text-xl font-bold text-gray-900 dark:text-white">Budget AI</span>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center">
+            <Brain className="h-8 w-8 text-blue-600 mr-3" aria-hidden="true" />
+            <span className="text-xl font-bold text-gray-900 dark:text-white">Budget AI</span>
+          </div>
+          <ThemeToggle size="sm" variant="dropdown" />
         </div>
 
         {/* Navigation */}
