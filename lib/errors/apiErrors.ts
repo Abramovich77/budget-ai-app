@@ -6,6 +6,7 @@
 
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
+import type { ApiResponse, HttpStatusCode } from "@/lib/types";
 
 /**
  * Base API Error class
@@ -343,3 +344,74 @@ export function assertPermission(
     throw new ForbiddenError(message);
   }
 }
+
+/**
+ * Create a typed success response
+ * @param data - The response data
+ * @param status - HTTP status code (default: 200)
+ * @param message - Optional success message
+ * @returns NextResponse with typed ApiResponse format
+ */
+export function createSuccessResponse<T>(
+  data: T,
+  status: number = 200,
+  message?: string
+): NextResponse {
+  const response: ApiResponse<T> = {
+    success: true,
+    data,
+    timestamp: new Date().toISOString(),
+  };
+
+  if (message) {
+    response.message = message;
+  }
+
+  return NextResponse.json(response, { status });
+}
+
+/**
+ * Create a paginated success response
+ */
+export function createPaginatedResponse<T>(
+  data: T[],
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  },
+  message?: string
+): NextResponse {
+  return createSuccessResponse(
+    {
+      items: data,
+      pagination,
+    },
+    200,
+    message
+  );
+}
+
+/**
+ * Helper to create specific HTTP status responses
+ */
+export const successResponses = {
+  /**
+   * 200 OK - Success
+   */
+  ok: <T>(data: T, message?: string) => 
+    createSuccessResponse(data, 200, message),
+
+  /**
+   * 201 Created - Resource created successfully
+   */
+  created: <T>(data: T, message?: string) => 
+    createSuccessResponse(data, 201, message || "Resource created successfully"),
+
+  /**
+   * 204 No Content - Success with no response body
+   */
+  noContent: () => 
+    new NextResponse(null, { status: 204 }),
+} as const;
