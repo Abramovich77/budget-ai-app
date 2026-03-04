@@ -175,7 +175,7 @@ export function FilteredInsights() {
         </div>
 
         {showFilters && (
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-4 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-4 animate-slide-down">
             {/* Type Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
