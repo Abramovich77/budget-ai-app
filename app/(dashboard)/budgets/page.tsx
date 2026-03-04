@@ -6,6 +6,7 @@ import { AddBudgetModal } from "@/components/budgets/AddBudgetModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { GridSkeleton } from "@/components/ui/Skeleton";
 import { ProgressLoadingScreen } from "@/components/ui/ProgressLoader";
+import { KeyboardHint, QuickTip } from "@/components/ui/KeyboardHint";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useBudgetAlerts, useOverallBudgetAlert } from "@/lib/hooks/useBudgetAlerts";
 import { useBudgetProgress } from "@/lib/hooks/useOptimizedData";
@@ -204,11 +205,13 @@ export default function BudgetsPage() {
                 <>
                   <Bell className="h-4 w-4" />
                   <span className="text-sm font-medium">Alerts On</span>
+                  <KeyboardHint shortcut="A" showOnHover size="xs" />
                 </>
               ) : (
                 <>
                   <BellOff className="h-4 w-4" />
                   <span className="text-sm font-medium">Alerts Off</span>
+                  <KeyboardHint shortcut="A" showOnHover size="xs" />
                 </>
               )}
             </button>
@@ -220,13 +223,22 @@ export default function BudgetsPage() {
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"
+            className="group bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
           >
-            <Plus className="h-5 w-5 mr-2" />
-            Create Budget
+            <Plus className="h-5 w-5" />
+            <span>Create Budget</span>
+            <KeyboardHint shortcut="N" showOnHover size="xs" className="bg-blue-700 border-blue-600" />
           </button>
         </div>
       </div>
+
+      {/* Keyboard Shortcuts Quick Tips */}
+      {!loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <QuickTip shortcut="N" description="Create new budget" icon={<Plus className="h-4 w-4" />} />
+          <QuickTip shortcut="A" description="Toggle alerts" icon={<Bell className="h-4 w-4" />} />
+        </div>
+      )}
 
       {/* Loading State */}
       {loading && (

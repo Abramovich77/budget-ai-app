@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Plus, Search, Filter, Upload, Brain, List, Grid3x3 } from "lucide-react";
+import { Plus, Search, Filter, Upload, Brain, List, Grid3x3, Zap } from "lucide-react";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { ProgressLoadingScreen } from "@/components/ui/ProgressLoader";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
+import { KeyboardHint, QuickTip } from "@/components/ui/KeyboardHint";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { exportTransactionsToCSV } from "@/lib/utils/export";
@@ -198,10 +199,11 @@ export default function TransactionsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"
+          className="group bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
         >
-          <Plus className="h-5 w-5 mr-2" />
-          Add Transaction
+          <Plus className="h-5 w-5" />
+          <span>Add Transaction</span>
+          <KeyboardHint shortcut="N" showOnHover size="xs" className="bg-blue-700 border-blue-600" />
         </button>
       </div>
 
@@ -212,6 +214,13 @@ export default function TransactionsPage() {
         type="tip"
         dismissible
       />
+
+      {/* Keyboard Shortcuts Quick Tips */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 animate-fade-in" style={{ animationDelay: "0.05s" }}>
+        <QuickTip shortcut="N" description="Add new transaction" icon={<Plus className="h-4 w-4" />} />
+        <QuickTip shortcut="F" description="Focus search" icon={<Search className="h-4 w-4" />} />
+        <QuickTip shortcut="E" description="Export transactions" icon={<Upload className="h-4 w-4" />} />
+      </div>
 
       {/* Toolbar */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
@@ -225,10 +234,13 @@ export default function TransactionsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="Search transactions... (press F to focus)"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                placeholder="Search transactions..."
+                className="w-full pl-10 pr-12 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 aria-label="Search transactions"
               />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <KeyboardHint shortcut="F" size="xs" />
+              </div>
             </div>
           </div>
 

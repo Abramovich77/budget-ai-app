@@ -6,6 +6,7 @@ import { AddGoalModal } from "@/components/goals/AddGoalModal";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ListSkeleton } from "@/components/ui/Skeleton";
 import { ProgressLoadingScreen } from "@/components/ui/ProgressLoader";
+import { KeyboardHint, QuickTip } from "@/components/ui/KeyboardHint";
 import { EmptyStateCard } from "@/components/ui/EmptyState";
 import { GoalMilestone } from "@/components/goals/GoalMilestone";
 import { useGoalProgress } from "@/lib/hooks/useOptimizedData";
@@ -133,12 +134,20 @@ export default function GoalsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition"
+          className="group bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
         >
-          <Plus className="h-5 w-5 mr-2" />
-          New Goal
+          <Plus className="h-5 w-5" />
+          <span>New Goal</span>
+          <KeyboardHint shortcut="N" showOnHover size="xs" className="bg-blue-700 border-blue-600" />
         </button>
       </div>
+
+      {/* Keyboard Shortcuts Quick Tip */}
+      {!loading && (
+        <div className="mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <QuickTip shortcut="N" description="Create new goal" icon={<Plus className="h-4 w-4" />} />
+        </div>
+      )}
 
       {/* Loading State */}
       {loading && <ListSkeleton rows={4} />}
