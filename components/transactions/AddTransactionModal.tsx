@@ -5,7 +5,7 @@ import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormField";
 import { validateAmount, validateRequired, validateDate } from "@/lib/validation/formValidation";
 import { TRANSACTION_CATEGORIES } from "@/lib/constants";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import type { TransactionFormData } from "@/types/forms";
 
 interface SimpleTransaction {
@@ -41,6 +41,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
   const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFormErrors, setShowFormErrors] = useState(false);
 
   // Validate fields
   const descriptionValidation = validateRequired(formData.description, "Description");
@@ -66,8 +67,11 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
     });
 
     if (!isFormValid) {
+      setShowFormErrors(true);
       return;
     }
+
+    setShowFormErrors(false);
 
     setIsSubmitting(true);
 
@@ -120,9 +124,38 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
+  // Collect all errors for summary
+  const formErrors = [];
+  if (!descriptionValidation.isValid) formErrors.push(descriptionValidation.error);
+  if (!amountValidation.isValid) formErrors.push(amountValidation.error);
+  if (!categoryValidation.isValid) formErrors.push(categoryValidation.error);
+  if (!dateValidation.isValid) formErrors.push(dateValidation.error);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add Transaction" maxWidth="lg">
       <form onSubmit={handleSubmit}>
+        {/* Form Error Summary */}
+        {showFormErrors && formErrors.length > 0 && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg animate-fade-in">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">
+                  Please fix the following errors:
+                </h3>
+                <ul className="text-sm text-red-700 dark:text-red-400 space-y-1">
+                  {formErrors.map((error, index) => (
+                    <li key={index} className="flex items-start gap-1">
+                      <span className="text-red-600 dark:text-red-400">•</span>
+                      <span>{error}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Type Selection */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -168,6 +201,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
           validation={descriptionValidation}
           touched={touched.description}
           placeholder="e.g., Grocery shopping at Whole Foods"
+          helpText="Enter a brief description of the transaction (2-200 characters)"
           required
         />
 
@@ -183,6 +217,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
           placeholder="0.00"
           step="0.01"
           min="0"
+          helpText="Enter the transaction amount (positive number, max 2 decimals)"
           required
         />
 
@@ -199,6 +234,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
             value: cat,
             label: cat,
           }))}
+          helpText="Select the category that best describes this transaction"
           required
         />
 
@@ -212,6 +248,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
           validation={dateValidation}
           touched={touched.date}
           max={new Date().toISOString().split("T")[0]}
+          helpText="Select the date when this transaction occurred (cannot be in the future)"
           required
         />
 

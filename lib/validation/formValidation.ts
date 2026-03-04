@@ -15,11 +15,11 @@ export function validateAmount(value: string | number, fieldName = "Amount"): Va
   const numValue = typeof value === "string" ? parseFloat(value) : value;
 
   if (!value || value === "") {
-    return { isValid: false, error: `${fieldName} is required` };
+    return { isValid: false, error: `${fieldName} is required - please enter a value` };
   }
 
   if (isNaN(numValue)) {
-    return { isValid: false, error: `${fieldName} must be a valid number` };
+    return { isValid: false, error: `${fieldName} must be a valid number (e.g., 10.50)` };
   }
 
   if (numValue <= 0) {
@@ -27,14 +27,14 @@ export function validateAmount(value: string | number, fieldName = "Amount"): Va
   }
 
   if (numValue > 999999999) {
-    return { isValid: false, error: `${fieldName} is too large` };
+    return { isValid: false, error: `${fieldName} is too large (max: 999,999,999)` };
   }
 
   // Check for max 2 decimal places
   if (typeof value === "string" && value.includes(".")) {
     const decimals = value.split(".")[1];
     if (decimals && decimals.length > 2) {
-      return { isValid: false, error: `${fieldName} can have at most 2 decimal places` };
+      return { isValid: false, error: `${fieldName} can have at most 2 decimal places (e.g., 10.50)` };
     }
   }
 
@@ -46,15 +46,15 @@ export function validateAmount(value: string | number, fieldName = "Amount"): Va
  */
 export function validateRequired(value: string, fieldName = "This field"): ValidationResult {
   if (!value || value.trim() === "") {
-    return { isValid: false, error: `${fieldName} is required` };
+    return { isValid: false, error: `${fieldName} is required - please enter a value` };
   }
 
   if (value.length < 2) {
-    return { isValid: false, error: `${fieldName} must be at least 2 characters` };
+    return { isValid: false, error: `${fieldName} must be at least 2 characters long` };
   }
 
   if (value.length > 200) {
-    return { isValid: false, error: `${fieldName} is too long (max 200 characters)` };
+    return { isValid: false, error: `${fieldName} is too long (max 200 characters, currently ${value.length})` };
   }
 
   return { isValid: true };
@@ -65,13 +65,13 @@ export function validateRequired(value: string, fieldName = "This field"): Valid
  */
 export function validateDate(value: string, fieldName = "Date"): ValidationResult {
   if (!value || value.trim() === "") {
-    return { isValid: false, error: `${fieldName} is required` };
+    return { isValid: false, error: `${fieldName} is required - please select a date` };
   }
 
   const date = new Date(value);
 
   if (isNaN(date.getTime())) {
-    return { isValid: false, error: `${fieldName} is not a valid date` };
+    return { isValid: false, error: `${fieldName} is not a valid date - please use the date picker` };
   }
 
   // Check if date is not too far in the past (before 1900)
