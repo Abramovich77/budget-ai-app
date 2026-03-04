@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { LucideIcon } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/Tooltip";
+import { Sparkline } from "@/components/ui/Sparkline";
 
 interface StatCardProps {
   title: string;
@@ -12,6 +13,8 @@ interface StatCardProps {
   trendColor?: string;
   tooltip: string;
   delay?: string;
+  sparklineData?: number[];
+  sparklineColor?: string;
 }
 
 function StatCardComponent({
@@ -24,6 +27,8 @@ function StatCardComponent({
   trendColor,
   tooltip,
   delay = "0s",
+  sparklineData,
+  sparklineColor,
 }: StatCardProps) {
   return (
     <div
@@ -39,9 +44,22 @@ function StatCardComponent({
         </div>
         <Icon className={`h-5 w-5 ${iconColor}`} />
       </div>
-      <p className="text-3xl font-bold text-gray-900 dark:text-white">
-        {value}
-      </p>
+      <div className="flex items-end justify-between">
+        <p className="text-3xl font-bold text-gray-900 dark:text-white">
+          {value}
+        </p>
+        {sparklineData && sparklineData.length > 0 && (
+          <div className="mb-1">
+            <Sparkline
+              data={sparklineData}
+              width={80}
+              height={28}
+              color={sparklineColor || iconColor.replace('text-', '#')}
+              animate={true}
+            />
+          </div>
+        )}
+      </div>
       {trend && (
         <p className={`text-sm mt-2 ${trendColor}`}>
           {trend}

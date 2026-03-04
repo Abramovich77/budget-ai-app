@@ -25,6 +25,12 @@ export default async function DashboardPage() {
     { name: "Healthcare", amount: 80, color: "#06b6d4" },
   ];
 
+  // 7-day sparkline data (mock data showing trends)
+  const balanceSparkline = [11200, 11800, 12100, 11900, 12300, 12450, 12540];
+  const incomeSparkline = [4200, 4500, 4800, 4600, 4900, 5100, 5000];
+  const expensesSparkline = [3100, 3400, 3200, 3300, 3150, 3280, 3250];
+  const budgetSparkline = [2100, 1900, 1850, 1950, 1800, 1720, 1750];
+
   return (
     <div className="animate-fade-in">
       {/* Header */}
@@ -49,6 +55,8 @@ export default async function DashboardPage() {
           trendColor="text-green-600"
           tooltip="Sum of all your account balances across checking, savings, and investment accounts"
           delay="0s"
+          sparklineData={balanceSparkline}
+          sparklineColor="#3b82f6"
         />
 
         <StatCard
@@ -59,6 +67,8 @@ export default async function DashboardPage() {
           iconColor="text-green-600"
           tooltip="Total income received this month from salary, side hustles, investments, and other sources"
           delay="0.1s"
+          sparklineData={incomeSparkline}
+          sparklineColor="#10b981"
         />
 
         <StatCard
@@ -69,6 +79,8 @@ export default async function DashboardPage() {
           iconColor="text-red-600"
           tooltip="Total amount spent this month across all categories including bills, groceries, entertainment, and more"
           delay="0.2s"
+          sparklineData={expensesSparkline}
+          sparklineColor="#ef4444"
         />
 
         <StatCard
@@ -79,6 +91,8 @@ export default async function DashboardPage() {
           iconColor="text-purple-600"
           tooltip="Amount left to spend this month within your budget. Stay within this to meet your financial goals!"
           delay="0.3s"
+          sparklineData={budgetSparkline}
+          sparklineColor="#a855f7"
         />
       </div>
 
