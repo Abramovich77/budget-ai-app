@@ -12619,3 +12619,61 @@ Replace buttons in dashboard pages (goals, budgets, transactions, settings)
 ---
 
 *Last updated: 2026-03-04 11:04 UTC*
+
+### 2026-03-04 11:38 UTC - Iteration #85
+
+#### Improvement
+- **What:** Replaced dashboard page buttons with Button component
+- **Why:** Complete Button component rollout to Goals and Budgets pages for UI consistency
+
+#### Changes
+- **Files:**
+  - `app/(dashboard)/goals/page.tsx` (modified, +7/-8 lines)
+  - `app/(dashboard)/budgets/page.tsx` (modified, +12/-20 lines)
+- **Lines:** +19 additions / -28 deletions
+
+#### Features Implemented
+- Replaced "New Goal" button with Button component using primary variant
+- Replaced "Create Budget" button with Button component using primary variant
+- Replaced alert toggle button with Button component using success/secondary variants
+- Conditional styling based on alert state (green for enabled, gray for disabled)
+- All buttons now have smooth hover effects and active scale animations
+- Icon support integrated with Button component
+
+#### Technical Details
+- Imported Button component from `@/components/ui/Button`
+- Used `variant="primary"` for action buttons (New Goal, Create Budget)
+- Used dynamic variant for alert toggle: `variant={alertsEnabled ? "success" : "secondary"}`
+- Maintained keyboard hints integration with Button component
+- Preserved all existing functionality while improving UI consistency
+
+### Benefits
+
+#### User Experience
+- **Consistent Interactions**: All dashboard buttons now have same animation behavior
+- **Visual Feedback**: Smooth scale animation on click provides tactile feedback
+- **Better State Indicators**: Alert toggle button clearly shows enabled/disabled state
+- **Professional Design**: Cohesive button styling across dashboard
+
+#### Code Quality
+- **Reduced Complexity**: Removed 28 lines of repetitive button styling
+- **Better Maintainability**: Button changes only need to be made in one place
+- **Type Safety**: Full TypeScript support for all button props
+- **Reusable Components**: Consistent use of design system components
+
+#### Developer Experience
+- **Cleaner Code**: Simpler JSX with Button component vs inline styles
+- **Predictable API**: Same Button props work consistently everywhere
+- **Easy Updates**: Change button behavior/style in single component
+
+### Status
+- Build: ✅ (successful compilation, no TypeScript errors)
+- Tests: ✅ (Goals and Budgets pages render correctly with Button components)
+- Deploy: ✅ (pushed to GitHub, commit edb5ec4)
+
+### Next Priority
+Replace buttons in Transactions and Settings pages to complete dashboard Button rollout
+
+---
+
+*Last updated: 2026-03-04 11:38 UTC*
