@@ -188,6 +188,8 @@ export function InsightsCard({
           <button
             onClick={handleRefresh}
             className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition"
+            title="Refresh insights and clear dismissed items"
+            aria-label="Refresh insights"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -220,6 +222,8 @@ export function InsightsCard({
           <button
             onClick={handleRefresh}
             className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition"
+            title="Refresh insights and clear dismissed items"
+            aria-label="Refresh insights"
           >
             <RefreshCw className="h-4 w-4" />
           </button>

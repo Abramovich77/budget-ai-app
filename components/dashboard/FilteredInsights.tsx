@@ -104,6 +104,7 @@ export function FilteredInsights() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-24 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+            title="Search in titles, descriptions, and recommendations (⌘K)"
           />
           {/* Keyboard shortcut hint */}
           {!searchQuery && (
@@ -132,6 +133,7 @@ export function FilteredInsights() {
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              title={showFilters ? "Hide filters" : "Show filters by type and severity"}
             >
               <Filter className="h-4 w-4" />
               <span className="font-medium">Filters</span>
@@ -149,6 +151,7 @@ export function FilteredInsights() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
                 className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                title="Change how insights are sorted"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -163,6 +166,7 @@ export function FilteredInsights() {
             <button
               onClick={clearFilters}
               className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+              title="Clear all filters and search"
             >
               <X className="h-4 w-4" />
               Clear filters
