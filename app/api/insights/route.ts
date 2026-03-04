@@ -12,6 +12,21 @@ import { withErrorHandler } from "@/lib/errors/apiErrors";
 
 export const dynamic = "force-dynamic";
 
+// Simple in-memory cache for insights
+// Cache TTL: 5 minutes (insights don't need to be real-time)
+const insightsCache = new Map<string, { insights: any[]; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+// Clean up expired cache entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of insightsCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      insightsCache.delete(key);
+    }
+  }
+}, 60 * 1000); // Clean up every minute
+
 /**
  * GET /api/insights
  *
@@ -27,6 +42,21 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.user.id;
+  const cacheKey = `insights:${userId}`;
+
+  // Check if we have a fresh cached result
+  const cached = insightsCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return NextResponse.json({
+      success: true,
+      insights: cached.insights,
+      count: cached.insights.length,
+      generatedAt: new Date(cached.timestamp).toISOString(),
+      cached: true,
+    });
   }
 
   try {
@@ -84,16 +114,23 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     ];
 
     // Generate insights
-    const insights = await generateInsights(mockTransactions, mockBudgets, session.user.id);
+    const insights = await generateInsights(mockTransactions, mockBudgets, userId);
 
     // Sort by severity
     const sortedInsights = sortInsightsBySeverity(insights);
+
+    // Cache the result
+    insightsCache.set(cacheKey, {
+      insights: sortedInsights,
+      timestamp: Date.now(),
+    });
 
     return NextResponse.json({
       success: true,
       insights: sortedInsights,
       count: sortedInsights.length,
       generatedAt: new Date().toISOString(),
+      cached: false,
     });
   } catch (error) {
     console.error("Error generating insights:", error);
