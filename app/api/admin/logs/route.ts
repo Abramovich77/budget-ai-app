@@ -5,62 +5,90 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLogAnalytics, getRecentLogs, getErrorLogs } from "@/lib/middleware/logger";
 import { rateLimit, RATE_LIMITS } from "@/lib/middleware/rateLimit";
+import {
+  withErrorHandler,
+  successResponses,
+  BadRequestError,
+} from "@/lib/errors/apiErrors";
 
 /**
  * GET /api/admin/logs
  *
  * Get logs and analytics
  * Query params:
- * - type: "recent" | "errors" | "analytics"
- * - limit: number (for recent logs)
+ * - type: "recent" | "errors" | "analytics" (default: "analytics")
+ * - limit: number (for recent logs, default: 100, max: 1000)
  */
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandler(async (request: NextRequest) => {
   // Rate limiting
   const rateLimitResponse = rateLimit(request, RATE_LIMITS.query);
   if (rateLimitResponse) {
     return rateLimitResponse;
   }
 
-  try {
-    const { searchParams } = request.nextUrl;
-    const type = searchParams.get("type") || "analytics";
-    const limit = parseInt(searchParams.get("limit") || "100", 10);
+  // TODO: Add admin authentication middleware
+  // const session = await auth();
+  // assertAuthorized(!!session?.user?.isAdmin, "Admin access required");
 
-    // In production, you'd add authentication here
-    // For now, this is a basic implementation
-    // TODO: Add admin authentication middleware
+  const { searchParams } = request.nextUrl;
+  const type = searchParams.get("type") || "analytics";
 
-    let data;
+  // Validate type parameter
+  const validTypes = ["recent", "errors", "analytics"] as const;
+  type LogType = typeof validTypes[number];
 
-    switch (type) {
-      case "recent":
-        data = getRecentLogs(limit);
-        break;
-
-      case "errors":
-        data = getErrorLogs();
-        break;
-
-      case "analytics":
-      default:
-        data = getLogAnalytics();
-        break;
-    }
-
-    return NextResponse.json({
-      success: true,
-      type,
-      data,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error("Error fetching logs:", error);
-    return NextResponse.json(
-      {
-        error: "Failed to fetch logs",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+  if (!validTypes.includes(type as LogType)) {
+    throw new BadRequestError(
+      `Invalid type parameter. Must be one of: ${validTypes.join(", ")}`
     );
   }
-}
+
+  // Validate and parse limit parameter
+  let limit = 100; // Default limit
+  const limitParam = searchParams.get("limit");
+
+  if (limitParam) {
+    const parsedLimit = parseInt(limitParam, 10);
+
+    if (isNaN(parsedLimit)) {
+      throw new BadRequestError("Invalid limit parameter. Must be a number");
+    }
+
+    if (parsedLimit < 1) {
+      throw new BadRequestError("Invalid limit parameter. Must be at least 1");
+    }
+
+    if (parsedLimit > 1000) {
+      throw new BadRequestError("Invalid limit parameter. Maximum is 1000");
+    }
+
+    limit = parsedLimit;
+  }
+
+  // Fetch data based on type
+  let data: unknown;
+
+  switch (type) {
+    case "recent":
+      data = getRecentLogs(limit);
+      break;
+
+    case "errors":
+      data = getErrorLogs();
+      break;
+
+    case "analytics":
+      data = getLogAnalytics();
+      break;
+
+    default:
+      // TypeScript should prevent this, but just in case
+      throw new BadRequestError(`Unsupported log type: ${type}`);
+  }
+
+  return successResponses.ok({
+    type,
+    data,
+    timestamp: new Date().toISOString(),
+  });
+});
