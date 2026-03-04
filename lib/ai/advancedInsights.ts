@@ -51,11 +51,9 @@ export function analyzeCategoryPatterns(transactions: TransactionData[]): AIInsi
         title: `Inconsistent ${category} Spending`,
         description: `Your ${category} spending varies significantly (${min.toFixed(0)} to ${max.toFixed(0)}), averaging $${avg.toFixed(2)}.`,
         recommendation: `Consider setting a consistent ${category} budget of $${Math.ceil(avg * 1.2)} to account for variability.`,
-        impact: `More predictable budgeting can help you save $${(avg * 0.1 * 12).toFixed(0)}/year.`,
         actionable: true,
-        actionUrl: "/budgets",
         confidence: 0.8,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         metadata: { category, avg, stdDev, variance: stdDev / avg },
       });
     }
@@ -91,16 +89,14 @@ export function analyzeDayOfWeekPatterns(transactions: TransactionData[]): AIIns
   if (avgByDay[maxDay] > avgByDay[minDay] * 2 && dayCounts[maxDay] > 2) {
     insights.push({
       id: generateId(),
-      type: "spending-trend",
+      type: "spending-pattern",
       severity: "info",
       title: `Higher Spending on ${days[maxDay]}s`,
       description: `You spend an average of $${avgByDay[maxDay].toFixed(2)} on ${days[maxDay]}s, significantly more than other days.`,
       recommendation: `Plan ${days[maxDay]} activities in advance and set a daily spending limit to control costs.`,
-      impact: `Reducing ${days[maxDay]} spending by 20% could save $${(avgByDay[maxDay] * 0.2 * 52).toFixed(0)}/year.`,
       actionable: true,
-      actionUrl: "/reports",
       confidence: 0.75,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       metadata: { highestDay: days[maxDay], avgSpending: avgByDay[maxDay] },
     });
   }
@@ -136,15 +132,14 @@ export function analyzeMerchantLoyalty(transactions: TransactionData[]): AIInsig
     if (data.count >= 3 && data.total >= 100) {
       insights.push({
         id: generateId(),
-        type: "savings-opportunity",
+        type: "saving-opportunity",
         severity: "info",
         title: `Frequent ${merchant} Shopper`,
         description: `You've spent $${data.total.toFixed(2)} at ${merchant} over ${data.count} transactions.`,
         recommendation: `Check if ${merchant} offers loyalty programs, credit card rewards, or bulk discounts.`,
-        impact: `Loyalty rewards could save you 2-5% ($${(data.total * 0.03).toFixed(2)}) on future purchases.`,
         actionable: false,
         confidence: 0.7,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         metadata: { merchant, totalSpent: data.total, transactionCount: data.count },
       });
     }
@@ -181,16 +176,14 @@ export function analyzeEmergencyFund(
 
     insights.push({
       id: generateId(),
-      type: "goal-recommendation",
+      type: "goal-progress",
       severity: savings < avgMonthlyExpenses ? "warning" : "info",
       title: "Emergency Fund Below Target",
       description: `Your emergency fund should cover 3-6 months of expenses ($${recommendedMin.toFixed(0)}-${recommendedMax.toFixed(0)}). Current: $${savings.toFixed(0)}.`,
       recommendation: `Set aside $${(shortfall / 12).toFixed(0)}/month to reach your goal in ${monthsToGoal} months.`,
-      impact: "A proper emergency fund protects you from unexpected expenses and financial stress.",
       actionable: true,
-      actionUrl: "/goals",
       confidence: 0.9,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       metadata: {
         currentSavings: savings,
         recommendedMin,
@@ -248,11 +241,9 @@ export function analyzeSeasonalPatterns(transactions: TransactionData[]): AIInsi
         title: `Higher Spending Expected in ${months[nextMonth]}`,
         description: `Based on historical data, ${months[nextMonth]} spending averages $${nextMonthAvg.toFixed(0)}, 20% higher than usual.`,
         recommendation: `Start budgeting now for ${months[nextMonth]} expenses. Consider setting aside an extra $${(nextMonthAvg - currentMonthAvg).toFixed(0)}.`,
-        impact: "Planning ahead prevents budget overruns and financial stress.",
         actionable: true,
-        actionUrl: "/budgets",
         confidence: 0.75,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         metadata: {
           nextMonth: months[nextMonth],
           expectedSpending: nextMonthAvg,
@@ -303,16 +294,14 @@ export function analyzeSubscriptionOptimization(transactions: TransactionData[])
 
     insights.push({
       id: generateId(),
-      type: "cost-optimization",
+      type: "category-analysis",
       severity: "info",
       title: "Multiple Subscriptions Detected",
       description: `You have ${subscriptions.length} active subscriptions costing approximately $${totalMonthly.toFixed(2)}/month.`,
       recommendation: "Review all subscriptions and cancel unused services. Consider annual plans for frequently used services to save 10-20%.",
-      impact: `Eliminating just one subscription could save $${(totalMonthly / subscriptions.length * 12).toFixed(0)}/year.`,
       actionable: true,
-      actionUrl: "/transactions",
       confidence: 0.8,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       metadata: {
         subscriptionCount: subscriptions.length,
         estimatedMonthly: totalMonthly,

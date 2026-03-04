@@ -9,12 +9,13 @@ import { auth } from "@/lib/auth";
 import { generateInsights, sortInsightsBySeverity } from "@/lib/ai/insights";
 import { rateLimit, RATE_LIMITS } from "@/lib/middleware/rateLimit";
 import { withErrorHandler } from "@/lib/errors/apiErrors";
+import type { AIInsight } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 // Simple in-memory cache for insights
 // Cache TTL: 5 minutes (insights don't need to be real-time)
-const insightsCache = new Map<string, { insights: any[]; timestamp: number }>();
+const insightsCache = new Map<string, { insights: AIInsight[]; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // Clean up expired cache entries periodically

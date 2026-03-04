@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import {
   createTransactionSchema,
   transactionQuerySchema,
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Build where clause with filters
-    const where: any = {
+    const where: Prisma.TransactionWhereInput = {
       account: {
         userId: session.user.id,
       },

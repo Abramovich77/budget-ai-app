@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { z } from "zod";
+import type { ValidationResult, FieldValidationResult } from "@/lib/types";
 
 /**
  * Custom hook for form validation with Zod
@@ -15,12 +16,12 @@ export function useFormValidation<T extends z.ZodSchema>(schema: T) {
    * Validate entire form
    */
   const validate = useCallback(
-    (data: unknown): { isValid: boolean; data?: FormData; errors?: Record<string, string> } => {
+    (data: unknown): ValidationResult & { data?: FormData } => {
       const result = schema.safeParse(data);
 
       if (result.success) {
         setErrors({});
-        return { isValid: true, data: result.data };
+        return { isValid: true, errors: {}, data: result.data };
       }
 
       const formattedErrors: Record<string, string> = {};
@@ -39,12 +40,14 @@ export function useFormValidation<T extends z.ZodSchema>(schema: T) {
    * Validate a single field
    */
   const validateField = useCallback(
-    (fieldName: string, value: unknown): boolean => {
+    (fieldName: string, value: unknown): FieldValidationResult => {
       try {
-        // Extract the field schema
-        const fieldSchema = (schema as any).shape?.[fieldName];
+        // Extract the field schema - TypeScript doesn't have a way to safely access Zod shape
+        // so we need to use type assertion here (this is a known limitation)
+        const schemaShape = schema as unknown as z.ZodObject<Record<string, z.ZodTypeAny>>;
+        const fieldSchema = schemaShape.shape?.[fieldName];
         if (!fieldSchema) {
-          return true;
+          return { isValid: true };
         }
 
         fieldSchema.parse(value);
@@ -56,16 +59,17 @@ export function useFormValidation<T extends z.ZodSchema>(schema: T) {
           return newErrors;
         });
 
-        return true;
+        return { isValid: true };
       } catch (error) {
         if (error instanceof z.ZodError) {
+          const errorMessage = error.errors[0]?.message || "Invalid value";
           setErrors((prev) => ({
             ...prev,
-            [fieldName]: error.errors[0]?.message || "Invalid value",
+            [fieldName]: errorMessage,
           }));
-          return false;
+          return { isValid: false, error: errorMessage };
         }
-        return false;
+        return { isValid: false, error: "Unknown validation error" };
       }
     },
     [schema]

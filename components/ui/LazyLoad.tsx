@@ -62,9 +62,9 @@ function LoadingFallback() {
  * Lazy load a dynamic import with Suspense
  */
 interface LazyComponentProps {
-  importFunc: () => Promise<{ default: ComponentType<any> }>;
+  importFunc: () => Promise<{ default: ComponentType<Record<string, unknown>> }>;
   fallback?: React.ReactNode;
-  componentProps?: any;
+  componentProps?: Record<string, unknown>;
 }
 
 export function LazyComponent({

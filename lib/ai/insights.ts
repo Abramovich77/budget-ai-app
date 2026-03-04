@@ -6,42 +6,10 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { generateAdvancedInsights } from "./advancedInsights";
+import type { AIInsight, InsightType, InsightSeverity } from "@/lib/types";
 
-/**
- * Insight types
- */
-export type InsightType =
-  | "spending-trend"
-  | "budget-alert"
-  | "savings-opportunity"
-  | "unusual-transaction"
-  | "category-analysis"
-  | "goal-recommendation"
-  | "seasonal-pattern"
-  | "cost-optimization";
-
-/**
- * Insight severity levels
- */
-export type InsightSeverity = "info" | "warning" | "critical";
-
-/**
- * AI Insight structure
- */
-export interface AIInsight {
-  id: string;
-  type: InsightType;
-  severity: InsightSeverity;
-  title: string;
-  description: string;
-  recommendation?: string;
-  impact?: string;
-  actionable: boolean;
-  actionUrl?: string;
-  metadata?: Record<string, any>;
-  confidence: number;
-  createdAt: Date;
-}
+// Re-export types for backwards compatibility
+export type { AIInsight, InsightType, InsightSeverity };
 
 /**
  * Transaction data for analysis
@@ -116,11 +84,9 @@ function generateRuleBasedInsights(
         title: `${budget.category} Budget Exceeded`,
         description: `You've spent $${budget.spent.toFixed(2)} of your $${budget.allocated.toFixed(2)} ${budget.category} budget.`,
         recommendation: `Consider reducing ${budget.category} spending or adjusting your budget allocation.`,
-        impact: `You're $${(budget.spent - budget.allocated).toFixed(2)} over budget this period.`,
         actionable: true,
-        actionUrl: "/budgets",
         confidence: 1.0,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         metadata: { category: budget.category, overrun: budget.spent - budget.allocated },
       });
     } else if (percentUsed >= 90) {
@@ -132,9 +98,8 @@ function generateRuleBasedInsights(
         description: `You've used ${percentUsed.toFixed(0)}% of your ${budget.category} budget.`,
         recommendation: `You have $${budget.remaining.toFixed(2)} remaining. Plan carefully for the rest of the period.`,
         actionable: true,
-        actionUrl: "/budgets",
         confidence: 1.0,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         metadata: { category: budget.category, percentUsed },
       });
     }
@@ -149,15 +114,14 @@ function generateRuleBasedInsights(
 
     insights.push({
       id: generateId(),
-      type: "unusual-transaction",
+      type: "unusual-activity",
       severity: "info",
       title: "Large Transaction Detected",
       description: `A transaction of $${Math.abs(largestTx.amount).toFixed(2)} at ${largestTx.merchant || largestTx.description} is significantly above your average.`,
       recommendation: "Review this transaction to ensure it's expected.",
       actionable: true,
-      actionUrl: "/transactions",
       confidence: 0.85,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       metadata: { transactionId: largestTx.id, amount: largestTx.amount },
     });
   }
@@ -183,7 +147,7 @@ function generateRuleBasedInsights(
     if (Math.abs(change) > 20) {
       insights.push({
         id: generateId(),
-        type: "spending-trend",
+        type: "spending-pattern",
         severity: change > 0 ? "warning" : "info",
         title: `Spending ${change > 0 ? "Increased" : "Decreased"} by ${Math.abs(change).toFixed(0)}%`,
         description: `Your spending this month ($${currentSpending.toFixed(2)}) is ${Math.abs(change).toFixed(0)}% ${change > 0 ? "higher" : "lower"} than last month.`,
@@ -192,9 +156,8 @@ function generateRuleBasedInsights(
             ? "Review your recent transactions to identify areas where you can reduce spending."
             : "Great job! Keep up the good spending habits.",
         actionable: true,
-        actionUrl: "/reports",
         confidence: 0.9,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         metadata: { currentSpending, previousSpending, changePercent: change },
       });
     }
@@ -207,16 +170,14 @@ function generateRuleBasedInsights(
 
     insights.push({
       id: generateId(),
-      type: "savings-opportunity",
+      type: "saving-opportunity",
       severity: "info",
       title: "Recurring Expenses Identified",
       description: `You have ${recurringTransactions.length} recurring expenses totaling $${totalRecurring.toFixed(2)} per month.`,
       recommendation: "Review these subscriptions and services to identify potential savings.",
-      impact: `Reducing just 10% could save you $${(totalRecurring * 0.1).toFixed(2)}/month or $${(totalRecurring * 0.1 * 12).toFixed(2)}/year.`,
       actionable: true,
-      actionUrl: "/transactions",
       confidence: 0.75,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       metadata: { recurringCount: recurringTransactions.length, totalAmount: totalRecurring },
     });
   }
@@ -293,10 +254,9 @@ Focus on actionable, specific insights. Be concise and practical.`,
         title: insight.title,
         description: insight.description,
         recommendation: insight.recommendation,
-        impact: insight.impact,
         actionable: true,
         confidence: 0.8,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       })
     );
   } catch (error) {
@@ -403,8 +363,9 @@ export function getActionableInsights(insights: AIInsight[]): AIInsight[] {
  */
 export function sortInsightsBySeverity(insights: AIInsight[]): AIInsight[] {
   const severityOrder: Record<InsightSeverity, number> = {
-    critical: 3,
-    warning: 2,
+    critical: 4,
+    warning: 3,
+    success: 2,
     info: 1,
   };
 
