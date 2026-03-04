@@ -53,7 +53,7 @@ export function CategorySpendingChart({ data }: CategorySpendingChartProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-all duration-300 hover:shadow-lg">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
         Spending by Category
       </h3>
@@ -67,9 +67,10 @@ export function CategorySpendingChart({ data }: CategorySpendingChartProps) {
                 <path
                   d={createArcPath(category.startPercentage, category.percentage)}
                   fill={category.color}
-                  className="transition-opacity hover:opacity-80"
+                  className="transition-all duration-300 hover:opacity-80 hover:scale-105"
                   style={{
                     animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
+                    transformOrigin: 'center',
                   }}
                 />
               </g>
@@ -93,22 +94,22 @@ export function CategorySpendingChart({ data }: CategorySpendingChartProps) {
             {chartData.map((category, index) => (
               <div
                 key={category.name}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer group"
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer group hover:scale-[1.02] hover:shadow-sm"
                 style={{
                   animation: `slideIn 0.5s ease-out ${index * 0.1}s both`,
                 }}
               >
                 <div className="flex items-center gap-3 flex-1">
                   <div
-                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    className="w-4 h-4 rounded-full flex-shrink-0 group-hover:scale-125 transition-transform"
                     style={{ backgroundColor: category.color }}
                   />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                     {category.name}
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">
                     ${category.amount.toLocaleString()}
                   </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400 min-w-[3rem] text-right">

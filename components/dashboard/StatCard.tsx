@@ -32,24 +32,26 @@ function StatCardComponent({
 }: StatCardProps) {
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in"
+      className="group bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-scale-in transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer border border-transparent hover:border-blue-100 dark:hover:border-blue-900/50"
       style={{ animationDelay: delay }}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
             {title}
           </h3>
           <InfoTooltip content={tooltip} />
         </div>
-        <Icon className={`h-5 w-5 ${iconColor}`} />
+        <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 group-hover:scale-110 transition-transform">
+          <Icon className={`h-5 w-5 ${iconColor}`} />
+        </div>
       </div>
       <div className="flex items-end justify-between">
-        <p className="text-3xl font-bold text-gray-900 dark:text-white">
+        <p className="text-3xl font-bold text-gray-900 dark:text-white group-hover:scale-105 transition-transform origin-left">
           {value}
         </p>
         {sparklineData && sparklineData.length > 0 && (
-          <div className="mb-1">
+          <div className="mb-1 group-hover:scale-105 transition-transform">
             <Sparkline
               data={sparklineData}
               width={80}
@@ -61,12 +63,12 @@ function StatCardComponent({
         )}
       </div>
       {trend && (
-        <p className={`text-sm mt-2 ${trendColor}`}>
+        <p className={`text-sm mt-2 ${trendColor} flex items-center gap-1`}>
           {trend}
         </p>
       )}
       {subtitle && !trend && (
-        <p className="text-sm text-gray-500 mt-2">{subtitle}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{subtitle}</p>
       )}
     </div>
   );
