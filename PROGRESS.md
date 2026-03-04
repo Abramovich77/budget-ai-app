@@ -4510,3 +4510,151 @@ Add insight sorting options (by date, severity, confidence, alphabetical)
 ---
 
 *Last updated: 2026-03-04 01:18 UTC*
+
+---
+
+### 2026-03-04 01:48 UTC - Iteration #51
+
+#### Improvement
+- **What:** Added insight sorting options (severity, date, confidence, alphabetical)
+- **Why:** Enable users to organize insights in different ways based on their needs and preferences
+
+#### Changes
+- **Files:**
+  - `components/dashboard/FilteredInsights.tsx` (modified)
+  - `components/dashboard/InsightsCard.tsx` (modified)
+  - `PROGRESS.md` (updated)
+- **Lines:** +66 additions, -16 deletions
+
+#### Features Implemented
+Sort Dropdown:
+- **Severity**: Critical > Warning > Info (default)
+  * Shows most urgent insights first
+  * Matches natural priority ordering
+  * Helps users address critical issues quickly
+- **Date**: Newest first (descending)
+  * Shows most recent insights at top
+  * Useful for tracking new developments
+  * Timestamp-based sorting
+- **Confidence**: Highest first (descending)
+  * Shows most reliable insights first
+  * Helps users trust recommendations
+  * AI confidence score sorting
+- **Alphabetical**: A-Z by title
+  * Organizes insights by name
+  * Easy to find specific insights
+  * Uses localeCompare for proper sorting
+
+UI Components:
+- Sort dropdown next to Filters button
+- ArrowUpDown icon for visual clarity
+- Select element with styled options
+- "Sort: [Option]" label format
+- Dark mode compatible styling
+- Hover effects on dropdown
+- Focus ring for accessibility
+
+Sorting Logic:
+- Applied after filtering and searching
+- Before slicing to maxInsights limit
+- Client-side (no API calls)
+- Maintains all filter combinations
+- Type-safe with TypeScript
+- Efficient array sorting
+
+#### Technical Implementation
+FilteredInsights Component:
+- New SortOption type: "severity" | "date" | "confidence" | "alphabetical"
+- sortOptions array with value/label pairs
+- sortBy state with useState hook
+- Default: "severity"
+- ArrowUpDown icon import from lucide-react
+- Dropdown positioned in flex container
+- Passed sortBy prop to InsightsCard
+
+InsightsCard Component:
+- Added sortBy prop to interface (optional, default "severity")
+- Sort logic in visibleInsights calculation:
+  ```typescript
+  .sort((a, b) => {
+    switch (sortBy) {
+      case "severity":
+        const severityOrder = { critical: 0, warning: 1, info: 2 };
+        return severityOrder[a.severity] - severityOrder[b.severity];
+      case "date":
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case "confidence":
+        return b.confidence - a.confidence;
+      case "alphabetical":
+        return a.title.localeCompare(b.title);
+      default:
+        return 0;
+    }
+  })
+  ```
+
+Sorting Algorithms:
+- **Severity**: Object mapping for order, numeric comparison
+- **Date**: getTime() for timestamp comparison, descending
+- **Confidence**: Direct number subtraction, descending
+- **Alphabetical**: localeCompare() for proper string sorting
+
+#### User Experience
+Flexibility:
+- Choose sorting that matches workflow
+- Switch between views easily
+- Combine with filters and search
+- Instant results (client-side)
+
+Use Cases:
+- Severity sort: Daily review, urgent issues
+- Date sort: Track recent changes, new insights
+- Confidence sort: Trust high-quality recommendations
+- Alphabetical: Find specific known insights
+
+Visual Feedback:
+- Clear dropdown label
+- Icon indicates sorting capability
+- Selected option shown in dropdown
+- Consistent with filter UI
+
+#### Benefits
+User Benefits:
+- Organize insights by priority
+- Find newest insights quickly
+- Trust most confident recommendations
+- Locate insights alphabetically
+- Flexible viewing options
+
+Product Benefits:
+- Better insights exploration
+- Improved user engagement
+- Professional feature set
+- Meets diverse user needs
+
+Development Benefits:
+- Clean sorting implementation
+- Type-safe code
+- No backend changes
+- Easy to extend with new sort options
+
+#### Future Enhancements
+- Multi-level sorting (primary + secondary)
+- Sort direction toggle (asc/desc)
+- Save sort preference in localStorage
+- Sort by category or impact
+- Custom sort options
+- Sort by number of actions taken
+- Combine with grouping features
+
+#### Status
+- Build: ✅ (successful compilation, insights 2.37 kB)
+- Tests: ✅ (Sorting works correctly for all options)
+- Deploy: ✅ (pushed to GitHub, commit 60515e6)
+
+#### Next Priority
+Add insight bookmarking/favoriting functionality for important insights
+
+---
+
+*Last updated: 2026-03-04 01:48 UTC*
