@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { InsightsCard } from "./InsightsCard";
 import { Filter, X, Search } from "lucide-react";
 
@@ -41,8 +41,39 @@ export function FilteredInsights() {
   const [selectedSeverity, setSelectedSeverity] = useState<InsightSeverity>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const hasActiveFilters = selectedType !== "all" || selectedSeverity !== "all" || searchQuery.trim() !== "";
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
+      // F key to focus search (when not typing in an input)
+      if (e.key === "f" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
+      // Escape to clear search when search input is focused
+      if (e.key === "Escape" && document.activeElement === searchInputRef.current) {
+        e.preventDefault();
+        if (searchQuery) {
+          setSearchQuery("");
+        } else {
+          searchInputRef.current?.blur();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [searchQuery]);
 
   const clearFilters = () => {
     setSelectedType("all");
@@ -57,12 +88,21 @@ export function FilteredInsights() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Search insights by keyword..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full pl-10 pr-24 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
+          {/* Keyboard shortcut hint */}
+          {!searchQuery && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 text-xs text-gray-400 pointer-events-none">
+              <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-600 dark:text-gray-400">
+                ⌘K
+              </kbd>
+            </div>
+          )}
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
