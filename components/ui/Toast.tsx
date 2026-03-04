@@ -163,7 +163,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           return (
             <div
               key={toast.id}
-              className={`${config.bgColor} ${config.borderColor} border-l-4 p-4 rounded-lg shadow-lg animate-slide-in-right min-w-[320px]`}
+              className={`${config.bgColor} ${config.borderColor} border-l-4 p-4 rounded-lg shadow-lg animate-slide-in-right min-w-[320px] relative overflow-hidden`}
             >
               <div className="flex items-start gap-3">
                 <Icon className={`h-5 w-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
@@ -198,6 +198,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   <X className="h-4 w-4" />
                 </button>
               </div>
+
+              {/* Progress bar for auto-dismiss */}
+              {!toast.persistent && toast.duration && toast.duration > 0 && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-600">
+                  <div
+                    className={`h-full ${config.iconColor.replace('text-', 'bg-')} transition-all ease-linear`}
+                    style={{
+                      width: '100%',
+                      animation: `shrink ${toast.duration}ms linear`,
+                    }}
+                  />
+                </div>
+              )}
             </div>
           );
         })}

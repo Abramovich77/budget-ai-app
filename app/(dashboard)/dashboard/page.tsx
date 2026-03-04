@@ -3,6 +3,7 @@ import { DollarSign, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { CategorySpendingChart } from "@/components/dashboard/CategorySpendingChart";
+import { QuickActions } from "@/components/dashboard/QuickActions";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -104,23 +105,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick Actions - Takes 1 column */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-          <div className="space-y-3">
-            <button className="w-full text-left px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-              <p className="font-medium text-gray-900 dark:text-white">Add Transaction</p>
-              <p className="text-sm text-gray-500">Manually record income or expense</p>
-            </button>
-            <button className="w-full text-left px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-              <p className="font-medium text-gray-900 dark:text-white">Create Budget</p>
-              <p className="text-sm text-gray-500">Set up a new monthly budget</p>
-            </button>
-            <button className="w-full text-left px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-              <p className="font-medium text-gray-900 dark:text-white">Set Goal</p>
-              <p className="text-sm text-gray-500">Track savings or debt payoff</p>
-            </button>
-          </div>
-        </div>
+        <QuickActions />
       </div>
 
       {/* Category Spending Chart & Recent Activity */}
