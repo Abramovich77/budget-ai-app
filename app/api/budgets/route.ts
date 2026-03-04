@@ -9,6 +9,7 @@ import {
   assertAuthorized,
   assertExists,
   NotFoundError,
+  successResponses,
 } from "@/lib/errors/apiErrors";
 
 export const dynamic = 'force-dynamic';
@@ -59,15 +60,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     },
   });
 
-  const response = NextResponse.json({ budgets });
-
-  // Add rate limit headers
-  const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.query);
-  for (const [key, value] of Object.entries(rateLimitHeaders)) {
-    response.headers.set(key, value);
-  }
-
-  return response;
+  return successResponses.ok({ budgets });
 });
 
 // POST /api/budgets - Create a new budget
@@ -118,13 +111,5 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     },
   });
 
-  const response = NextResponse.json(budget, { status: 201 });
-
-  // Add rate limit headers
-  const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.mutation);
-  for (const [key, value] of Object.entries(rateLimitHeaders)) {
-    response.headers.set(key, value);
-  }
-
-  return response;
+  return successResponses.created(budget, "Budget created successfully");
 });

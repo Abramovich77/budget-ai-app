@@ -6,10 +6,11 @@ import { validateBody, errorResponse } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
 import { logRequest, logResponse, logError } from "@/lib/middleware/logger";
 import { logAuthEvent, AuditEventType, getIpFromHeaders } from "@/lib/audit/auditLogger";
+import { withErrorHandler, ConflictError, successResponses } from "@/lib/errors/apiErrors";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandler(async (request: NextRequest) => {
   const startTime = Date.now();
   const requestId = logRequest(request);
 
@@ -19,8 +20,6 @@ export async function POST(request: NextRequest) {
     logResponse(requestId, 429, Date.now() - startTime);
     return rateLimitResponse;
   }
-
-  try {
     // Validate and sanitize request body
     const validated = await validateBody(request, registerSchema);
     const { fullName, email, password } = validated;
@@ -44,7 +43,7 @@ export async function POST(request: NextRequest) {
         "FAILURE",
         "User with this email already exists"
       );
-      return errorResponse("User with this email already exists", 409);
+      throw new ConflictError("User with this email already exists");
     }
 
     // Hash password
@@ -75,34 +74,11 @@ export async function POST(request: NextRequest) {
       "SUCCESS"
     );
 
-    const response = NextResponse.json(
-      {
-        message: "User created successfully",
-        user,
-      },
-      { status: 201 }
-    );
-
-    // Add rate limit headers
-    const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.auth);
-    for (const [key, value] of Object.entries(rateLimitHeaders)) {
-      response.headers.set(key, value);
-    }
-
-    // Add request ID header
-    response.headers.set("X-Request-Id", requestId);
-
     // Log response
-    logResponse(requestId, response.status, Date.now() - startTime);
+    logResponse(requestId, 201, Date.now() - startTime);
 
-    return response;
-  } catch (error) {
-    if (error instanceof NextResponse) {
-      logResponse(requestId, error.status, Date.now() - startTime);
-      return error;
-    }
-    logError(request, error as Error, { requestId });
-    console.error("Registration error:", error);
-    return errorResponse("Internal server error", 500);
-  }
-}
+    return successResponses.created(
+      { user },
+      "User created successfully"
+    );
+});

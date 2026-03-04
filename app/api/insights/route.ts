@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { generateInsights, sortInsightsBySeverity } from "@/lib/ai/insights";
 import { rateLimit, RATE_LIMITS } from "@/lib/middleware/rateLimit";
-import { withErrorHandler } from "@/lib/errors/apiErrors";
+import { withErrorHandler, UnauthorizedError, successResponses } from "@/lib/errors/apiErrors";
 import type { AIInsight } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    throw new UnauthorizedError();
   }
 
   const userId = session.user.id;
@@ -51,8 +51,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   // Check if we have a fresh cached result
   const cached = insightsCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return NextResponse.json({
-      success: true,
+    return successResponses.ok({
       insights: cached.insights,
       count: cached.insights.length,
       generatedAt: new Date(cached.timestamp).toISOString(),
@@ -126,8 +125,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       timestamp: Date.now(),
     });
 
-    return NextResponse.json({
-      success: true,
+    return successResponses.ok({
       insights: sortedInsights,
       count: sortedInsights.length,
       generatedAt: new Date().toISOString(),
@@ -135,12 +133,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     });
   } catch (error) {
     console.error("Error generating insights:", error);
-    return NextResponse.json(
-      {
-        error: "Failed to generate insights",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
+    throw error; // Let withErrorHandler handle the error
   }
 });
