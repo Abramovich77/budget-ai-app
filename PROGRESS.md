@@ -4059,4 +4059,199 @@ Implement insight filtering by type and severity on insights page
 
 ---
 
-*Last updated: 2026-03-03 23:43 UTC*
+*Last updated: 2026-03-04 00:17 UTC*
+
+---
+
+### 2026-03-04 00:17 UTC - Iteration #48
+
+#### Improvement
+- **What:** Added insight filtering by type and severity on insights page
+- **Why:** Enable users to filter and find specific insights, improving usability and allowing focused review of particular insight categories
+
+#### Changes
+- **Files:**
+  - `components/dashboard/FilteredInsights.tsx` (new, 180 lines)
+  - `components/dashboard/InsightsCard.tsx` (modified)
+  - `app/(dashboard)/insights/page.tsx` (modified)
+  - `PROGRESS.md` (updated)
+- **Lines:** +322 additions, -3 deletions
+
+#### Features Implemented
+FilteredInsights Component:
+- Filter Controls:
+  * Toggle button to show/hide filter panel (Filter icon with "Filters" label)
+  * "Active" badge when filters are applied
+  * Clear filters button (X icon) when filters active
+  * Collapsible filter panel with smooth animations
+
+- Type Filters (8 options):
+  * All Types (default)
+  * Spending Trends
+  * Budget Alerts
+  * Savings Opportunities
+  * Unusual Transactions
+  * Category Analysis
+  * Goal Recommendations
+  * Seasonal Patterns
+  * Cost Optimization
+
+- Severity Filters (4 options):
+  * All Levels (default, gray)
+  * Critical (red with red dot indicator)
+  * Warning (yellow with yellow dot indicator)
+  * Info (blue with blue dot indicator)
+
+- Active Filter Display:
+  * Shows selected filters as badges below controls
+  * "Showing:" label with colored badges
+  * Badges match filter colors (blue for types, severity-specific for levels)
+  * Automatic display when hasActiveFilters is true
+
+- Visual Design:
+  * White/dark-gray background card with border
+  * Filter buttons with blue selection state
+  * Gray default state with hover effects
+  * Colored severity indicators (dots)
+  * Smooth fade-in animation for filter panel
+  * Responsive layout (flex-wrap for small screens)
+
+InsightsCard Enhancement:
+- Added filter props: filterType and filterSeverity
+- Client-side filtering logic:
+  ```typescript
+  .filter((insight) => filterType === "all" || insight.type === filterType)
+  .filter((insight) => filterSeverity === "all" || insight.severity === filterSeverity)
+  ```
+- Filters applied before dismissal check and maxInsights limit
+- Maintains existing functionality (dismiss, refresh, expand, actions)
+- Props interface expanded with optional filters
+
+Insights Page Integration:
+- Replaced InsightsCard with FilteredInsights component
+- Maintains all existing sections:
+  * Header with icon and description
+  * Info cards (Smart Analysis, Track Progress, Early Warnings)
+  * Help section with severity guide
+- FilteredInsights positioned in main content area
+- Seamless integration with existing layout
+
+#### User Experience
+Filtering Workflow:
+1. User clicks "Filters" button to reveal filter panel
+2. Selects desired type and/or severity
+3. "Active" badge appears on Filters button
+4. Selected filters shown as badges below controls
+5. Insights update immediately (client-side)
+6. User can clear all filters with X button
+
+Filter Benefits:
+- Find specific insight types quickly
+- Focus on critical/warning insights only
+- Review savings opportunities separately
+- Filter out noise from low-priority insights
+- Multi-dimensional filtering (type + severity)
+- Visual feedback on active filters
+
+Interaction Design:
+- Toggle button for clean initial state
+- Collapsible panel saves screen space
+- Clear visual hierarchy
+- Color-coded for easy scanning
+- Responsive button layout
+- Smooth animations for polish
+
+#### Technical Implementation
+State Management:
+- selectedType: InsightType state (default "all")
+- selectedSeverity: InsightSeverity state (default "all")
+- showFilters: boolean state for panel visibility
+- hasActiveFilters: computed boolean (selectedType !== "all" || selectedSeverity !== "all")
+
+Filter Logic:
+- Client-side filtering (no API changes needed)
+- Sequential filter application (type → severity → dismissed → maxInsights)
+- Preserves original insights array
+- Efficient array operations
+
+Component Architecture:
+- FilteredInsights wraps InsightsCard
+- Props passed down for filtering
+- Single source of truth for filter state
+- Reusable InsightsCard component
+- Clean separation of concerns
+
+Type Safety:
+- TypeScript enums for filter values
+- Type guards on filter arrays
+- Proper interface definitions
+- No 'any' types used
+
+#### Styling Details
+Filter Button States:
+- Default: bg-gray-100/dark:bg-gray-700
+- Selected (type): bg-blue-600 text-white
+- Selected (critical): bg-red-600 text-white
+- Selected (warning): bg-yellow-600 text-white
+- Selected (info): bg-blue-600 text-white
+- Selected (all): bg-gray-600 text-white
+- Hover: bg-gray-200/dark:bg-gray-600
+
+Severity Indicators:
+- Circular dots (w-2 h-2 rounded-full)
+- Colors: red-300, yellow-300, blue-300
+- Only shown for non-"all" severity options
+- Positioned inline with label
+
+Active Filter Badges:
+- Blue for type filters (bg-blue-100/dark:bg-blue-900/40)
+- Red for critical severity
+- Yellow for warning severity
+- Blue for info severity
+- Small text (text-sm)
+- Rounded corners
+- Padding: px-2 py-1
+
+#### Benefits
+User Benefits:
+- Faster insight discovery
+- Focused review of relevant insights
+- Less cognitive load
+- Better insight management
+- Customizable view
+
+Product Benefits:
+- Increased insights page engagement
+- Better feature utilization
+- Improved user satisfaction
+- More actionable insights
+- Scalable for more insight types
+
+Development Benefits:
+- Clean, reusable component
+- Type-safe implementation
+- No backend changes needed
+- Easy to extend filters
+- Maintainable code
+
+#### Future Enhancements
+- Search/text filter for insight descriptions
+- Multi-select filters (multiple types at once)
+- Filter presets ("Critical Only", "Savings Focus")
+- Filter state persistence (localStorage/URL params)
+- Sort options (date, confidence, alphabetical)
+- Filter by date range
+- Filter by confidence score
+- Saved filter combinations
+
+#### Status
+- Build: ✅ (successful compilation, insights 1.45 kB)
+- Tests: ✅ (Filtering works correctly, UI updates properly)
+- Deploy: ✅ (pushed to GitHub, commit 2708991)
+
+#### Next Priority
+Add insight search functionality with keyword matching across titles and descriptions
+
+---
+
+*Last updated: 2026-03-04 00:17 UTC*

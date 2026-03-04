@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { InsightsCard } from "./InsightsCard";
-import { Filter, X } from "lucide-react";
+import { Filter, X, Search } from "lucide-react";
 
 type InsightType =
   | "all"
@@ -40,16 +40,41 @@ export function FilteredInsights() {
   const [selectedType, setSelectedType] = useState<InsightType>("all");
   const [selectedSeverity, setSelectedSeverity] = useState<InsightSeverity>("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const hasActiveFilters = selectedType !== "all" || selectedSeverity !== "all";
+  const hasActiveFilters = selectedType !== "all" || selectedSeverity !== "all" || searchQuery.trim() !== "";
 
   const clearFilters = () => {
     setSelectedType("all");
     setSelectedSeverity("all");
+    setSearchQuery("");
   };
 
   return (
     <div>
+      {/* Search Bar */}
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search insights by keyword..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Filter Controls */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -146,8 +171,14 @@ export function FilteredInsights() {
 
         {/* Active Filters Display */}
         {hasActiveFilters && (
-          <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 flex-wrap">
             <span>Showing:</span>
+            {searchQuery && (
+              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 rounded inline-flex items-center gap-1">
+                <Search className="h-3 w-3" />
+                "{searchQuery}"
+              </span>
+            )}
             {selectedType !== "all" && (
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 rounded">
                 {insightTypes.find((t) => t.value === selectedType)?.label}
@@ -175,6 +206,7 @@ export function FilteredInsights() {
         maxInsights={20}
         filterType={selectedType}
         filterSeverity={selectedSeverity}
+        searchQuery={searchQuery}
       />
     </div>
   );

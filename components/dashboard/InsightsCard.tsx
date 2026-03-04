@@ -50,6 +50,7 @@ interface InsightsCardProps {
   className?: string;
   filterType?: string;
   filterSeverity?: string;
+  searchQuery?: string;
 }
 
 export function InsightsCard({
@@ -58,6 +59,7 @@ export function InsightsCard({
   className = "",
   filterType = "all",
   filterSeverity = "all",
+  searchQuery = "",
 }: InsightsCardProps) {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,11 +100,21 @@ export function InsightsCard({
     fetchInsights();
   };
 
-  // Filter dismissed insights and apply type/severity filters
+  // Filter dismissed insights and apply type/severity/search filters
   const visibleInsights = insights
     .filter((insight) => !dismissedInsights.has(insight.id))
     .filter((insight) => filterType === "all" || insight.type === filterType)
     .filter((insight) => filterSeverity === "all" || insight.severity === filterSeverity)
+    .filter((insight) => {
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        insight.title.toLowerCase().includes(query) ||
+        insight.description.toLowerCase().includes(query) ||
+        (insight.recommendation && insight.recommendation.toLowerCase().includes(query)) ||
+        (insight.impact && insight.impact.toLowerCase().includes(query))
+      );
+    })
     .slice(0, maxInsights);
 
   if (loading) {
