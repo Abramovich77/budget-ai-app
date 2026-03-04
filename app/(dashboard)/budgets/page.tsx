@@ -13,6 +13,7 @@ import { useBudgetProgress } from "@/lib/hooks/useOptimizedData";
 import { useKeyboardShortcut } from "@/lib/hooks/useKeyboardShortcut";
 import { BudgetRecommendations } from "@/components/budgets/BudgetRecommendations";
 import { HelpTooltip, InlineHelp } from "@/components/ui/HelpTooltip";
+import { AnimatedProgressBar } from "@/components/budgets/AnimatedProgressBar";
 
 // Mock data
 const mockBudget = {
@@ -320,15 +321,27 @@ export default function BudgetsPage() {
 
         {/* Progress Bar */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-blue-100">Overall Progress</span>
-            <span className="text-sm font-semibold">{progressPercentage.toFixed(1)}%</span>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-blue-100 font-medium">Overall Progress</span>
           </div>
-          <div className="w-full bg-blue-400/30 rounded-full h-3">
-            <div
-              className="bg-white rounded-full h-3 transition-all duration-500"
-              style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-            />
+          <div className="relative">
+            <div className="w-full bg-blue-400/30 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-white rounded-full h-3 transition-all duration-700 ease-out"
+                style={{
+                  width: `${Math.min(progressPercentage, 100)}%`,
+                  transition: "width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
+              >
+                <div className="h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-sm font-bold text-white">{progressPercentage.toFixed(1)}%</span>
+              <span className="text-xs text-blue-100">
+                {progressPercentage < 100 ? "On track" : "Budget reached"}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -391,24 +404,16 @@ export default function BudgetsPage() {
                 </div>
               </div>
 
-              {/* Progress Bar */}
-              <div className="relative">
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div
-                    className={`rounded-full h-2 transition-all duration-500 ${
-                      isOverspent
-                        ? "bg-red-600"
-                        : isWarning
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
-                    }`}
-                    style={{ width: `${Math.min(categoryProgress, 100)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {categoryProgress.toFixed(0)}% used
-                </p>
-              </div>
+              {/* Animated Progress Bar */}
+              <AnimatedProgressBar
+                percentage={categoryProgress}
+                color={category.color}
+                isOverspent={isOverspent}
+                isWarning={isWarning}
+                showPercentage={true}
+                animated={true}
+                height="md"
+              />
 
               {/* Alert Message */}
               {isOverspent && (
