@@ -86,6 +86,13 @@ export default function TransactionsPage() {
   });
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { success, successWithUndo, error } = useToast();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    description: "",
+    merchant: "",
+    amount: "",
+    category: "",
+  });
 
   // Keyboard shortcuts for this page
   useKeyboardShortcut({
@@ -168,6 +175,72 @@ export default function TransactionsPage() {
         success("Transaction Restored", "The transaction has been restored.");
       },
       5000 // 5 seconds to undo
+    );
+  };
+
+  const handleStartEdit = (transaction: typeof mockTransactions[0]) => {
+    setEditingId(transaction.id);
+    setEditForm({
+      description: transaction.description,
+      merchant: transaction.merchant,
+      amount: String(Math.abs(transaction.amount)),
+      category: transaction.category,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditForm({
+      description: "",
+      merchant: "",
+      amount: "",
+      category: "",
+    });
+  };
+
+  const handleSaveEdit = (id: string) => {
+    // Get original transaction for undo
+    const originalTransaction = transactions.find((t) => t.id === id);
+    if (!originalTransaction) return;
+
+    // Validate amount
+    const amountValue = parseFloat(editForm.amount);
+    if (isNaN(amountValue) || amountValue <= 0) {
+      error("Invalid Amount", "Please enter a valid positive number.");
+      return;
+    }
+
+    // Determine if it's income or expense based on original
+    const amount = originalTransaction.amount > 0 ? amountValue : -amountValue;
+
+    // Optimistic update: update UI immediately
+    const updatedTransaction = {
+      ...originalTransaction,
+      description: editForm.description,
+      merchant: editForm.merchant,
+      amount: amount,
+      category: editForm.category,
+    };
+
+    setTransactions((prev) =>
+      prev.map((t) => (t.id === id ? updatedTransaction : t))
+    );
+
+    // Clear edit mode
+    setEditingId(null);
+
+    // Show success toast with undo
+    successWithUndo(
+      "Transaction Updated",
+      "Your changes have been saved.",
+      () => {
+        // Undo: restore original transaction
+        setTransactions((prev) =>
+          prev.map((t) => (t.id === id ? originalTransaction : t))
+        );
+        success("Changes Reverted", "Transaction restored to original values.");
+      },
+      5000
     );
   };
 
@@ -411,83 +484,168 @@ export default function TransactionsPage() {
                 </td>
               </tr>
             ) : (
-              sortedTransactions.map((transaction, index) => (
-                <tr
-                  key={transaction.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  {/* Date */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {new Date(transaction.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </td>
+              sortedTransactions.map((transaction, index) => {
+                const isEditing = editingId === transaction.id;
 
-                  {/* Description */}
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                    <div>
-                      <p className="font-medium">{transaction.merchant}</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-xs">
-                        {transaction.description}
-                      </p>
-                    </div>
-                  </td>
+                return (
+                  <tr
+                    key={transaction.id}
+                    className={`transition animate-fade-in ${
+                      isEditing ? "bg-blue-50 dark:bg-blue-900/10" : "hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    {isEditing ? (
+                      <>
+                        {/* Date (non-editable) */}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {new Date(transaction.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </td>
 
-                  {/* Category */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                      {transaction.category}
-                    </span>
-                  </td>
+                        {/* Description + Merchant (edit) */}
+                        <td className="px-6 py-4 text-sm">
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              value={editForm.merchant}
+                              onChange={(e) => setEditForm({ ...editForm, merchant: e.target.value })}
+                              placeholder="Merchant"
+                              className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            />
+                            <input
+                              type="text"
+                              value={editForm.description}
+                              onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                              placeholder="Description"
+                              className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                            />
+                          </div>
+                        </td>
 
-                  {/* Amount */}
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold">
-                    <span
-                      className={
-                        transaction.amount > 0
-                          ? "text-green-600"
-                          : "text-gray-900 dark:text-white"
-                      }
-                    >
-                      {transaction.amount > 0 ? "+" : ""}
-                      ${Math.abs(transaction.amount).toFixed(2)}
-                    </span>
-                  </td>
+                        {/* Category (edit) */}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <input
+                            type="text"
+                            value={editForm.category}
+                            onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                            placeholder="Category"
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          />
+                        </td>
 
-                  {/* AI Badge */}
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {transaction.aiCategorized && (
-                      <div className="inline-flex items-center group relative">
-                        <Brain className="h-4 w-4 text-blue-600" />
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
-                          AI: {(transaction.aiConfidence * 100).toFixed(0)}% confident
-                        </div>
-                      </div>
+                        {/* Amount (edit) */}
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={editForm.amount}
+                            onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+                            placeholder="0.00"
+                            className="w-24 px-2 py-1 text-sm text-right border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          />
+                        </td>
+
+                        {/* AI Badge (non-editable) */}
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {transaction.aiCategorized && (
+                            <div className="inline-flex items-center">
+                              <Brain className="h-4 w-4 text-gray-400" />
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Actions (Save/Cancel) */}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                          <button
+                            onClick={() => handleSaveEdit(transaction.id)}
+                            className="text-green-600 hover:text-green-900 dark:hover:text-green-400 mr-3 transition font-medium"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-gray-600 hover:text-gray-900 dark:hover:text-gray-400 transition"
+                          >
+                            Cancel
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        {/* Date */}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {new Date(transaction.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </td>
+
+                        {/* Description */}
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          <div>
+                            <p className="font-medium">{transaction.merchant}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs">
+                              {transaction.description}
+                            </p>
+                          </div>
+                        </td>
+
+                        {/* Category */}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                            {transaction.category}
+                          </span>
+                        </td>
+
+                        {/* Amount */}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold">
+                          <span
+                            className={
+                              transaction.amount > 0
+                                ? "text-green-600"
+                                : "text-gray-900 dark:text-white"
+                            }
+                          >
+                            {transaction.amount > 0 ? "+" : ""}
+                            ${Math.abs(transaction.amount).toFixed(2)}
+                          </span>
+                        </td>
+
+                        {/* AI Badge */}
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {transaction.aiCategorized && (
+                            <div className="inline-flex items-center group relative">
+                              <Brain className="h-4 w-4 text-blue-600" />
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
+                                AI: {(transaction.aiConfidence * 100).toFixed(0)}% confident
+                              </div>
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                          <button
+                            onClick={() => handleStartEdit(transaction)}
+                            className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 mr-3 transition"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTransaction(transaction.id)}
+                            className="text-red-600 hover:text-red-900 dark:hover:text-red-400 transition"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </>
                     )}
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <button
-                      onClick={() => {
-                        // TODO: Implement edit functionality
-                        error("Not Implemented", "Edit functionality coming soon!");
-                      }}
-                      className="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400 mr-3 transition"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteTransaction(transaction.id)}
-                      className="text-red-600 hover:text-red-900 dark:hover:text-red-400 transition"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
