@@ -20,6 +20,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signOut: "/login",
     error: "/login",
   },
+  callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isProtectedPage =
+        nextUrl.pathname.startsWith("/dashboard") ||
+        nextUrl.pathname.startsWith("/transactions") ||
+        nextUrl.pathname.startsWith("/budgets") ||
+        nextUrl.pathname.startsWith("/goals") ||
+        nextUrl.pathname.startsWith("/reports") ||
+        nextUrl.pathname.startsWith("/settings");
+
+      if (isProtectedPage && !isLoggedIn) {
+        return false; // Redirect to login page
+      }
+
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
   providers: [
     Credentials({
       name: "credentials",
@@ -58,18 +88,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-      }
-      return session;
-    },
-  },
 });

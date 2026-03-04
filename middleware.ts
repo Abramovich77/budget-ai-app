@@ -1,27 +1,25 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isAuthPage = req.nextUrl.pathname.startsWith("/login") ||
-                     req.nextUrl.pathname.startsWith("/signup");
-  const isProtectedPage = req.nextUrl.pathname.startsWith("/dashboard") ||
-                          req.nextUrl.pathname.startsWith("/transactions") ||
-                          req.nextUrl.pathname.startsWith("/budgets") ||
-                          req.nextUrl.pathname.startsWith("/goals") ||
-                          req.nextUrl.pathname.startsWith("/reports");
+export function middleware(request: NextRequest) {
+  // Simple CORS and security headers
+  const response = NextResponse.next();
 
-  if (isProtectedPage && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  if (isAuthPage && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
-  return NextResponse.next();
-});
+  return response;
+}
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };
