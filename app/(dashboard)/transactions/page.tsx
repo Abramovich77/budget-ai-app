@@ -5,6 +5,7 @@ import { Plus, Search, Filter, Upload, Brain, List, Grid3x3, Zap } from "lucide-
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { ProgressLoadingScreen } from "@/components/ui/ProgressLoader";
 import { AddTransactionModal } from "@/components/transactions/AddTransactionModal";
+import { ExportTransactionsModal } from "@/components/transactions/ExportTransactionsModal";
 import { KeyboardHint, QuickTip } from "@/components/ui/KeyboardHint";
 import { InfoTooltip } from "@/components/ui/Tooltip";
 import { ExportButton } from "@/components/ui/ExportButton";
@@ -75,6 +76,7 @@ export default function TransactionsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [preferences, setPreferences] = useUserPreferences();
   const [filters, setFilters] = useState<TransactionFilterOptions>({
     categories: [],
@@ -97,7 +99,7 @@ export default function TransactionsPage() {
 
   useKeyboardShortcut({
     key: "e",
-    callback: () => handleExportTransactions(),
+    callback: () => setShowExportModal(true),
   });
 
   useEffect(() => {
@@ -145,17 +147,6 @@ export default function TransactionsPage() {
     setTransactions((prev) => [{ ...newTransaction, id: String(Date.now()) } as typeof mockTransactions[0], ...prev]);
   };
 
-  const handleExportTransactions = () => {
-    exportTransactionsToCSV(sortedTransactions.map(t => ({
-      date: t.date,
-      description: t.description,
-      merchant: t.merchant,
-      category: t.category,
-      amount: t.amount,
-      aiCategorized: t.aiCategorized,
-      aiConfidence: t.aiConfidence,
-    })) as any); // Type assertion needed for export utility compatibility
-  };
 
   // Get unique categories for filter - memoized
   const availableCategories = useMemo(() =>
@@ -180,6 +171,22 @@ export default function TransactionsPage() {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSuccess={handleAddTransaction}
+      />
+
+      {/* Export Transactions Modal */}
+      <ExportTransactionsModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        transactions={sortedTransactions.map(t => ({
+          id: t.id,
+          date: t.date,
+          description: t.description,
+          merchant: t.merchant,
+          amount: t.amount,
+          category: t.category,
+          aiCategorized: t.aiCategorized,
+          aiConfidence: t.aiConfidence,
+        }))}
       />
 
       {/* Header */}
@@ -308,10 +315,13 @@ export default function TransactionsPage() {
           </button>
 
           {/* Export */}
-          <ExportButton
-            onExportCSV={handleExportTransactions}
-            label="Export"
-          />
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+          >
+            <Upload className="h-5 w-5 mr-2" />
+            Export
+          </button>
         </div>
       </div>
 
