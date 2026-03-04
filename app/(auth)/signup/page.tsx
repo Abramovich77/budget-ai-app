@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Brain, Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -181,13 +182,15 @@ export default function SignupPage() {
             </div>
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={isLoading}
             >
-              {isLoading ? "Creating account..." : "Create account"}
-            </button>
+              Create account
+            </Button>
           </form>
 
           {/* Sign In Link */}
