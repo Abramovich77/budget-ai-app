@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { categorizationSchema } from "@/lib/validation/schemas";
-import { validateBody, errorResponse } from "@/lib/validation/validate";
+import { validateBody } from "@/lib/validation/validate";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
 import { logRequest, logResponse, logError } from "@/lib/middleware/logger";
+import {
+  withErrorHandler,
+  successResponses,
+  InternalServerError,
+} from "@/lib/errors/apiErrors";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +34,7 @@ const CATEGORIES = [
   "Other",
 ];
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandler(async (request: NextRequest) => {
   const startTime = Date.now();
   const requestId = logRequest(request);
 
@@ -40,19 +45,20 @@ export async function POST(request: NextRequest) {
     return rateLimitResponse;
   }
 
-  try {
-    // Validate and sanitize request body
-    const validated = await validateBody(request, categorizationSchema);
-    const { description, amount, merchant } = validated;
+  // Validate and sanitize request body
+  const validated = await validateBody(request, categorizationSchema);
+  const { description, amount, merchant } = validated;
 
-    // Call Claude API for categorization
-    const message = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 100,
-      messages: [
-        {
-          role: "user",
-          content: `You are a financial transaction categorizer. Categorize the following transaction into ONE of these categories: ${CATEGORIES.join(", ")}.
+  try {
+
+  // Call Claude API for categorization
+  const message = await anthropic.messages.create({
+    model: "claude-3-5-sonnet-20241022",
+    max_tokens: 100,
+    messages: [
+      {
+        role: "user",
+        content: `You are a financial transaction categorizer. Categorize the following transaction into ONE of these categories: ${CATEGORIES.join(", ")}.
 
 Transaction details:
 - Description: ${description}
@@ -66,25 +72,55 @@ Rules:
 - Use "Transportation" for gas, uber, parking, etc.
 
 Respond with ONLY the category name, nothing else.`,
-        },
-      ],
-    });
+      },
+    ],
+  });
 
-    const categoryText = message.content[0].type === "text"
-      ? message.content[0].text.trim()
+  const categoryText = message.content[0].type === "text"
+    ? message.content[0].text.trim()
+    : "Other";
+
+  // Validate that the response is one of our categories
+  const category = CATEGORIES.includes(categoryText) ? categoryText : "Other";
+
+  // Calculate confidence based on Claude's response
+  // In a real implementation, we'd use Claude's confidence scores
+  const confidence = categoryText === "Other" ? 0.5 : 0.95;
+
+  const response = successResponses.ok({
+    category,
+    confidence,
+    alternatives: [], // TODO: Implement alternative suggestions
+  });
+
+  // Add rate limit headers
+  const rateLimitHeaders = getRateLimitHeaders(request, RATE_LIMITS.ai);
+  for (const [key, value] of Object.entries(rateLimitHeaders)) {
+    response.headers.set(key, value);
+  }
+
+  // Add request ID header
+  response.headers.set("X-Request-Id", requestId);
+
+  // Log response
+  logResponse(requestId, response.status, Date.now() - startTime);
+
+  return response;
+  } catch (error) {
+    // Log AI-specific error
+    logError(request, error as Error, { requestId });
+    console.error("AI categorization error:", error);
+
+    // Fallback to rule-based categorization
+    const fallbackCategory = amount !== undefined
+      ? getFallbackCategory(description, amount)
       : "Other";
 
-    // Validate that the response is one of our categories
-    const category = CATEGORIES.includes(categoryText) ? categoryText : "Other";
-
-    // Calculate confidence based on Claude's response
-    // In a real implementation, we'd use Claude's confidence scores
-    const confidence = categoryText === "Other" ? 0.5 : 0.95;
-
-    const response = NextResponse.json({
-      category,
-      confidence,
-      alternatives: [], // TODO: Implement alternative suggestions
+    const response = successResponses.ok({
+      category: fallbackCategory,
+      confidence: 0.5,
+      alternatives: [],
+      note: "AI unavailable, used rule-based categorization",
     });
 
     // Add rate limit headers
@@ -93,33 +129,12 @@ Respond with ONLY the category name, nothing else.`,
       response.headers.set(key, value);
     }
 
-    // Add request ID header
     response.headers.set("X-Request-Id", requestId);
-
-    // Log response
     logResponse(requestId, response.status, Date.now() - startTime);
 
     return response;
-  } catch (error) {
-    if (error instanceof NextResponse) {
-      logResponse(requestId, error.status, Date.now() - startTime);
-      return error;
-    }
-    logError(request, error as Error, { requestId });
-    console.error("AI categorization error:", error);
-
-    // Fallback to "Other" category if AI fails
-    const fallbackResponse = NextResponse.json({
-      category: "Other",
-      confidence: 0.5,
-      alternatives: [],
-      note: "AI unavailable, please categorize manually",
-    });
-
-    logResponse(requestId, fallbackResponse.status, Date.now() - startTime);
-    return fallbackResponse;
   }
-}
+});
 
 // Simple rule-based fallback categorization
 function getFallbackCategory(description: string, amount: number): string {
